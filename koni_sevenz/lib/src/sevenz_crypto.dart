@@ -25,6 +25,57 @@ final class SevenZAesProps {
   /// 16-byte CBC IV (short IVs are zero-padded).
   final Uint8List iv;
 
+  /// Builds properties for *writing* an AES coder (Phase 4): [numCyclesPower]
+  /// (the KDF cost, log2), an optional [salt], and a full 16-byte [iv]. The
+  /// write side always emits a complete 16-byte IV (no zero-truncation).
+  factory SevenZAesProps.forWrite({
+    required int numCyclesPower,
+    required Uint8List salt,
+    required Uint8List iv,
+  }) {
+    if (numCyclesPower < 0 || numCyclesPower >= 40) {
+      throw ArgumentError.value(numCyclesPower, 'numCyclesPower');
+    }
+    if (iv.length != 16) {
+      throw ArgumentError.value(iv.length, 'iv', 'must be 16 bytes');
+    }
+    if (salt.length > 16) {
+      throw ArgumentError.value(
+        salt.length,
+        'salt',
+        'must be at most 16 bytes',
+      );
+    }
+    return SevenZAesProps._(
+      numCyclesPower,
+      Uint8List.fromList(salt),
+      Uint8List.fromList(iv),
+    );
+  }
+
+  /// Serializes to the coder-property byte layout — the exact inverse of
+  /// [parse]. Salt and IV sizes are stored as `size - 1` in the two-nibble
+  /// second byte, with their top bits flagged in the first byte's 0x80/0x40.
+  Uint8List serialize() {
+    final saltSize = salt.length;
+    const ivSize = 16; // always a full IV on write
+    final b0 =
+        numCyclesPower | (saltSize == 0 ? 0 : 0x80) | (ivSize == 0 ? 0 : 0x40);
+    if (saltSize == 0 && ivSize == 0) {
+      return Uint8List.fromList([b0]);
+    }
+    final b1 =
+        ((saltSize == 0 ? 0 : saltSize - 1) << 4) |
+        (ivSize == 0 ? 0 : ivSize - 1);
+    final out =
+        BytesBuilder(copy: false)
+          ..addByte(b0)
+          ..addByte(b1)
+          ..add(salt)
+          ..add(iv);
+    return out.toBytes();
+  }
+
   /// Parses [props]; throws [FormatException] on a malformed field (the
   /// reader maps that to a typed archive error).
   factory SevenZAesProps.parse(Uint8List props) {

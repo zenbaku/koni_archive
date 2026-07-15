@@ -251,6 +251,90 @@ void main() {
       }
     },
   );
+
+  // AES-256 encryption is the real proof of the `compressor → AES` folder
+  // chain: bind pair, coder-props bit-packing, IV, and block padding must be
+  // exactly what 7-Zip expects. `7zz x -p` decrypts; a wrong password fails.
+  test('7zz decrypts our AES-256 archive byte-for-byte', () async {
+    if (sevenZip == null) {
+      markTestSkipped('no `7zz` on PATH; interop check skipped');
+      return;
+    }
+    const password = 'corr3ct h0rse b4ttery';
+    final expected = <String, (ArchiveCompression?, Uint8List)>{
+      // lzma2 default, copy, lzma, and deflate — every folder coder under AES.
+      'secret.txt': (
+        null,
+        Uint8List.fromList(utf8.encode('top secret ' * 300)),
+      ),
+      'stored.bin': (
+        ArchiveCompression.stored,
+        Uint8List.fromList(List.generate(4000, (i) => (i * 29 + 3) & 0xFF)),
+      ),
+      'classic.bin': (
+        ArchiveCompression.lzma,
+        Uint8List.fromList(utf8.encode('lzma folder ' * 400)),
+      ),
+      'flate.txt': (
+        ArchiveCompression.deflate,
+        Uint8List.fromList(utf8.encode('deflate folder ' * 300)),
+      ),
+    };
+    final sink = BytesBuilderSink();
+    final writer = const SevenZWriteFormat().openWriter(
+      sink,
+      const ArchiveWriteOptions(password: password),
+    );
+    for (final MapEntry(key: p, value: (compression, content))
+        in expected.entries) {
+      await writer.addBytes(
+        ArchiveEntrySpec(path: p, compression: compression),
+        content,
+      );
+    }
+    await writer.close();
+    await sink.close();
+    final archive = sink.takeBytes();
+
+    final dir = Directory.systemTemp.createTempSync('koni_7z_aes');
+    try {
+      final path = '${dir.path}/enc.7z';
+      File(path).writeAsBytesSync(archive);
+
+      // A wrong password must be rejected (the whole data region is AES).
+      final wrong = await Process.run(
+        sevenZip,
+        ['t', '-p-nope-', path],
+        stdoutEncoding: latin1,
+        stderrEncoding: latin1,
+      );
+      expect(
+        wrong.exitCode,
+        isNot(0),
+        reason: '7zz accepted a wrong password: ${wrong.stdout}',
+      );
+
+      final out = Directory('${dir.path}/x')..createSync();
+      final result = await Process.run(
+        sevenZip,
+        ['x', '-y', '-p$password', '-o${out.path}', path],
+        stdoutEncoding: latin1,
+        stderrEncoding: latin1,
+      );
+      expect(
+        result.exitCode,
+        0,
+        reason: '7zz x failed: ${result.stdout}\n${result.stderr}',
+      );
+      for (final MapEntry(key: p, value: (_, content)) in expected.entries) {
+        final file = File('${out.path}/$p');
+        expect(file.existsSync(), isTrue, reason: 'missing $p');
+        expect(file.readAsBytesSync(), content, reason: 'content of $p');
+      }
+    } finally {
+      dir.deleteSync(recursive: true);
+    }
+  });
 }
 
 String? _find(String name) {

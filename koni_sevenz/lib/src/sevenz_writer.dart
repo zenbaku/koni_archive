@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:koni_archive_core/koni_archive_core.dart';
+import 'package:koni_codecs/crypto.dart';
 import 'package:koni_codecs/koni_codecs.dart';
 
 import 'header.dart';
+import 'sevenz_crypto.dart';
 
 /// Writer for 7z archives (and CB7 comics). Created via
 /// `SevenZWriteFormat.openWriter`.
@@ -32,21 +35,74 @@ import 'header.dart';
 /// (the buffer doubles as the match window), so peak memory adds the
 /// largest entry's size to the packed-stream buffering described above —
 /// Copy and Deflate entries still stream.
+///
+/// ## Encryption (P4-2)
+///
+/// When [ArchiveWriteOptions.password] is set, each content folder becomes a
+/// two-coder chain `compressor → AES-256-CBC`: the compressed stream is
+/// zero-padded to a 16-byte block boundary and encrypted under a per-archive
+/// key (iterated-SHA-256 KDF, no salt) with a fresh per-folder IV. The
+/// header stays plaintext — filenames and the AES coder parameters are
+/// visible, only the data is encrypted (`-mhe` encrypted headers are
+/// deferred). Empty files and directories have no folder and stay
+/// unencrypted.
 final class SevenZWriter extends ArchiveWriter {
-  /// Creates a writer appending to [_sink].
-  SevenZWriter(this.format, this._sink, this._options);
+  /// Creates a writer appending to [_sink]. [randomBytes] overrides the
+  /// per-folder AES IV source (a cryptographic RNG by default); tests inject
+  /// a deterministic generator to pin the ciphertext.
+  SevenZWriter(
+    this.format,
+    this._sink,
+    this._options, {
+    Uint8List Function(int length)? randomBytes,
+  }) : _randomBytes = randomBytes ?? _secureRandomBytes;
 
   @override
   final ArchiveWriteFormat format;
 
   final ByteSink _sink;
   final ArchiveWriteOptions _options;
+  final Uint8List Function(int length) _randomBytes;
 
-  /// Compressed packed streams, folder-major, buffered until [close].
+  /// Compressed (then, when encrypting, AES-encrypted) packed streams,
+  /// folder-major, buffered until [close].
   final BytesBuilder _packed = BytesBuilder(copy: true);
   final List<_Folder> _folders = [];
   final List<_FileRecord> _files = [];
   bool _closed = false;
+
+  /// AES KDF cost (log2 of the SHA-256 round count); 19 is 7-Zip's default.
+  static const int _aesCyclesPower = 19;
+
+  /// The AES coder id `06f10701` (AES-256-CBC + SHA-256 KDF).
+  static const List<int> _aesId = [0x06, 0xF1, 0x07, 0x01];
+
+  /// Derived once per archive: with no salt the key depends only on the
+  /// password and cost, so every folder reuses it (a fresh IV per folder
+  /// keeps the ciphertext unique).
+  Uint8List? _aesKeyCache;
+
+  static final Random _secureRng = Random.secure();
+
+  static Uint8List _secureRandomBytes(int length) {
+    final out = Uint8List(length);
+    for (var i = 0; i < length; i++) {
+      out[i] = _secureRng.nextInt(256);
+    }
+    return out;
+  }
+
+  bool get _encrypting => _options.password != null;
+
+  Uint8List _aesKey() =>
+      _aesKeyCache ??= deriveSevenZAesKey(
+        _options.password!,
+        SevenZAesProps.forWrite(
+          numCyclesPower: _aesCyclesPower,
+          salt: Uint8List(0),
+          iv: Uint8List(16),
+        ),
+      );
 
   // Internal coder selector (Copy/Deflate mirror the ZIP method ids for a
   // shared mental model; the 7z coder id bytes differ).
@@ -179,14 +235,21 @@ final class SevenZWriter extends ArchiveWriter {
     }
 
     final method = _methodOf(spec);
-    final (packSize, crc, props) = await _compress(path, method, content, size);
+    final (packSize, compressedLen, crc, compProps, aesProps) = await _compress(
+      path,
+      method,
+      content,
+      size,
+    );
     _folders.add(
       _Folder(
         coderId: _coderIdOf(method),
-        props: props,
+        props: compProps,
         packSize: packSize,
         unpackSize: size,
         crc: crc,
+        aesProps: aesProps,
+        aesOutSize: compressedLen,
       ),
     );
     _files.add(
@@ -204,6 +267,7 @@ final class SevenZWriter extends ArchiveWriter {
       uncompressedSize: size,
       compressedSize: packSize,
       compression: _compressionOf(method),
+      isEncrypted: aesProps != null,
       crc32: crc,
       modified: spec.modified,
       posixMode: spec.posixMode,
@@ -211,12 +275,18 @@ final class SevenZWriter extends ArchiveWriter {
     );
   }
 
-  /// Streams [content] into the packed buffer under [method], returning the
-  /// compressed size, the CRC-32 of the *uncompressed* bytes (the folder
-  /// CRC 7z records), and the coder's attribute blob when it has one.
-  /// Validates the declared [size] against the stream. Copy and Deflate
-  /// stream; the LZMA coders buffer the entry (see the class note).
-  Future<(int, int, Uint8List?)> _compress(
+  /// Streams [content] under [method] into the packed buffer, returning the
+  /// on-disk packed size, the CRC-32 of the *uncompressed* bytes (the folder
+  /// CRC 7z records), the compressor's attribute blob (when it has one), and
+  /// the AES coder props (when encrypting, else null).
+  ///
+  /// Validates the declared [size] against the stream. Without a password,
+  /// Copy and Deflate stream straight into the packed area (the LZMA coders
+  /// buffer the entry; see the class note). With a password the compressed
+  /// bytes are buffered, zero-padded to a 16-byte multiple, and
+  /// AES-256-CBC-encrypted under a fresh IV before they land in the packed
+  /// area — so the packed size is the ciphertext length.
+  Future<(int, int, int, Uint8List?, Uint8List?)> _compress(
     String path,
     int method,
     Stream<Uint8List> content,
@@ -226,6 +296,23 @@ final class SevenZWriter extends ArchiveWriter {
     var uncompressed = 0;
     var packSize = 0;
     Uint8List? props;
+
+    // When encrypting, buffer the compressed output so the whole stream can
+    // be padded and AES-CBC-encrypted at once; otherwise stream it straight
+    // into the packed area (bounded memory for Copy/Deflate). The buffer
+    // copies on add (`copy: true`) so it owns its bytes — the Copy path
+    // would otherwise alias the caller's input chunk and encrypt-in-place
+    // would corrupt the caller's data.
+    final buffered = _encrypting ? BytesBuilder(copy: true) : null;
+    void emitPacked(Uint8List out) {
+      if (out.isEmpty) return;
+      if (buffered != null) {
+        buffered.add(out);
+      } else {
+        _packed.add(out);
+      }
+      packSize += out.length;
+    }
 
     void checkOverrun(int chunkLength) {
       uncompressed += chunkLength;
@@ -243,16 +330,10 @@ final class SevenZWriter extends ArchiveWriter {
       await for (final chunk in content) {
         checkOverrun(chunk.length);
         crc.add(chunk);
-        _packed.add(chunk);
-        packSize += chunk.length;
+        emitPacked(chunk);
       }
     } else if (method == _deflate) {
-      final deflater = RawDeflater(
-        onOutput: (out) {
-          _packed.add(out);
-          packSize += out.length;
-        },
-      );
+      final deflater = RawDeflater(onOutput: emitPacked);
       await for (final chunk in content) {
         checkOverrun(chunk.length);
         crc.add(chunk);
@@ -278,8 +359,7 @@ final class SevenZWriter extends ArchiveWriter {
         out = encoder.encode(data);
         props = Uint8List.fromList([encoder.dictSizeProp]);
       }
-      _packed.add(out);
-      packSize = out.length;
+      emitPacked(out);
     }
 
     if (uncompressed != size) {
@@ -289,7 +369,49 @@ final class SevenZWriter extends ArchiveWriter {
         entryPath: path,
       );
     }
-    return (packSize, crc.value, props);
+
+    if (buffered == null) {
+      return (packSize, packSize, crc.value, props, null);
+    }
+
+    // Encrypt the buffered compressed stream: pad to a 16-byte multiple and
+    // AES-256-CBC encrypt under a fresh per-folder IV. The AES coder's
+    // declared output size stays the *unpadded* compressed length, so the
+    // reader slices the block padding off before the compressor runs — the
+    // only thing that keeps a padded Copy (stored) folder honest, since Copy
+    // has no end marker to absorb a tail.
+    final compressed = buffered.takeBytes();
+    final compressedLen = compressed.length;
+    final padded = _padTo16(compressed);
+    final iv = _randomBytes(16);
+    if (iv.length != 16) {
+      throw StateError('random IV source returned ${iv.length} bytes, need 16');
+    }
+    final aesProps = SevenZAesProps.forWrite(
+      numCyclesPower: _aesCyclesPower,
+      salt: Uint8List(0),
+      iv: iv,
+    );
+    AesCbcEncryptor(Aes(_aesKey()), iv).encryptInPlace(padded);
+    _packed.add(padded);
+    return (
+      padded.length,
+      compressedLen,
+      crc.value,
+      props,
+      aesProps.serialize(),
+    );
+  }
+
+  /// Zero-pads [data] up to the next 16-byte boundary (AES-CBC block size),
+  /// returning [data] itself when already aligned. [data] must be a buffer
+  /// the caller owns (it may be encrypted in place afterward).
+  static Uint8List _padTo16(Uint8List data) {
+    final rem = data.length % 16;
+    if (rem == 0) return data;
+    final padded = Uint8List(data.length + (16 - rem));
+    padded.setRange(0, data.length, data);
+    return padded;
   }
 
   @override
@@ -415,7 +537,12 @@ final class SevenZWriter extends ArchiveWriter {
     }
     h.number(SevenZId.codersUnpackSize);
     for (final f in _folders) {
+      // Out-stream order: compressor output (the folder's plaintext size)
+      // then, for an encrypted folder, the AES output — the *unpadded*
+      // compressed length, so the reader trims the block padding before the
+      // compressor decodes it.
       h.number(f.unpackSize);
+      if (f.encrypted) h.number(f.aesOutSize);
     }
     // Folder CRCs (all defined). With one substream per folder this also
     // serves as the substream CRC, so SubStreamsInfo can be omitted.
@@ -431,12 +558,31 @@ final class SevenZWriter extends ArchiveWriter {
   }
 
   void _writeFolder(_SevenZBuffer h, _Folder folder) {
-    // One coder, 1-in/1-out: flags = id-size in the low nibble, plus the
-    // attributes bit when the coder carries properties (LZMA/LZMA2). No
-    // bind pairs, and the single packed stream index is implicit.
     final props = folder.props;
+    if (!folder.encrypted) {
+      // One coder, 1-in/1-out: flags = id-size in the low nibble, plus the
+      // attributes bit when the coder carries properties (LZMA/LZMA2). No
+      // bind pairs, and the single packed stream index is implicit.
+      h
+        ..number(1) // numCoders
+        ..writeByte(folder.coderId.length | (props == null ? 0 : 0x20))
+        ..writeBytes(folder.coderId);
+      if (props != null) {
+        h
+          ..number(props.length)
+          ..writeBytes(props);
+      }
+      return;
+    }
+
+    // Encrypted folder: two 1-in/1-out coders, decode order packed → AES →
+    // compressor. Coder 0 is the compressor, coder 1 is AES; a single bind
+    // pair feeds the compressor's input (in-stream 0) from the AES output
+    // (out-stream 1). numPackedStreams is 1, so the packed stream (AES's
+    // input, in-stream 1) is inferred — nothing more is written.
     h
-      ..number(1) // numCoders
+      ..number(2) // numCoders
+      // coder 0: the compressor
       ..writeByte(folder.coderId.length | (props == null ? 0 : 0x20))
       ..writeBytes(folder.coderId);
     if (props != null) {
@@ -444,6 +590,15 @@ final class SevenZWriter extends ArchiveWriter {
         ..number(props.length)
         ..writeBytes(props);
     }
+    // coder 1: AES-256 (always carries its salt/IV/cost properties)
+    h
+      ..writeByte(_aesId.length | 0x20)
+      ..writeBytes(_aesId)
+      ..number(folder.aesProps!.length)
+      ..writeBytes(folder.aesProps!)
+      // bind pair: compressor input (0) ← AES output (1)
+      ..number(0)
+      ..number(1);
   }
 
   void _writeFilesInfo(_SevenZBuffer h) {
@@ -570,7 +725,8 @@ final class SevenZWriter extends ArchiveWriter {
   }
 }
 
-/// A written folder: one coder over one file's content.
+/// A written folder over one file's content: the compressor coder, plus an
+/// AES coder chained on top when the archive is encrypted.
 final class _Folder {
   _Folder({
     required this.coderId,
@@ -578,13 +734,30 @@ final class _Folder {
     required this.packSize,
     required this.unpackSize,
     required this.crc,
+    this.aesProps,
+    this.aesOutSize = 0,
   });
 
   final List<int> coderId;
   final Uint8List? props;
+
+  /// On-disk packed stream size: the compressed size when plaintext, the
+  /// (padded) ciphertext size when encrypted.
   final int packSize;
+
+  /// The folder's final output size — the entry's uncompressed size.
   final int unpackSize;
   final int crc;
+
+  /// The AES coder's serialized properties (salt/IV/cost), or null when the
+  /// folder is not encrypted.
+  final Uint8List? aesProps;
+
+  /// When encrypted, the AES coder's declared output size: the *unpadded*
+  /// compressed length (block padding is sliced off by the reader).
+  final int aesOutSize;
+
+  bool get encrypted => aesProps != null;
 }
 
 /// A written file/dir/link entry's metadata.
