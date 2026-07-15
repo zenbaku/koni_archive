@@ -1,67 +1,86 @@
 # koni_archive
 
-Pure Dart archive ecosystem — streaming-first reading of ZIP, TAR, GZIP, 7z,
-and RAR (password-protected archives included), and writing of ZIP, TAR, and
-7z, behind one format-agnostic API. No native code, no FFI, no external
-executables. Runs everywhere Dart runs: the VM, Flutter (all platforms), and
-the web via both dart2js and dart2wasm.
+Read and write archives in pure Dart — ZIP, TAR, gzip, 7z, and RAR — through
+one API, on every platform Dart targets. No native code, no FFI, no shelling
+out to `unzip` or `7z`.
 
-> **Status: 0.6.0 (first pub.dev release) — Phase 1 reading (M0–M10),
-> Phase 2 writing (P2-1–P2-4b), Phase 3 read-side decryption (P3-1–P3-5),
-> and Phase 4 write-side encryption complete.** ZIP/CBZ (stored,
-> deflate, ZIP64), TAR/CBT (ustar/PAX/GNU), GZIP (multi-member, layered
-> `.tar.gz`), 7z/CB7 (LZMA/LZMA2/BCJ/delta, solid-block cache), and RAR/CBR
-> (clean-room RAR5 + RAR4) all read behind one format-agnostic API; TAR,
-> ZIP, and 7z also write — 7z with our own LZMA/LZMA2 encoder (LZMA2
-> default, compressed headers). Password-protected archives decrypt across
-> every format via `ArchiveReadOptions.password`: ZIP (zipcrypto + WinZip
-> AES), 7z (AES-256, incl. encrypted headers), and RAR5/RAR4 file data —
-> and ZIP (WinZip AES-256) and 7z (AES-256) can be *written* encrypted via
-> `ArchiveWriteOptions.password` — on pure-Dart, vector-tested
-> AES/SHA/HMAC/PBKDF2 primitives in koni_codecs.
-> Everything is interop-verified against the reference tools (bsdtar, unzip,
-> 7zz, rar; the LZMA codecs additionally against liblzma) — on the VM and
-> the web (dart2js **and** dart2wasm), fuzzed in CI and conformance-checked
-> byte-for-byte against a real-world manga corpus.
-> Progress: [ROADMAP.md](ROADMAP.md); requirements:
-> [PROMPT_V1.md](PROMPT_V1.md).
+It treats an archive as a random-access filesystem you stream out of: list the
+entries, then pull the ones you want without holding the whole archive (or
+even a whole entry) in memory. That makes it a good fit for comic and ebook
+readers, which is where it started — open a CBZ, glob the pages, and decode
+them one at a time.
+
+```dart
+import 'package:koni_archive/io.dart';
+
+final archive = await openArchiveFile('volume01.cbz');
+for (final page in archive.glob('*.png')) {
+  final bytes = await archive.readBytes(page);
+  // ...
+}
+await archive.close();
+```
+
+## What it does
+
+- **Reads** ZIP, TAR, gzip (including `.tar.gz`), 7z, and RAR — CBZ, CBT, CB7,
+  and CBR comics included.
+- **Writes** ZIP, TAR, and 7z, the last with a pure-Dart LZMA/LZMA2 encoder.
+- **Encrypts, both ways.** Decrypts ZIP (zipcrypto and WinZip AES), 7z
+  (AES-256, encrypted headers included), and RAR5/RAR4; writes encrypted ZIP
+  and 7z with AES-256.
+- **Streams from anywhere.** Bounded memory for any entry size, plus an
+  `HttpRangeByteSource` that reads a page out of a remote archive over HTTP
+  without downloading the rest.
+- **Runs where Dart runs** — the VM, Flutter, and the web under both dart2js
+  and dart2wasm.
+
+Every reader and writer is tested against the reference tools — `unzip`,
+`bsdtar`, `7zz`, `rar`, and liblzma for the LZMA codecs — fuzzed in CI, and
+checked byte-for-byte against a corpus of real comic archives. RAR is
+read-only; writing RAR is out of scope.
+
+This is version **0.6.0**, the first release on pub.dev. See
+[ROADMAP.md](ROADMAP.md) for what's done and what's deferred.
 
 ## Packages
 
-| Package                                    | Role                                                                    |
-| ------------------------------------------ | ----------------------------------------------------------------------- |
-| [`koni_archive`](koni_archive/)            | Facade: `Archive.open()`, registers all built-in formats, re-exports    |
-| [`koni_archive_core`](koni_archive_core/)  | `ByteSource`, entry model, exceptions, detection registry, checksums    |
-| [`koni_codecs`](koni_codecs/)              | Compression codecs (deflate, LZMA/LZMA2 — decode *and* encode) + crypto primitives (`crypto.dart`), reusable outside archives |
-| [`koni_tar`](koni_tar/)                    | TAR reader + writer (ustar, PAX, GNU extensions)                         |
-| [`koni_zip`](koni_zip/)                    | ZIP reader + writer (ZIP64; zipcrypto + WinZip AES decrypt, WinZip AES-256 encrypt) |
-| [`koni_gzip`](koni_gzip/)                  | GZIP adapter: single-entry `.gz` + layered `.tar.gz`                     |
-| [`koni_sevenz`](koni_sevenz/)              | 7z reader + writer (LZMA2 default, kEncodedHeader; AES-256 decrypt + encrypt) |
-| [`koni_rar`](koni_rar/)                    | RAR4/RAR5 reader (clean-room; password-protected file data)              |
-| [`koni_http_source`](koni_http_source/)    | HTTP-range `ByteSource`: read a remote archive without downloading it    |
-| [`bench`](bench/)                          | Benchmark harness + committed results — workspace member, never published |
+Most applications depend only on `koni_archive`, the facade.
 
-Application authors normally depend only on `koni_archive`.
+| Package | What it is |
+| --- | --- |
+| [`koni_archive`](koni_archive/) | The facade: `Archive.open()`, every format registered — the package most apps use |
+| [`koni_archive_core`](koni_archive_core/) | Shared types: `ByteSource`, the entry model, exceptions, checksums, format detection |
+| [`koni_codecs`](koni_codecs/) | Compression codecs (deflate, LZMA/LZMA2, both directions) and crypto primitives, usable on their own |
+| [`koni_tar`](koni_tar/) | TAR reader and writer (ustar, PAX, GNU) |
+| [`koni_zip`](koni_zip/) | ZIP reader and writer (ZIP64; zipcrypto and WinZip AES) |
+| [`koni_gzip`](koni_gzip/) | gzip: a bare `.gz`, and `.tar.gz` presented as its inner TAR |
+| [`koni_sevenz`](koni_sevenz/) | 7z reader and writer (LZMA2 by default; AES-256) |
+| [`koni_rar`](koni_rar/) | RAR4/RAR5 reader, clean-room |
+| [`koni_http_source`](koni_http_source/) | An `HttpRangeByteSource` for reading a remote archive without downloading it |
+| [`bench`](bench/) | Benchmarks; a workspace member, never published |
 
 ## Development
 
-This is a [pub workspace](https://dart.dev/tools/pub/workspaces) (Dart ≥ 3.7).
+This is a [pub workspace](https://dart.dev/tools/pub/workspaces), Dart 3.7 or
+newer. With [Task](https://taskfile.dev) installed, `task verify` runs the
+formatter, the analyzer, and the full test matrix; `task --list` shows the
+rest. The raw commands:
 
 ```sh
-dart pub get                                  # resolves the whole workspace
-dart analyze --fatal-infos                    # zero-diagnostic policy
+dart pub get
+dart analyze --fatal-infos
 dart format --output=none --set-exit-if-changed .
-dart run tool/run_tests.dart --platform vm    # all packages, VM
+dart run tool/run_tests.dart --platform vm
 dart run tool/run_tests.dart --platform chrome --compiler dart2js
 dart run tool/run_tests.dart --platform chrome --compiler dart2wasm
 ```
 
-Test fixtures are generated by `tool/generate_fixtures.dart` on a machine with
-the reference tools installed and are committed; CI never needs the tools.
-Conformance manifests for the (uncommitted, owner-provided) real-world corpus
-are generated by `tool/generate_conformance_manifests.dart`; the conformance
-runner reads the corpus location from the `KONI_ARCHIVE_CORPUS_DIR`
-environment variable and skips (marked) when it is absent.
+Test fixtures are generated once by `tool/generate_fixtures.dart` on a machine
+that has the reference tools, then committed — CI never needs the tools
+itself. The conformance suite compares against a private corpus of real
+archives; it reads the corpus path from `KONI_ARCHIVE_CORPUS_DIR` and skips
+when that isn't set.
 
 ## License
 
