@@ -22,6 +22,17 @@ Future<ArchiveReader> open(String name, {String? password}) =>
       ArchiveReadOptions(password: password),
     );
 
+/// The encrypted RAR4 fixtures live outside the generator-managed dir (rar
+/// 7.x cannot author v4, so they are hand-committed) — see
+/// `test/fixtures/rar_static/README.md`.
+Future<ArchiveReader> openStatic(String name, {String? password}) =>
+    const RarFormat().openReader(
+      MemoryByteSource(
+        File('test/fixtures/rar_static/$name').readAsBytesSync(),
+      ),
+      ArchiveReadOptions(password: password),
+    );
+
 Future<Uint8List> collect(ArchiveReader reader, ArchiveEntry entry) async {
   final builder = BytesBuilder(copy: false);
   await for (final chunk in reader.openRead(entry)) {
@@ -77,7 +88,7 @@ void main() {
     // Fixtures authored with rar 6.24 (rar 7.x cannot create v4); the KDF
     // and AES-128 path are verified byte-exact against them.
     test('stored entries (rar -ma4 -m0 -p)', () async {
-      final reader = await open('enc_rar4_store.rar', password: 'secret');
+      final reader = await openStatic('enc_rar4_store.rar', password: 'secret');
       expect(reader.entries.first.compression, ArchiveCompression.stored);
       expect(await collect(reader, file(reader, 'hello.txt')), helloBytes);
       expect(await collect(reader, file(reader, 'lorem.txt')), loremBytes);
@@ -88,7 +99,7 @@ void main() {
     });
 
     test('compressed entries (rar -ma4 -m3 -p), CRCs verified', () async {
-      final reader = await open('enc_rar4.rar', password: 'secret');
+      final reader = await openStatic('enc_rar4.rar', password: 'secret');
       expect(await collect(reader, file(reader, 'hello.txt')), helloBytes);
       expect(await collect(reader, file(reader, 'lorem.txt')), loremBytes);
       expect(
@@ -100,7 +111,10 @@ void main() {
     test(
       'wrong password fails the plaintext CRC (RAR4 has no check value)',
       () async {
-        final reader = await open('enc_rar4_store.rar', password: 'wrong');
+        final reader = await openStatic(
+          'enc_rar4_store.rar',
+          password: 'wrong',
+        );
         await expectLater(
           collect(reader, file(reader, 'hello.txt')),
           throwsA(isA<ChecksumMismatchException>()),
@@ -109,7 +123,7 @@ void main() {
     );
 
     test('no password throws a typed error', () async {
-      final reader = await open('enc_rar4_store.rar');
+      final reader = await openStatic('enc_rar4_store.rar');
       expect(
         () => reader.openRead(file(reader, 'hello.txt')),
         throwsA(isA<EncryptedArchiveException>()),

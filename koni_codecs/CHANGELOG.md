@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0 (2026-07-15)
+
+- P3-1: cryptographic primitives for the Phase 3 decryption work, in the
+  new `package:koni_codecs/crypto.dart` entrypoint — AES-128/192/256 (T-table,
+  encrypt + decrypt), CBC and the WinZip little-endian CTR mode, SHA-1,
+  SHA-256, HMAC, and PBKDF2. Zero-dependency, standards-defined
+  (FIPS-197, SP 800-38A, FIPS 180-4, RFC 2104/8018), vector-tested, and
+  dart2js/dart2wasm-exact. Not constant-time (archive reading, not a TLS
+  stack) — documented as such.
+
 ## 0.4.0 (2026-07-15)
 
 - P2-4b: LZMA/LZMA2 compression — `LzmaEncoder`, `Lzma2Encoder`, and the

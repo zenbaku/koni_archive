@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 (2026-07-15)
+
+- Phase 3 (decryption, read side): opening a password-protected archive now
+  works across every format — pass `ArchiveReadOptions.password`. ZIP
+  (zipcrypto + WinZip AES), 7z (AES-256, incl. `-mhe` headers), RAR5
+  (`-p`), and RAR4 (`-ma4 -p`). Re-exports the new
+  `InvalidPasswordException`. Encrypted headers for RAR (`-hp`) and
+  write-side encryption stay out of scope — see `doc/encryption-scope.md`.
+
 ## 0.4.0 (2026-07-15)
 
 - P2-4b: 7z writing is now format-faithful — **LZMA2 is the default

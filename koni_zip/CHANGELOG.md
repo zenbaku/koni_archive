@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0 (2026-07-15)
+
+- P3-2: ZIP decryption via `ArchiveReadOptions.password`. Traditional
+  PKWARE ("zipcrypto") stream cipher and WinZip AES (method 99,
+  AES-128/192/256-CTR + PBKDF2-HMAC-SHA1 + HMAC-SHA1 authentication; AE-1
+  verifies the plaintext CRC, AE-2 the MAC). Wrong password →
+  `InvalidPasswordException`; ZIP strong encryption (SES) stays a typed
+  error. Interop: zip(1)/7zz-authored fixtures decrypt byte-identically;
+  green on VM + dart2js + dart2wasm.
+
 ## 0.4.0 (2026-07-15)
 
 - P2-3: ZIP writing — `ZipWriter` / `ZipWriteFormat`. Stored + deflate

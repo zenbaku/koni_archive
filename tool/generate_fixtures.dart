@@ -109,7 +109,10 @@ final class RarFixtureSet implements FixtureSet {
       await rarUp('best_solid.rar', ['-m5', '-s'], basicMembers);
       // RAR5 file decryption (P3-4): store, compressed, and solid variants.
       await rarUp('encrypted.rar', ['-m0', '-psecret'], ['hello.txt']);
-      await rarUp('encrypted_compressed.rar', ['-m3', '-psecret'], basicMembers);
+      await rarUp('encrypted_compressed.rar', [
+        '-m3',
+        '-psecret',
+      ], basicMembers);
       await rarUp('encrypted_solid.rar', [
         '-m5',
         '-s',
@@ -248,10 +251,11 @@ final class SevenZFixtureSet implements FixtureSet {
         '-psecret',
         '-ms=on',
       ], basicMembers);
-      await sevenZip('encrypted_copy.7z', [
-        '-psecret',
-        '-mm=Copy',
-      ], ['hello.txt']);
+      await sevenZip(
+        'encrypted_copy.7z',
+        ['-psecret', '-mm=Copy'],
+        ['hello.txt'],
+      );
       await sevenZip(
         'encrypted_header.7z',
         ['-psecret', '-mhe=on'],
@@ -437,11 +441,11 @@ final class ZipFixtureSet implements FixtureSet {
       // Traditional PKWARE ("zipcrypto"): the original stored fixture plus
       // a deflated multi-file one exercising the decrypt→inflate path.
       await zipUp('encrypted.zip', ['-0', '-P', 'secret'], ['hello.txt']);
-      await zipUp('encrypted_zipcrypto_deflate.zip', [
-        '-9',
-        '-P',
-        'secret',
-      ], ['hello.txt', 'nested/deep/data.bin']);
+      await zipUp(
+        'encrypted_zipcrypto_deflate.zip',
+        ['-9', '-P', 'secret'],
+        ['hello.txt', 'nested/deep/data.bin'],
+      );
 
       // WinZip AES (method 99) — Info-ZIP zip(1) cannot author these, so
       // 7zz does. It writes AE-2 (HMAC-authenticated, CRC field zeroed);
@@ -456,14 +460,17 @@ final class ZipFixtureSet implements FixtureSet {
         '$out/$name',
         ...members,
       ], cwd: root);
-      await sevenZipAes('encrypted_aes256.zip', [
-        '-mem=AES256',
-      ], ['hello.txt', 'nested/deep/data.bin']);
+      await sevenZipAes(
+        'encrypted_aes256.zip',
+        ['-mem=AES256'],
+        ['hello.txt', 'nested/deep/data.bin'],
+      );
       await sevenZipAes('encrypted_aes128.zip', ['-mem=AES128'], ['hello.txt']);
-      await sevenZipAes('encrypted_aes256_stored.zip', [
-        '-mm=Copy',
-        '-mem=AES256',
-      ], ['hello.txt']);
+      await sevenZipAes(
+        'encrypted_aes256_stored.zip',
+        ['-mm=Copy', '-mem=AES256'],
+        ['hello.txt'],
+      );
       const comicMembers = [
         'comic/',
         'comic/ComicInfo.xml',

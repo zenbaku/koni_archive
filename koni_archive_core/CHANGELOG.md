@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.0 (2026-07-15)
+
+- Phase 3 (decryption) API: `ArchiveReadOptions.password` for opening
+  password-protected archives, and `InvalidPasswordException` (a subtype of
+  `EncryptedArchiveException`) for a wrong password where the format carries
+  a check value. `EncryptedArchiveException` now also covers unsupported
+  encryption schemes, not just "no password given".
+
 ## 0.4.0 (2026-07-15)
 
 - P2-1: write API — `ByteSink` (+ `BytesBuilderSink`, `FileByteSink` in

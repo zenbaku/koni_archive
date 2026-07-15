@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0 (2026-07-15)
+
+- Lockstep release with the Phase 3 (decryption) work; no changes to
+  koni_tar (TAR has no native encryption).
+
 ## 0.4.0 (2026-07-15)
 
 - P2-2: TAR writing — `TarWriter` / `TarWriteFormat`. Emits ustar, with a

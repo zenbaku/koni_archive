@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.5.0 (2026-07-15)
+
+- P3-4/P3-5: RAR file decryption via `ArchiveReadOptions.password`.
+  - RAR5 (`-p`): AES-256-CBC, the iterated-HMAC-SHA256 KDF, the 8-byte
+    password-check value (reliable wrong-password signal), and hash-key-
+    tweaked CRC verification — store, compressed, and solid.
+  - RAR4 (`-ma4 -p`): AES-128-CBC with the bespoke RAR3 SHA-1 KDF
+    (`0x40000` rounds, header salt); the plaintext CRC is verified, and a
+    wrong password surfaces as a CRC mismatch (no check value exists).
+  - Clean-room per `doc/rar-provenance.md`; verified byte-exact against
+    `rar`-authored fixtures (RAR4's via rar 6.24, since 7.x cannot author
+    v4). Green on VM + dart2js + dart2wasm.
+  - Encrypted headers (`-hp`) stay a typed error; the RAR5 layout is
+    reverse-engineered and documented in `doc/notes.md`.
+
 ## 0.4.0 (2026-07-15)
 
 - Lockstep release; no changes since 0.3.0.

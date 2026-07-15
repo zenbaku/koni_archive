@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0 (2026-07-15)
+
+- Lockstep release with the Phase 3 (decryption) work; no changes to
+  koni_gzip (gzip has no native encryption).
+
 ## 0.4.0 (2026-07-15)
 
 - Lockstep release; no changes since 0.3.0.

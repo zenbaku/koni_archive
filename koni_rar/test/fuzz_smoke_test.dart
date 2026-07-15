@@ -31,15 +31,21 @@ void main() {
       final random = Random(seed);
       printOnFailure('fuzz seed: $seed');
 
-      final fixtures =
-          Directory('test/fixtures/rar')
+      // The generated fixtures (rar/) are all RAR5; the real RAR4 archives —
+      // including the encrypted v4 ones — live in rar_static/ (rar 7.x can't
+      // author v4, so they are hand-committed there).
+      final fixtures = [
+        for (final dir in const [
+          'test/fixtures/rar',
+          'test/fixtures/rar_static',
+        ])
+          ...Directory(dir)
               .listSync()
               .whereType<File>()
               .where((f) => f.path.endsWith('.rar') || f.path.endsWith('.cbr'))
-              .map((f) => f.readAsBytesSync())
-              .toList();
-      // The committed fixtures are all RAR5 (rar 7.x can't author v4), so
-      // seed the RAR4 container into the mutation pool explicitly.
+              .map((f) => f.readAsBytesSync()),
+      ];
+      // Also seed a hand-built RAR4 container (store path) into the pool.
       fixtures.add(buildRar4Store({'a.txt': 'hello', 'dir/b.bin': 'x' * 500}));
       fixtures.add(buildRar4Store({'only.txt': 'single stored entry'}));
       expect(fixtures, isNotEmpty);

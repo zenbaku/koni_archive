@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.0 (2026-07-15)
+
+- P3-3: 7z AES-256 decryption via `ArchiveReadOptions.password`. The AES
+  coder is peeled ahead of the codec chain (decrypt into a buffer, then the
+  existing decompress/filter path); the KDF is 7-Zip's iterated SHA-256
+  (UTF-16LE password), not PBKDF2. Works in solid folders and for encrypted
+  headers (`-mhe`, password required at open). 7z has no password verifier,
+  so a wrong password surfaces as corrupt data or a checksum mismatch —
+  always typed. Interop: 7zz `-p`/`-mhe` fixtures decrypt byte-identically;
+  green on VM + dart2js + dart2wasm.
+
 ## 0.4.0 (2026-07-15)
 
 - P2-4b: format-faithful 7z writing — **LZMA2 (coder `21`) is the default

@@ -55,6 +55,9 @@ the codec infrastructure from M4's standalone-codec pattern.
 * **0.4.0** at P2-4b — writing: TAR, ZIP, and 7z with the pure-Dart
   LZMA/LZMA2 encoder (CBT/CBZ/CB7 authoring). **Phase 2 write milestones
   complete (2026-07-15).** Git-only, not published to pub.dev.
+* **0.5.0** at P3-5 — reading password-protected archives across all
+  formats (ZIP zipcrypto/AES, 7z AES, RAR5/RAR4 file encryption). **Phase 3
+  complete (2026-07-15).** Git-only.
 * All packages stay 0.x with lockstep minor bumps until the API stabilizes.
 
 ---
@@ -79,14 +82,15 @@ permanently out of scope.
 
 | #    | Milestone            | Scope (summary)                                                    | Status |
 | ---- | -------------------- | ------------------------------------------------------------------ | ------ |
-| P3-1 | Crypto primitives    | AES, CBC/CTR, SHA-1, SHA-256, HMAC, PBKDF2 in koni_codecs; vector-tested on VM + dart2js + dart2wasm | ⬜     |
-| P3-2 | ZIP decryption       | zipcrypto + WinZip AE-1/AE-2; `password` read option + `InvalidPasswordException` in core | ⬜     |
-| P3-3 | 7z decryption        | AES-256 coder in the folder chain (buffer-per-coder refactor) + encrypted headers | ⬜     |
-| P3-4 | RAR5 decryption      | File-data decryption (`-p`), PBKDF2 keys, check value, tweaked CRCs; `-hp` headers deferred (typed error, layout documented) | ⬜     |
-| P3-5 | RAR4 decryption      | Salted file data (iterated-SHA-1 KDF, AES-128), store + compressed; fixtures via rar 6.24; encrypted headers stay deferred | ⬜     |
+| P3-1 | Crypto primitives    | AES, CBC/CTR, SHA-1, SHA-256, HMAC, PBKDF2 in koni_codecs; vector-tested on VM + dart2js + dart2wasm | ✅     |
+| P3-2 | ZIP decryption       | zipcrypto + WinZip AE-1/AE-2; `password` read option + `InvalidPasswordException` in core | ✅     |
+| P3-3 | 7z decryption        | AES-256 coder peeled ahead of the folder chain + encrypted headers (`-mhe`) | ✅     |
+| P3-4 | RAR5 decryption      | File-data decryption (`-p`), PBKDF2 keys, check value, tweaked CRCs; `-hp` headers deferred (typed error, layout documented) | ✅     |
+| P3-5 | RAR4 decryption      | Salted file data (iterated-SHA-1 KDF, AES-128), store + compressed; fixtures via rar 6.24; encrypted headers stay deferred | ✅     |
 
-Release point: **0.5.0** at P3-5 (lockstep, git-only). Write-side encryption
-and ZIP strong-encryption (SES) stay deferred — see the scope doc.
+Release point: **0.5.0** at P3-5 (lockstep, git-only) — **Phase 3 complete
+(2026-07-15).** Write-side encryption and ZIP strong-encryption (SES) stay
+deferred — see the scope doc.
 
 ---
 
