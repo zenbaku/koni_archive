@@ -104,7 +104,7 @@ final class HttpRangeByteSource implements ByteSource {
     http.Client? client,
     Map<String, String>? headers,
     String? name,
-  }) {
+  }) async {
     final ownsClient = client == null;
     final c = client ?? http.Client();
     Future<HttpRangeResponse> fetch(Map<String, String> requestHeaders) async {
@@ -122,12 +122,19 @@ final class HttpRangeByteSource implements ByteSource {
       );
     }
 
-    return withFetcher(
-      fetch,
-      name: name ?? _nameFromUri(url),
-      uri: url,
-      onClose: ownsClient ? () async => c.close() : null,
-    );
+    try {
+      return await withFetcher(
+        fetch,
+        name: name ?? _nameFromUri(url),
+        uri: url,
+        onClose: ownsClient ? () async => c.close() : null,
+      );
+    } catch (_) {
+      // The probe failed, so `withFetcher` never took ownership of the client
+      // it would close in `close()` — close the one we created here.
+      if (ownsClient) c.close();
+      rethrow;
+    }
   }
 
   /// Opens a source over a caller-supplied [fetch] — the transport-agnostic
@@ -164,7 +171,16 @@ final class HttpRangeByteSource implements ByteSource {
         uri: uri,
       );
     }
-    final ifRange = probe.headers['etag'] ?? probe.headers['last-modified'];
+    // Pick an `If-Range` validator. A *weak* ETag (`W/"..."`) must never be
+    // used: RFC 9110 says a weak validator can't validate a range, so a
+    // compliant server answers such a request with `200` (the whole body),
+    // which would make every read fail. Prefer a strong ETag, else fall back
+    // to Last-Modified (date-based, coarser but usable), else send none.
+    final etag = probe.headers['etag'];
+    final ifRange =
+        (etag != null && !etag.startsWith('W/'))
+            ? etag
+            : probe.headers['last-modified'];
     return HttpRangeByteSource._(fetch, total, name, ifRange, onClose);
   }
 

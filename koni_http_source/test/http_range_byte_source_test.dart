@@ -29,10 +29,11 @@ final class FakeRangeServer {
         body: bytes,
       );
     }
-    // If-Range: a validator that no longer matches → the server sends the
-    // whole (new) resource with 200 instead of a 206 slice.
+    // If-Range: a weak validator (`W/"..."`) can't validate a range, and a
+    // validator that no longer matches means the resource changed — either
+    // way the server sends the whole (new) resource with 200, not a 206 slice.
     final ifRange = headers['if-range'];
-    if (ifRange != null && ifRange != etag) {
+    if (ifRange != null && (ifRange.startsWith('W/') || ifRange != etag)) {
       return HttpRangeResponse(
         statusCode: 200,
         headers: {if (etag != null) 'etag': etag!},
@@ -190,6 +191,15 @@ void main() {
         );
       },
     );
+
+    test('a weak ETag is not used as If-Range, so reads still work', () async {
+      // Servers behind proxies/gzip/CDNs often emit weak ETags. A compliant
+      // server rejects `If-Range: W/"..."` with 200, so the source must not
+      // send a weak validator — otherwise every read would fail.
+      final server = FakeRangeServer(zip, etag: 'W/"weak-v1"');
+      final source = await HttpRangeByteSource.withFetcher(server.fetch);
+      expect(await readEntry(source, 'page002.txt'), entries['page002.txt']);
+    });
 
     test(
       'a resource that changes mid-read fails loudly, not silently',
