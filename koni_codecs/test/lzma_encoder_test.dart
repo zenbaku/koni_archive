@@ -305,6 +305,145 @@ void main() {
       expect(encoder.sevenZipProps(), [0x5D, 0x00, 0x00, 0x10, 0x00]);
     });
   });
+
+  group('Lzma2Encoder round-trips through Lzma2Decoder', () {
+    Uint8List decode2(Uint8List stream, int outLength) {
+      final output = Uint8List(outLength);
+      final decoder = Lzma2Decoder(output: output);
+      decoder.addInput(stream);
+      decoder.finish();
+      expect(decoder.isFinished, isTrue);
+      return output;
+    }
+
+    test('compressible text: single compressed chunk, reset 3 first', () {
+      final payload =
+          Uint8List.fromList(('lzma2 framing over lzma1 chunks. ' * 500).codeUnits);
+      final stream = Lzma2Encoder().encode(payload);
+      expect(stream[0], 0xE0, reason: 'first chunk resets props+state+dict');
+      expect(stream.last, 0, reason: 'end marker');
+      expect(decode2(stream, payload.length), payload);
+      expect(stream.length, lessThan(payload.length ~/ 10));
+    });
+
+    test('incompressible data falls back to uncompressed chunks', () {
+      final random = Random(11);
+      final payload = Uint8List.fromList(
+        List.generate(200000, (_) => random.nextInt(256)),
+      );
+      final stream = Lzma2Encoder().encode(payload);
+      expect(
+        stream[0],
+        1,
+        reason: 'first chunk is uncompressed with dict reset',
+      );
+      expect(decode2(stream, payload.length), payload);
+      // 3 bytes of header per 64 KiB chunk: barely any expansion.
+      expect(stream.length, lessThan(payload.length + 100));
+    });
+
+    test('mixed segments exercise fallback + state reset transitions', () {
+      final random = Random(23);
+      final b = BytesBuilder(copy: false);
+      for (var i = 0; i < 6; i++) {
+        // Alternate compressible text and incompressible noise, larger
+        // than a (small) chunk each, so compressed -> copy -> compressed
+        // transitions happen mid-stream with reset bits 1 and 2.
+        b.add(('segment $i: compressible prose. ' * 400).codeUnits);
+        b.add(List.generate(30000, (_) => random.nextInt(256)));
+      }
+      final payload = b.takeBytes();
+      final stream = Lzma2Encoder(chunkSize: 1 << 14).encode(payload);
+      expect(decode2(stream, payload.length), payload);
+    });
+
+    test('multi-chunk: payload spanning several compressed chunks', () {
+      final random = Random(77);
+      const words = ['page', 'panel', 'comic', 'frame', 'archive', 'seven'];
+      final b = BytesBuilder(copy: false);
+      while (b.length < 100000) {
+        b.add(words[random.nextInt(words.length)].codeUnits);
+        b.addByte(0x20);
+      }
+      final payload = b.takeBytes();
+      // 8 KiB chunks force many chunk boundaries, including boundaries
+      // that fall immediately after a lazy-deferred literal.
+      final stream = Lzma2Encoder(chunkSize: 1 << 13).encode(payload);
+      expect(decode2(stream, payload.length), payload);
+    });
+
+    test('empty input is just the end marker', () {
+      final stream = Lzma2Encoder().encode(Uint8List(0));
+      expect(stream, [0]);
+      expect(decode2(stream, 0), isEmpty);
+    });
+
+    test('seeded fuzz across chunk boundaries', () {
+      final random = Random(4242);
+      for (var i = 0; i < 60; i++) {
+        final length = 1 + random.nextInt(40000);
+        final alphabet = 2 + random.nextInt(6);
+        final payload = Uint8List.fromList(
+          List.generate(length, (_) => 0x30 + random.nextInt(alphabet)),
+        );
+        final stream = Lzma2Encoder(chunkSize: 1 << 12).encode(payload);
+        expect(
+          decode2(stream, payload.length),
+          payload,
+          reason: 'fuzz iteration $i (length $length)',
+        );
+      }
+    });
+
+    test('dictSizeProp encodes the smallest covering size', () {
+      expect(Lzma2Encoder(dictSize: 1 << 12).dictSizeProp, 0); // 4 KiB
+      expect(Lzma2Encoder(dictSize: 6144).dictSizeProp, 1); // 3 << 11
+      expect(Lzma2Encoder(dictSize: 6145).dictSizeProp, 2); // 4 KiB * 2
+      expect(Lzma2Encoder(dictSize: 1 << 23).dictSizeProp, 22); // 8 MiB
+      expect(Lzma2Encoder(dictSize: (1 << 23) + 1).dictSizeProp, 23);
+    });
+
+    test('invalid chunk size is rejected', () {
+      expect(() => Lzma2Encoder(chunkSize: 100), throwsArgumentError);
+      expect(() => Lzma2Encoder(chunkSize: 1 << 21), throwsArgumentError);
+    });
+  });
+
+  group('cross-platform determinism', () {
+    // Golden pin: this exact (length, FNV-1a) pair must come out of every
+    // platform — VM, dart2js, dart2wasm — or compressed output is not
+    // byte-identical across them (hash mixing or arithmetic diverged).
+    // Update the pin only for intentional encoder changes.
+    test('LZMA1 and LZMA2 output is pinned', () {
+      final random = Random(2026);
+      const words = ['deterministic', 'output', 'byte', 'identical', 'web'];
+      final b = BytesBuilder(copy: false);
+      while (b.length < 20000) {
+        b.add(words[random.nextInt(words.length)].codeUnits);
+        b.addByte(random.nextInt(3)); // sprinkle near-binary separators
+      }
+      final payload = b.takeBytes();
+
+      final lzma1 = LzmaEncoder().encode(payload);
+      expect((lzma1.length, _fnv1a(lzma1)), (2587, 2571366433));
+
+      final lzma2 = Lzma2Encoder(chunkSize: 1 << 12).encode(payload);
+      expect((lzma2.length, _fnv1a(lzma2)), (2632, 610315026));
+    });
+  });
+}
+
+/// 32-bit FNV-1a, kept web-exact by mixing via 16-bit halves.
+int _fnv1a(Uint8List data) {
+  var hash = 0x811C9DC5;
+  for (final byte in data) {
+    hash ^= byte;
+    // hash * 16777619 mod 2^32, without a >2^53 product.
+    final lo = hash & 0xFFFF;
+    final hi = hash >>> 16;
+    hash = (lo * 16777619 + ((hi * 16777619 & 0xFFFF) * 0x10000)) % 0x100000000;
+  }
+  return hash;
 }
 
 Uint8List _decodeOurs(Uint8List stream, int propsByte, int outLength) {

@@ -30,6 +30,11 @@ final class RangeEncoder {
   /// up-to-5 bytes still pending inside the coder until [flush]).
   int get emittedCount => _bytes.length;
 
+  /// Upper bound on the bytes [flush] would still emit (the cached byte,
+  /// any pending 0xFF run, and the low register). Lets a framing layer
+  /// budget a chunk's packed size before flushing.
+  int get pendingCount => _cacheSize + 4;
+
   /// Returns to the initial state, dropping any buffered output (an LZMA2
   /// wrapper starts a fresh range-coded unit per chunk).
   void reset() {
@@ -235,14 +240,45 @@ final class LzmaEncoder {
   /// Encodes all of [data] as one raw LZMA stream (one range-coded unit,
   /// exactly what a 7z LZMA1 folder holds).
   Uint8List encode(Uint8List data) {
+    bind(data);
+    _encodeRange(0, data.length, packLimit: _noPackLimit);
+    final out = takeChunk();
+    _bindData(_emptyData);
+    return out;
+  }
+
+  // ---- chunk-wise API (the encode mirror of LzmaDecoder's, driven by
+  // Lzma2Encoder the way Lzma2Decoder drives the decoder) ----
+
+  /// Binds [data] as the input buffer and dictionary for chunk-wise
+  /// encoding, resetting the model, match finder, and range coder.
+  void bind(Uint8List data) {
     _bindData(data);
-    _resetState();
+    _cachedValid = false;
+    resetState();
     _rc.reset();
-    _encodeRange(0, data.length);
+  }
+
+  /// Resets the probability model, state, and rep distances — an LZMA2
+  /// "state reset". The match-finder chains are untouched: they follow the
+  /// data, not the model.
+  void resetState() => _resetState();
+
+  /// Encodes `data[from..to)` as one range-coded unit, stopping at a symbol
+  /// boundary once the packed output approaches [packLimit] bytes. Returns
+  /// the position actually reached — up to 272 bytes past [to] when the
+  /// final match runs long; the caller declares whatever was reached.
+  /// Finish the unit with [takeChunk].
+  int encodeChunk(int from, int to, {required int packLimit}) =>
+      _encodeRange(from, to, packLimit: packLimit);
+
+  /// Flushes the current range-coded unit and returns its bytes, resetting
+  /// the range coder for the next chunk (model and finder keep going).
+  Uint8List takeChunk() {
     _rc.flush();
     Uint8List? out;
     _rc.drain((chunk) => out = chunk);
-    _bindData(_emptyData);
+    _rc.reset();
     return out ?? Uint8List(0);
   }
 
@@ -302,6 +338,10 @@ final class LzmaEncoder {
         _dataEnd - pos < _maxMatch ? _dataEnd - pos : _maxMatch;
     final h = _hash4(pos);
     var candidate = _head[h];
+    assert(
+      candidate != pos,
+      'position $pos inserted twice — lookahead cache not honored',
+    );
     _prev[pos] = candidate;
     _head[h] = pos;
 
@@ -356,24 +396,39 @@ final class LzmaEncoder {
   int _repLen = 0;
   int _repIndex = 0;
 
-  void _encodeRange(int from, int to) {
+  // One-step lookahead cache: a lazy probe at pos+1 both finds and inserts,
+  // so when the literal is taken, the probed match is reused at the next
+  // iteration instead of re-searched (re-searching would insert the
+  // position into its hash chain twice, corrupting it). A field, not a
+  // loop local: a chunk boundary can fall right after a deferred literal.
+  bool _cachedValid = false;
+  int _cachedLen = 0;
+  int _cachedDist = 0;
+
+  /// A packLimit no chunk can hit (LZMA2's real one is 64 KiB). A literal,
+  /// not `1 << 50`: dart2js shifts operate on 32 bits and evaluate that to
+  /// zero — which would silence every stream to its 5 flush bytes.
+  static const int _noPackLimit = 0x4000000000000; // 2^50
+
+  /// Headroom kept below the pack limit: one symbol emits at most ~48 bits,
+  /// so stopping 64 bytes early can never overshoot.
+  static const int _packMargin = 64;
+
+  int _encodeRange(int from, int to, {required int packLimit}) {
     var pos = from;
-    // One-step lookahead cache: a probe at pos+1 both finds and inserts,
-    // so when the lazy path takes the literal, the match it probed is
-    // reused at the next iteration instead of re-searched.
-    var cachedValid = false;
-    var cachedLen = 0;
-    var cachedDist = 0;
 
     while (pos < to) {
+      if (_rc.emittedCount + _rc.pendingCount + _packMargin > packLimit) {
+        break;
+      }
       final posState = pos & _pbMask;
 
       int mainLen;
       int mainDist;
-      if (cachedValid) {
-        mainLen = cachedLen;
-        mainDist = cachedDist;
-        cachedValid = false;
+      if (_cachedValid) {
+        mainLen = _cachedLen;
+        mainDist = _cachedDist;
+        _cachedValid = false;
       } else {
         mainLen = _findMatch(pos) ? _matchLen : 0;
         mainDist = _matchDist;
@@ -425,9 +480,9 @@ final class LzmaEncoder {
           _rc.encodeBit(_isMatch, (_state << 4) + posState, 0);
           _encodeLiteral(pos);
           pos++;
-          cachedValid = true;
-          cachedLen = nextLen;
-          cachedDist = nextDist;
+          _cachedValid = true;
+          _cachedLen = nextLen;
+          _cachedDist = nextDist;
           continue;
         }
         // Committing to the match at pos: pos+1 is already inserted by
@@ -442,6 +497,7 @@ final class LzmaEncoder {
       _insertRange(pos + 1, pos + mainLen);
       pos += mainLen;
     }
+    return pos;
   }
 
   /// Whether switching from a match at [smallDist] to one at [bigDist] is

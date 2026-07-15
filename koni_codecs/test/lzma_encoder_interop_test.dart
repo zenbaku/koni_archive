@@ -144,6 +144,89 @@ void main() {
     );
   });
 
+  Future<Uint8List> liblzmaDecodeRaw2(Uint8List stream, int dictSize) async {
+    final process = await Process.start(python!, [
+      '-c',
+      'import sys, lzma; '
+          'sys.stdout.buffer.write(lzma.decompress('
+          'sys.stdin.buffer.read(), format=lzma.FORMAT_RAW, '
+          'filters=[{"id": lzma.FILTER_LZMA2, "dict_size": $dictSize}]))',
+    ]);
+    process.stdin.add(stream);
+    await process.stdin.close();
+    final out = <int>[];
+    final err = <int>[];
+    await Future.wait([
+      process.stdout.forEach(out.addAll),
+      process.stderr.forEach(err.addAll),
+    ]);
+    final exitCode = await process.exitCode;
+    expect(
+      exitCode,
+      0,
+      reason: 'liblzma rejected our LZMA2 stream: ${String.fromCharCodes(err)}',
+    );
+    return Uint8List.fromList(out);
+  }
+
+  test('liblzma decodes our LZMA2 stream (text, many small chunks)', () async {
+    if (python == null) {
+      markTestSkipped('no `python3` on PATH; liblzma interop skipped');
+      return;
+    }
+    final payload =
+        Uint8List.fromList(('chunked lzma2 for the seven-zip writer. ' * 2000).codeUnits);
+    final encoder = Lzma2Encoder(chunkSize: 1 << 13);
+    final stream = encoder.encode(payload);
+    expect(await liblzmaDecodeRaw2(stream, 1 << 23), payload);
+  });
+
+  test('liblzma decodes our LZMA2 fallback + reset transitions', () async {
+    if (python == null) {
+      markTestSkipped('no `python3` on PATH; liblzma interop skipped');
+      return;
+    }
+    final random = Random(23);
+    final b = BytesBuilder(copy: false);
+    for (var i = 0; i < 6; i++) {
+      b.add(('segment $i: compressible prose. ' * 400).codeUnits);
+      b.add(List.generate(30000, (_) => random.nextInt(256)));
+    }
+    final payload = b.takeBytes();
+    final encoder = Lzma2Encoder(chunkSize: 1 << 14);
+    final stream = encoder.encode(payload);
+    expect(await liblzmaDecodeRaw2(stream, 1 << 23), payload);
+  });
+
+  test('liblzma decodes an empty LZMA2 stream', () async {
+    if (python == null) {
+      markTestSkipped('no `python3` on PATH; liblzma interop skipped');
+      return;
+    }
+    final stream = Lzma2Encoder().encode(Uint8List(0));
+    expect(await liblzmaDecodeRaw2(stream, 1 << 23), isEmpty);
+  });
+
+  test('liblzma decodes a default-chunk-size multi-chunk stream', () async {
+    // > 2 MiB of compressible data: at least two full-size (~2 MiB)
+    // compressed chunks through the default path.
+    if (python == null) {
+      markTestSkipped('no `python3` on PATH; liblzma interop skipped');
+      return;
+    }
+    final random = Random(55);
+    const words = ['lorem', 'ipsum', 'dolor', 'sit', 'amet', 'koni'];
+    final b = BytesBuilder(copy: false);
+    while (b.length < 5 * 1024 * 1024) {
+      b.add(words[random.nextInt(words.length)].codeUnits);
+      b.addByte(0x20);
+    }
+    final payload = b.takeBytes();
+    final encoder = Lzma2Encoder();
+    final stream = encoder.encode(payload);
+    expect(await liblzmaDecodeRaw2(stream, 1 << 23), payload);
+  });
+
   test('liblzma decodes non-default properties (lc=0 lp=2 pb=1)', () async {
     if (python == null) {
       markTestSkipped('no `python3` on PATH; liblzma interop skipped');

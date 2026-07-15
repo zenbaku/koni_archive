@@ -16,4 +16,5 @@ export 'src/gzip.dart';
 export 'src/inflate.dart';
 export 'src/lzma.dart';
 export 'src/lzma2.dart';
+export 'src/lzma2_encoder.dart';
 export 'src/lzma_encoder.dart';
