@@ -124,3 +124,168 @@ final class RangeEncoder {
     _low = (low32 % 0x1000000) * 256;
   }
 }
+
+/// LZMA compression — the encode direction of `LzmaDecoder` (§8, P2-4b).
+///
+/// Buffer-based like the decoder, whose output buffer doubles as the match
+/// window: here the caller provides the entire input up front and it doubles
+/// as the dictionary. One-shot: `LzmaEncoder().encode(data)`.
+///
+/// The probability-model layout and context computation are identical to the
+/// decoder's; the two stay in lockstep by construction. Any literal/match
+/// token choice therefore decodes correctly — parsing quality (this
+/// milestone: literals only; match finding lands next) affects only ratio,
+/// never validity.
+///
+/// The produced stream has no end marker: archive containers record exact
+/// sizes, and LZMA decoders (ours, liblzma, 7zz) stop on the declared output
+/// size.
+final class LzmaEncoder {
+  /// Creates an encoder with the given LZMA properties.
+  ///
+  /// Defaults are the universal `lc=3, lp=0, pb=2` (props byte 0x5D).
+  /// [dictSize] is the dictionary size *declared* to decoders; match
+  /// distances never exceed it. liblzma additionally requires
+  /// `lc + lp <= 4`, so that is enforced here too.
+  LzmaEncoder({this.lc = 3, this.lp = 0, this.pb = 2, this.dictSize = 1 << 23})
+    : _lpMask = (1 << lp) - 1,
+      _pbMask = (1 << pb) - 1 {
+    if (lc < 0 || lc > 8 || lp < 0 || lp > 4 || pb < 0 || pb > 4 || lc + lp > 4) {
+      throw ArgumentError('invalid LZMA properties lc=$lc lp=$lp pb=$pb');
+    }
+    if (dictSize < (1 << 12) || dictSize > (1 << 30)) {
+      throw ArgumentError.value(
+        dictSize,
+        'dictSize',
+        'must be in [4 KiB, 1 GiB]',
+      );
+    }
+    _literal = Uint16List(0x300 << (lc + lp));
+  }
+
+  /// Literal-context bits (high bits of the previous byte used as context).
+  final int lc;
+
+  /// Literal-position bits.
+  final int lp;
+
+  /// Position bits (low bits of the position used as match context).
+  final int pb;
+
+  /// Declared dictionary size; an upper bound on match distances.
+  final int dictSize;
+
+  final int _lpMask;
+  final int _pbMask;
+
+  /// The packed properties byte, `(pb * 5 + lp) * 9 + lc`.
+  int get propsByte => (pb * 5 + lp) * 9 + lc;
+
+  /// The 5-byte 7z coder attribute blob: properties byte + dictionary size.
+  Uint8List sevenZipProps() {
+    final props = Uint8List(5);
+    props[0] = propsByte;
+    var d = dictSize;
+    for (var i = 1; i < 5; i++) {
+      props[i] = d % 256;
+      d = d ~/ 256;
+    }
+    return props;
+  }
+
+  // ---- probability model (identical layout to LzmaDecoder's) ----
+  static const int _probInit = 1024;
+
+  final Uint16List _isMatch = Uint16List(12 << 4);
+  final Uint16List _isRep = Uint16List(12);
+  final Uint16List _isRepG0 = Uint16List(12);
+  final Uint16List _isRepG1 = Uint16List(12);
+  final Uint16List _isRepG2 = Uint16List(12);
+  final Uint16List _isRep0Long = Uint16List(12 << 4);
+  final Uint16List _posSlot = Uint16List(4 * 64);
+  final Uint16List _specPos = Uint16List(115);
+  final Uint16List _align = Uint16List(16);
+  late Uint16List _literal;
+  final Uint16List _lenProbs = Uint16List(2 + 16 * 8 + 16 * 8 + 256);
+  final Uint16List _repLenProbs = Uint16List(2 + 16 * 8 + 16 * 8 + 256);
+
+  int _state = 0;
+  // rep1..rep3 arrive with rep-match encoding; literals only read rep0.
+  int _rep0 = 0;
+
+  final RangeEncoder _rc = RangeEncoder();
+
+  Uint8List _data = Uint8List(0);
+
+  void _resetState() {
+    for (final probs in [
+      _isMatch, _isRep, _isRepG0, _isRepG1, _isRepG2, _isRep0Long, //
+      _posSlot, _specPos, _align, _literal, _lenProbs, _repLenProbs,
+    ]) {
+      probs.fillRange(0, probs.length, _probInit);
+    }
+    _state = 0;
+    _rep0 = 0;
+  }
+
+  /// Encodes all of [data] as one raw LZMA stream (one range-coded unit,
+  /// exactly what a 7z LZMA1 folder holds).
+  Uint8List encode(Uint8List data) {
+    _data = data;
+    _resetState();
+    _rc.reset();
+    _encodeRange(0, data.length);
+    _rc.flush();
+    Uint8List? out;
+    _rc.drain((chunk) => out = chunk);
+    _data = Uint8List(0);
+    return out ?? Uint8List(0);
+  }
+
+  // ---- token loop (this milestone: every byte is a literal) ----
+
+  void _encodeRange(int from, int to) {
+    for (var pos = from; pos < to; pos++) {
+      final posState = pos & _pbMask;
+      _rc.encodeBit(_isMatch, (_state << 4) + posState, 0);
+      _encodeLiteral(pos);
+    }
+  }
+
+  /// Mirrors the decoder's `_decodeLiteral`, including the matched-literal
+  /// mode after matches (state >= 7), where bits are coded against the byte
+  /// at distance rep0 until the first divergence.
+  void _encodeLiteral(int pos) {
+    final prevByte = pos > 0 ? _data[pos - 1] : 0;
+    final litState = ((pos & _lpMask) << lc) + (prevByte >> (8 - lc));
+    final offset = 0x300 * litState;
+    final symbol = _data[pos];
+
+    var m = 1;
+    var i = 7;
+    if (_state >= 7) {
+      var matchByte = _data[pos - _rep0 - 1];
+      while (i >= 0) {
+        final matchBit = (matchByte >> 7) & 1;
+        matchByte = (matchByte << 1) & 0xFF;
+        final bit = (symbol >> i) & 1;
+        _rc.encodeBit(_literal, offset + ((1 + matchBit) << 8) + m, bit);
+        m = (m << 1) | bit;
+        i--;
+        if (matchBit != bit) break;
+      }
+    }
+    while (i >= 0) {
+      final bit = (symbol >> i) & 1;
+      _rc.encodeBit(_literal, offset + m, bit);
+      m = (m << 1) | bit;
+      i--;
+    }
+    _state =
+        _state < 4
+            ? 0
+            : _state < 10
+            ? _state - 3
+            : _state - 6;
+  }
+}

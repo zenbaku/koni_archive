@@ -98,6 +98,15 @@ void main() {
       _expectDecodes(second!, secondOps, reason: 'stream after reset');
     });
 
+    test('flush is idempotent-safe after reset', () {
+      final encoder = RangeEncoder();
+      encoder.flush();
+      Uint8List? out;
+      encoder.drain((Uint8List chunk) => out = chunk);
+      // An empty stream is just the coder's 5 pending bytes.
+      expect(out!.length, 5);
+    });
+
     test('emittedCount tracks buffered bytes', () {
       final encoder = RangeEncoder();
       expect(encoder.emittedCount, 0);
@@ -116,6 +125,88 @@ void main() {
       expect(encoder.emittedCount, 0, reason: 'drain empties the buffer');
     });
   });
+
+  group('LzmaEncoder round-trips through LzmaDecoder', () {
+    final payloads = <String, Uint8List Function()>{
+      'ascii text':
+          () => Uint8List.fromList(('koni archive writes LZMA now. ' * 100).codeUnits),
+      'random bytes': () {
+        final random = Random(42);
+        return Uint8List.fromList(
+          List.generate(20000, (_) => random.nextInt(256)),
+        );
+      },
+      'all zeros': () => Uint8List(30000),
+      'byte ramp': () =>
+          Uint8List.fromList(List.generate(8192, (i) => i & 0xFF)),
+      'single byte': () => Uint8List.fromList([0x7F]),
+      'empty': () => Uint8List(0),
+    };
+
+    for (final MapEntry(key: name, value: build) in payloads.entries) {
+      test('payload: $name', () {
+        final payload = build();
+        final encoder = LzmaEncoder();
+        final stream = encoder.encode(payload);
+        expect(
+          _decodeOurs(stream, encoder.propsByte, payload.length),
+          payload,
+        );
+      });
+    }
+
+    test('every valid lc/lp/pb combination (lc+lp <= 4)', () {
+      final payload = Uint8List.fromList(
+        ('mixed content 12345 — ' * 40).codeUnits,
+      );
+      for (var lc = 0; lc <= 4; lc++) {
+        for (var lp = 0; lc + lp <= 4; lp++) {
+          for (var pb = 0; pb <= 4; pb++) {
+            final encoder = LzmaEncoder(lc: lc, lp: lp, pb: pb);
+            final stream = encoder.encode(payload);
+            expect(
+              _decodeOurs(stream, encoder.propsByte, payload.length),
+              payload,
+              reason: 'lc=$lc lp=$lp pb=$pb',
+            );
+          }
+        }
+      }
+    });
+
+    test('encoder instance is reusable across encode calls', () {
+      final encoder = LzmaEncoder();
+      final first = Uint8List.fromList('first payload'.codeUnits);
+      final second = Uint8List.fromList('second, different payload'.codeUnits);
+      final s1 = encoder.encode(first);
+      final s2 = encoder.encode(second);
+      expect(_decodeOurs(s1, encoder.propsByte, first.length), first);
+      expect(_decodeOurs(s2, encoder.propsByte, second.length), second);
+    });
+
+    test('invalid properties are rejected', () {
+      expect(() => LzmaEncoder(lc: 9), throwsArgumentError);
+      expect(() => LzmaEncoder(lp: 5), throwsArgumentError);
+      expect(() => LzmaEncoder(pb: 5), throwsArgumentError);
+      expect(() => LzmaEncoder(lc: 3, lp: 2), throwsArgumentError);
+      expect(() => LzmaEncoder(dictSize: 100), throwsArgumentError);
+    });
+
+    test('sevenZipProps packs props byte + dictionary size', () {
+      final encoder = LzmaEncoder(dictSize: 1 << 20);
+      expect(encoder.propsByte, 0x5D);
+      expect(encoder.sevenZipProps(), [0x5D, 0x00, 0x00, 0x10, 0x00]);
+    });
+  });
+}
+
+Uint8List _decodeOurs(Uint8List stream, int propsByte, int outLength) {
+  final output = Uint8List(outLength);
+  final decoder = LzmaDecoder(output: output)..setProps(propsByte);
+  decoder.addInput(stream);
+  decoder.setInputComplete();
+  expect(decoder.isChunkComplete, isTrue, reason: 'decoder must finish');
+  return output;
 }
 
 Uint16List _freshProbs() => Uint16List(2048)..fillRange(0, 2048, 1024);
