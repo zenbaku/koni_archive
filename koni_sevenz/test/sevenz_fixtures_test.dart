@@ -175,7 +175,10 @@ void main() {
       );
     });
 
-    test('AES-encrypted streams', () async {
+    // Decryption with a password is covered in sevenz_encryption_test.dart;
+    // here we pin the no-password behavior (listing works, reads/opens are
+    // typed errors).
+    test('AES-encrypted streams throw without a password', () async {
       final reader = await openFixture('encrypted.7z');
       final entry = reader.entries.singleWhere((e) => e.isFile);
       expect(
@@ -184,7 +187,7 @@ void main() {
       );
     });
 
-    test('AES-encrypted header fails at open, typed', () async {
+    test('AES-encrypted header fails at open without a password', () async {
       await expectLater(
         openFixture('encrypted_header.7z'),
         throwsA(isA<EncryptedArchiveException>()),

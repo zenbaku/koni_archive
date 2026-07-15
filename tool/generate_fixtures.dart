@@ -228,12 +228,29 @@ final class SevenZFixtureSet implements FixtureSet {
         ['-m0=BCJ2', '-m1=LZMA2', '-m2=LZMA', '-m3=LZMA'],
         ['program.bin'],
       );
+      // AES-256 decryption (P3-3). encrypted.7z = AES→LZMA2 single file;
+      // encrypted_solid = AES→LZMA2 solid, multiple substreams;
+      // encrypted_copy = AES over a Copy folder (the AES-only peel path);
+      // encrypted_header(+_solid) = encrypted headers (password at open).
       await sevenZip('encrypted.7z', ['-psecret'], ['hello.txt']);
+      await sevenZip('encrypted_solid.7z', [
+        '-psecret',
+        '-ms=on',
+      ], basicMembers);
+      await sevenZip('encrypted_copy.7z', [
+        '-psecret',
+        '-mm=Copy',
+      ], ['hello.txt']);
       await sevenZip(
         'encrypted_header.7z',
         ['-psecret', '-mhe=on'],
         ['hello.txt'],
       );
+      await sevenZip('encrypted_header_solid.7z', [
+        '-psecret',
+        '-mhe=on',
+        '-ms=on',
+      ], basicMembers);
       // CB7 comic (solid LZMA2), the flagship shape.
       await TarFixtureSet._run('7zz', [
         'a',

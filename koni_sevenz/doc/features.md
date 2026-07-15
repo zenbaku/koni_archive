@@ -8,6 +8,7 @@
 | Delta and BCJ (x86) filter chains | applied in place after decompression |
 | Solid blocks | whole-folder decode + size-capped LRU cache (§8) |
 | Compressed (kEncodedHeader) headers | decoded at open (§4 caveat) |
+| AES-256 decryption (P3-3) | `ArchiveReadOptions.password`; iterated-SHA-256 KDF (UTF-16LE password), AES-256-CBC peeled ahead of the codec chain; solid folders and encrypted headers (`-mhe`, password needed at open) |
 | Substream CRC-32 verification | on by default; `verifyChecksums: false` opt-out |
 | Entry metadata | names (UTF-16), mtimes (FILETIME→UTC ms), unix modes, dirs, symlinks, empty files |
 | `.cb7` comic archives | solid CB7 page-flip benched in bench/results |
@@ -17,8 +18,9 @@
 | Feature | Error |
 | --- | --- |
 | BCJ2, PPMd, bzip2, other codecs | `UnsupportedCompressionException` naming codec + id, at `openRead`; listing works |
-| AES-encrypted streams | `EncryptedArchiveException` at `openRead` |
-| AES-encrypted headers | `EncryptedArchiveException` at open |
+| AES-encrypted stream, no password | `EncryptedArchiveException` at `openRead` (listing works) |
+| AES-encrypted header, no password | `EncryptedArchiveException` at open |
+| Wrong password | no verifier exists in 7z: surfaces as `CorruptArchiveException` (bad LZMA/inflate) or `ChecksumMismatchException` — never an untyped error |
 | Multi-volume, external headers/names | `UnsupportedFeatureException` |
 
 ## Writing (P2-4a container, P2-4b LZMA)

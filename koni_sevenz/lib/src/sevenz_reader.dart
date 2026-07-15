@@ -4,6 +4,7 @@ import 'package:koni_archive_core/koni_archive_core.dart';
 import 'package:koni_codecs/koni_codecs.dart';
 
 import 'header.dart';
+import 'sevenz_crypto.dart';
 
 /// Chunk size for source reads and for slicing decoded folders out.
 const int _readChunkSize = 64 * 1024;
@@ -57,6 +58,10 @@ final class SevenZReader extends ArchiveReader {
   // ---- solid-block cache (§8) ----
   final Map<int, Uint8List> _folderCache = <int, Uint8List>{};
   int _folderCacheBytes = 0;
+
+  // Derived AES keys, memoized by (salt, cycle-power) so a multi-folder
+  // encrypted archive pays for the expensive KDF once per salt.
+  final Map<String, Uint8List> _keyCache = <String, Uint8List>{};
 
   /// Parses the signature header and the (often LZMA-compressed) archive
   /// header. Opening therefore decodes the header block — the documented
@@ -353,7 +358,15 @@ final class SevenZReader extends ArchiveReader {
     }
     // Entry-scoped failures (unsupported codec, encryption) surface here,
     // never at open (§9).
-    _checkFolderSupported(_streams!.folders[location.$1]);
+    final folder = _streams!.folders[location.$1];
+    _checkFolderSupported(folder);
+    if (_options.password == null && _folderIsEncrypted(folder)) {
+      throw EncryptedArchiveException(
+        'entry is AES-encrypted; supply ArchiveReadOptions.password',
+        format: '7z',
+        entryPath: entry.path,
+      );
+    }
     return _streamEntry(entry, location);
   }
 
@@ -409,7 +422,13 @@ final class SevenZReader extends ArchiveReader {
     }
     final Uint8List decoded;
     try {
-      decoded = await _decodeFolder(_source, _streams!, folderIndex, _options);
+      decoded = await _decodeFolder(
+        _source,
+        _streams!,
+        folderIndex,
+        _options,
+        keyCache: _keyCache,
+      );
     } on FormatException catch (e) {
       throw CorruptArchiveException(
         'bad compressed data: ${e.message}',
@@ -440,12 +459,17 @@ final class SevenZReader extends ArchiveReader {
   }
 
   /// Decodes one folder end-to-end: packed bytes through the coder chain.
+  ///
+  /// [keyCache] memoizes AES key derivations across a reader's folders
+  /// (KDFs are expensive and share one salt per archive); it may be null
+  /// for one-off decodes such as the encrypted header.
   static Future<Uint8List> _decodeFolder(
     ByteSource source,
     SevenZStreamsInfo streams,
     int folderIndex,
-    ArchiveReadOptions options,
-  ) async {
+    ArchiveReadOptions options, {
+    Map<String, Uint8List>? keyCache,
+  }) async {
     final folder = streams.folders[folderIndex];
     _checkFolderSupported(folder);
     if (folder.unpackSize > _maxFolderSize) {
@@ -473,13 +497,36 @@ final class SevenZReader extends ArchiveReader {
     // Order coders from the packed stream to the folder output. Supported
     // folders are simple chains (single packed stream, 1-in/1-out coders),
     // so the chain is recovered by walking bind pairs.
-    final chain = _coderChain(folder);
+    var chain = _coderChain(folder);
 
-    // First coder: decompressor over the packed bytes.
+    // AES sits at the head of an encrypted chain (packed → AES → codec →
+    // filters). Peel it: decrypt into a buffer, then run the already-proven
+    // decompress/filter path over that plaintext with AES sliced off.
+    var decodeSource = source;
+    var decodeOffset = packOffset;
+    var decodeSize = packSize;
+    if (chain.first.idHex == _aesCoderId) {
+      final decrypted = await _decryptAesCoder(
+        source,
+        packOffset,
+        packSize,
+        chain.first,
+        _coderOutSize(folder, chain.first),
+        options,
+        keyCache,
+      );
+      if (chain.length == 1) return decrypted; // AES over raw store
+      decodeSource = MemoryByteSource(decrypted);
+      decodeOffset = 0;
+      decodeSize = decrypted.length;
+      chain = chain.sublist(1);
+    }
+
+    // First coder: decompressor over the (possibly decrypted) bytes.
     final buffer = await _decompress(
-      source,
-      packOffset,
-      packSize,
+      decodeSource,
+      decodeOffset,
+      decodeSize,
       chain.first,
       _coderOutSize(folder, chain.first),
     );
@@ -488,6 +535,82 @@ final class SevenZReader extends ArchiveReader {
       _applyFilter(buffer, coder);
     }
     return buffer;
+  }
+
+  static const String _aesCoderId = '06f10701';
+
+  static bool _folderIsEncrypted(SevenZFolder folder) =>
+      folder.coders.any((c) => c.idHex == _aesCoderId);
+
+  /// Reads and AES-256-CBC-decrypts a folder's packed stream, returning the
+  /// coder's declared output (block padding sliced off).
+  static Future<Uint8List> _decryptAesCoder(
+    ByteSource source,
+    int packOffset,
+    int packSize,
+    SevenZCoder coder,
+    int outSize,
+    ArchiveReadOptions options,
+    Map<String, Uint8List>? keyCache,
+  ) async {
+    if (options.password == null) {
+      throw EncryptedArchiveException(
+        'the archive is AES-encrypted; supply ArchiveReadOptions.password',
+        format: '7z',
+      );
+    }
+    if (packSize % 16 != 0) {
+      throw CorruptArchiveException(
+        'AES packed stream length $packSize is not a multiple of 16',
+        format: '7z',
+        offset: packOffset,
+      );
+    }
+    if (outSize > packSize) {
+      throw CorruptArchiveException(
+        'AES coder output ($outSize) exceeds its ciphertext ($packSize)',
+        format: '7z',
+      );
+    }
+    final SevenZAesProps props;
+    try {
+      props = SevenZAesProps.parse(coder.props);
+    } on FormatException catch (e) {
+      throw CorruptArchiveException(
+        'bad AES coder properties: ${e.message}',
+        format: '7z',
+      );
+    }
+    final Uint8List key;
+    try {
+      final cacheKey = props.cacheKey();
+      final cached = keyCache?[cacheKey];
+      if (cached != null) {
+        key = cached;
+      } else {
+        key = deriveSevenZAesKey(options.password!, props);
+        keyCache?[cacheKey] = key;
+      }
+    } on FormatException catch (e) {
+      throw CorruptArchiveException(
+        'AES key derivation failed: ${e.message}',
+        format: '7z',
+      );
+    }
+
+    final buffer = Uint8List(packSize);
+    var position = 0;
+    while (position < packSize) {
+      final take =
+          packSize - position < _readChunkSize
+              ? packSize - position
+              : _readChunkSize;
+      final chunk = await source.read(packOffset + position, take);
+      buffer.setRange(position, position + take, chunk);
+      position += take;
+    }
+    sevenZAesDecrypt(key, props.iv, buffer);
+    return Uint8List.sublistView(buffer, 0, outSize);
   }
 
   /// Global out-stream index bookkeeping: out size of [coder].
@@ -671,7 +794,13 @@ final class SevenZReader extends ArchiveReader {
     }
     for (final coder in folder.coders) {
       final supported = switch (coder.idHex) {
-        '00' || '030101' || '21' || '040108' || '03' || '03030103' => true,
+        '00' ||
+        '030101' ||
+        '21' ||
+        '040108' ||
+        '03' ||
+        '03030103' ||
+        _aesCoderId => true,
         _ => false,
       };
       if (!supported) {
@@ -688,13 +817,9 @@ final class SevenZReader extends ArchiveReader {
   }
 
   static ArchiveException _unsupportedCoder(SevenZCoder coder) {
+    // AES is decrypted when it heads the chain (see _decryptAesCoder); if it
+    // reaches here it sat in a chain position we do not model.
     final name = _coderName(coder.idHex);
-    if (name == 'aes-256') {
-      return EncryptedArchiveException(
-        'the archive uses AES encryption, which is not supported (§15)',
-        format: '7z',
-      );
-    }
     return UnsupportedCompressionException(
       'codec "$name" (id ${coder.idHex}) is not supported',
       methodName: name,
