@@ -48,3 +48,49 @@ decode; every other entry in that block is then a memory slice.
 BCJ2 and PPMd (§8 deferred), AES (encrypted streams at `openRead`;
 encrypted headers at open), bzip2/ARM-filters/unknown codecs (named with
 their id), external headers/names, multi-volume (§15).
+
+## Writing: the buffering caveat (P2-4a)
+
+A 7z file is `[32-byte signature header][packed streams][header]`. The
+signature header sits at offset 0 but records the *offset, size, and CRC of
+the trailing header* — unknown until every packed stream and the header are
+produced. An append-only `ByteSink` (§16) cannot seek back to patch offset
+0, so the writer buffers the packed streams in memory and, at `close`, emits
+signature header + packed data + header in one pass. Input still streams
+through the compressor (only the compressed output accumulates), so peak
+memory is bounded by the *compressed* archive size — but this is a genuine
+departure from the TAR/ZIP streaming invariant and is inherent to appending
+a random-access format, not a shortcut. Documented on `SevenZWriter` and in
+`doc/features.md`.
+
+## Writing: layout (P2-4a)
+
+One folder per non-empty file (non-solid), each a single Copy or Deflate
+coder, 1-in/1-out, no properties. This keeps the header the exact inverse of
+what the reader parses and lets `SubStreamsInfo` be omitted entirely: with
+one substream per folder, the per-folder CRC in `UnpackInfo` *is* the
+substream CRC. The header is written uncompressed (`kHeader`, not
+`kEncodedHeader`). Solid folders, header compression, and LZMA/LZMA2 are
+P2-4b (see `doc/writing-scope.md`); until then there is no cross-file
+compression and header overhead scales with the file count.
+
+## Writing: metadata encoding (inverse of the reader)
+
+- Empty content (files and empty-target links) → empty-stream + empty-file,
+  no folder. Directories → empty-stream, *not* empty-file, DOS directory
+  bit. This is the three-way distinction the reader decodes.
+- Names: UTF-16LE, null-terminated, in file order (no trailing separators —
+  7z stores plain names, unlike ZIP).
+- Attributes: when a unix mode is meaningful, the `FILE_ATTRIBUTE_UNIX_EXTENSION`
+  (0x8000) flag with the full `st_mode` in the high 16 bits — S_IFREG /
+  S_IFDIR / S_IFLNK. Symlinks store the target as content; `7zz -snl`
+  restores them (verified in interop).
+- FILETIME (mtime): the exact inverse of the reader's conversion, split into
+  32-bit halves with `%`/`~/` arithmetic that stays below 2^53 (JS-safe).
+
+## Writing: default codec (provisional)
+
+Deflate is the default (compressed-by-default, like ZIP). When P2-4b lands
+the LZMA2 encoder, the default becomes LZMA2 — a deliberate, tracked default
+change, noted so it is not a surprise. `stored` (Copy) is always selectable
+per entry or globally.

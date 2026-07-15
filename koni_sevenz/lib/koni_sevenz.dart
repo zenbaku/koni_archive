@@ -13,3 +13,5 @@ library;
 
 export 'src/sevenz_format.dart';
 export 'src/sevenz_reader.dart' show SevenZReader;
+export 'src/sevenz_write_format.dart';
+export 'src/sevenz_writer.dart' show SevenZWriter;

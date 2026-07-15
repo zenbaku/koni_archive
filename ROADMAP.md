@@ -63,7 +63,7 @@ the codec infrastructure from M4's standalone-codec pattern.
 | P2-1 | Write API  | Format-agnostic `ArchiveWriter` abstraction       | ✅     |
 | P2-2 | TAR write  | ustar + PAX emission, streaming input             | ✅     |
 | P2-3 | ZIP write  | Stored + deflate compression, ZIP64               | ✅     |
-| P2-4a | 7z write: container | Full write container + Copy/Deflate, no new codec | ⬜     |
+| P2-4a | 7z write: container | Full write container + Copy/Deflate, no new codec | ✅     |
 | P2-4b | 7z write: LZMA      | LZMA/LZMA2 encoder (range coder + match finder)   | ⬜     |
 
 Scope agreed in `koni_sevenz/doc/writing-scope.md` (commit to the LZMA path;

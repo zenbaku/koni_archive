@@ -2,6 +2,23 @@
 
 ## 0.4.0-dev (unreleased)
 
+- P2-4a: `SevenZWriteFormat` re-exported from the facade — write `.7z`/`.cb7`
+  via `Archive.create(sink, format: const SevenZWriteFormat())`. Copy and
+  Deflate (default) folders, one per non-empty file; full container
+  (signature/start header, PackInfo/UnpackInfo with per-folder CRC-32,
+  uncompressed FilesInfo), UTF-16 names, FILETIME mtimes, unix modes,
+  directories, empty files, and symlinks. `7zz` validates and extracts our
+  output byte-for-byte (interop; 300-entry archive exercises multi-byte 7z
+  numbers, symlink restored via `-snl`).
+  - **Not streaming, by construction:** 7z's leading signature header
+    references the trailing header's position, so the writer buffers the
+    compressed packed streams in memory until `close()` (peak memory ≈
+    compressed archive size). Inherent to appending a random-access format —
+    unlike TAR/ZIP writing.
+  - Deferred to P2-4b (tracked): LZMA/LZMA2 folders (and the default codec
+    switching deflate → LZMA2), compressed headers, and solid folders (today
+    one folder per file, so no cross-file compression).
+
 - P2-3: `ZipWriteFormat` re-exported from the facade — write `.zip`/`.cbz`
   via `Archive.create(sink, format: const ZipWriteFormat())`. Stored +
   deflate compression (per-entry or global), streaming append-only output
