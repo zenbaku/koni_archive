@@ -250,6 +250,47 @@ void main() {
       expect(_decodeOurs(stream, encoder.propsByte, payload.length), payload);
     });
 
+    test('interleaved record streams exercise the rep-distance rotation', () {
+      // Four record types repeating with distinct periods, so the encoder
+      // keeps switching among recent distances (rep0..rep3) instead of
+      // re-paying for new ones.
+      final b = BytesBuilder(copy: false);
+      final records = [
+        'alpha-record: 0000|'.codeUnits,
+        'beta-rec: 11111111|'.codeUnits,
+        'gamma: 222|'.codeUnits,
+        'delta-item: 33333|'.codeUnits,
+      ];
+      final random = Random(7);
+      for (var i = 0; i < 3000; i++) {
+        b.add(records[random.nextInt(4)]);
+      }
+      final payload = b.takeBytes();
+      final encoder = LzmaEncoder();
+      final stream = encoder.encode(payload);
+      expect(_decodeOurs(stream, encoder.propsByte, payload.length), payload);
+      expect(stream.length, lessThan(payload.length ~/ 10));
+    });
+
+    test('seeded fuzz: small matchy payloads round-trip (all shapes)', () {
+      final random = Random(20260715);
+      for (var i = 0; i < 300; i++) {
+        final length = random.nextInt(2000);
+        // Tiny alphabet => dense, overlapping matches and constant rep
+        // switching; the hardest shape for token bookkeeping.
+        final payload = Uint8List.fromList(
+          List.generate(length, (_) => 0x61 + random.nextInt(4)),
+        );
+        final encoder = LzmaEncoder();
+        final stream = encoder.encode(payload);
+        expect(
+          _decodeOurs(stream, encoder.propsByte, payload.length),
+          payload,
+          reason: 'fuzz iteration $i (length $length)',
+        );
+      }
+    });
+
     test('invalid properties are rejected', () {
       expect(() => LzmaEncoder(lc: 9), throwsArgumentError);
       expect(() => LzmaEncoder(lp: 5), throwsArgumentError);

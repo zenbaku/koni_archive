@@ -74,6 +74,52 @@ void main() {
     });
   }
 
+  test('liblzma decodes rep-heavy interleaved records', () async {
+    if (python == null) {
+      markTestSkipped('no `python3` on PATH; liblzma interop skipped');
+      return;
+    }
+    final b = BytesBuilder(copy: false);
+    final records = [
+      'alpha-record: 0000|'.codeUnits,
+      'beta-rec: 11111111|'.codeUnits,
+      'gamma: 222|'.codeUnits,
+      'delta-item: 33333|'.codeUnits,
+    ];
+    final random = Random(7);
+    for (var i = 0; i < 3000; i++) {
+      b.add(records[random.nextInt(4)]);
+    }
+    final payload = b.takeBytes();
+    final encoder = LzmaEncoder();
+    final stream = encoder.encode(payload);
+    expect(
+      await liblzmaDecode(_aloneFrame(encoder, payload.length, stream)),
+      payload,
+    );
+  });
+
+  test('liblzma decodes seeded fuzz payloads (tiny alphabet)', () async {
+    if (python == null) {
+      markTestSkipped('no `python3` on PATH; liblzma interop skipped');
+      return;
+    }
+    final random = Random(31337);
+    for (var i = 0; i < 20; i++) {
+      final length = 1 + random.nextInt(5000);
+      final payload = Uint8List.fromList(
+        List.generate(length, (_) => 0x61 + random.nextInt(4)),
+      );
+      final encoder = LzmaEncoder();
+      final stream = encoder.encode(payload);
+      expect(
+        await liblzmaDecode(_aloneFrame(encoder, payload.length, stream)),
+        payload,
+        reason: 'fuzz iteration $i (length $length)',
+      );
+    }
+  });
+
   test('liblzma enforces our declared dictionary size', () async {
     // liblzma rejects any match distance beyond the header's dict size, so
     // this fails loudly if the finder's distance cap leaks: repeats sit

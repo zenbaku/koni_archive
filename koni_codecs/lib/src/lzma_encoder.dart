@@ -212,8 +212,10 @@ final class LzmaEncoder {
   final Uint16List _repLenProbs = Uint16List(2 + 16 * 8 + 16 * 8 + 256);
 
   int _state = 0;
-  // rep1..rep3 arrive with rep-match encoding; literals only read rep0.
   int _rep0 = 0;
+  int _rep1 = 0;
+  int _rep2 = 0;
+  int _rep3 = 0;
 
   final RangeEncoder _rc = RangeEncoder();
 
@@ -227,7 +229,7 @@ final class LzmaEncoder {
       probs.fillRange(0, probs.length, _probInit);
     }
     _state = 0;
-    _rep0 = 0;
+    _rep0 = _rep1 = _rep2 = _rep3 = 0;
   }
 
   /// Encodes all of [data] as one raw LZMA stream (one range-coded unit,
@@ -341,23 +343,180 @@ final class LzmaEncoder {
     }
   }
 
-  // ---- token loop: greedy longest-match ----
+  // ---- token loop: greedy + rep preference + one-step lazy ----
+  //
+  // The decision shape of 7-Zip's fast mode (LzmaEnc's GetOptimumFast):
+  // prefer a rep match when it is nearly as long as the chain match (reps
+  // cost a few bits, new distances cost dozens); before committing to a
+  // chain match, peek one position ahead and emit a literal instead when
+  // the next position offers a decisively better match. Heuristic only —
+  // every outcome is valid LZMA.
+
+  /// Best rep-distance match at the scan position (0 when none).
+  int _repLen = 0;
+  int _repIndex = 0;
 
   void _encodeRange(int from, int to) {
     var pos = from;
+    // One-step lookahead cache: a probe at pos+1 both finds and inserts,
+    // so when the lazy path takes the literal, the match it probed is
+    // reused at the next iteration instead of re-searched.
+    var cachedValid = false;
+    var cachedLen = 0;
+    var cachedDist = 0;
+
     while (pos < to) {
       final posState = pos & _pbMask;
-      if (_findMatch(pos)) {
-        final len = _matchLen;
-        _encodeMatch(posState, len, _matchDist - 1);
+
+      int mainLen;
+      int mainDist;
+      if (cachedValid) {
+        mainLen = cachedLen;
+        mainDist = cachedDist;
+        cachedValid = false;
+      } else {
+        mainLen = _findMatch(pos) ? _matchLen : 0;
+        mainDist = _matchDist;
+      }
+      _scanReps(pos, to);
+
+      // A rep nearly as long as the chain match wins: its distance is
+      // (almost) free, while a new distance costs up to ~30 bits more.
+      final repWins =
+          _repLen >= 2 &&
+          (_repLen + 1 >= mainLen ||
+              (_repLen + 2 >= mainLen && mainDist >= (1 << 9)) ||
+              (_repLen + 3 >= mainLen && mainDist >= (1 << 15)));
+      if (repWins) {
+        final len = _repLen;
+        _encodeRep(posState, len, _repIndex);
         _insertRange(pos + 1, pos + len);
         pos += len;
-      } else {
+        continue;
+      }
+
+      if (mainLen < _minMatch) {
         _rc.encodeBit(_isMatch, (_state << 4) + posState, 0);
         _encodeLiteral(pos);
         pos++;
+        continue;
+      }
+
+      // Lazy step: probe pos+1; a decisively better match there means the
+      // byte at pos goes out as a literal.
+      if (mainLen < _niceLen && pos + 1 < to) {
+        final nextLen = _findMatch(pos + 1) ? _matchLen : 0;
+        final nextDist = _matchDist;
+        var defer =
+            nextLen >= 2 &&
+            ((nextLen >= mainLen && nextDist < mainDist) ||
+                (nextLen == mainLen + 1 && !_changePair(mainDist, nextDist)) ||
+                nextLen > mainLen + 1 ||
+                (nextLen + 1 >= mainLen &&
+                    mainLen >= 3 &&
+                    _changePair(nextDist, mainDist)));
+        if (!defer) {
+          // A rep at pos+1 almost as long as the chain match here also
+          // makes the literal worthwhile: the rep next costs far less.
+          _scanReps(pos + 1, to);
+          defer = _repLen + 2 >= mainLen && _repLen >= 2;
+        }
+        if (defer) {
+          _rc.encodeBit(_isMatch, (_state << 4) + posState, 0);
+          _encodeLiteral(pos);
+          pos++;
+          cachedValid = true;
+          cachedLen = nextLen;
+          cachedDist = nextDist;
+          continue;
+        }
+        // Committing to the match at pos: pos+1 is already inserted by
+        // the probe.
+        _encodeMatch(posState, mainLen, mainDist - 1);
+        _insertRange(pos + 2, pos + mainLen);
+        pos += mainLen;
+        continue;
+      }
+
+      _encodeMatch(posState, mainLen, mainDist - 1);
+      _insertRange(pos + 1, pos + mainLen);
+      pos += mainLen;
+    }
+  }
+
+  /// Whether switching from a match at [smallDist] to one at [bigDist] is
+  /// too expensive to be worth one extra byte (LzmaEnc's ChangePair).
+  static bool _changePair(int smallDist, int bigDist) =>
+      (bigDist >> 7) > smallDist;
+
+  /// Finds the longest match at any of the four rep distances at [pos]
+  /// (results in [_repLen]/[_repIndex]; length 0 when none reaches 2).
+  void _scanReps(int pos, int to) {
+    _repLen = 0;
+    final maxLen = to - pos < _maxMatch ? to - pos : _maxMatch;
+    if (maxLen < 2) return;
+    final data = _data;
+    for (var k = 0; k < 4; k++) {
+      final dist =
+          (k == 0
+              ? _rep0
+              : k == 1
+              ? _rep1
+              : k == 2
+              ? _rep2
+              : _rep3) +
+          1;
+      if (dist > pos) continue;
+      final from = pos - dist;
+      if (data[from] != data[pos] || data[from + 1] != data[pos + 1]) {
+        continue;
+      }
+      var len = 2;
+      while (len < maxLen && data[from + len] == data[pos + len]) {
+        len++;
+      }
+      if (len > _repLen) {
+        _repLen = len;
+        _repIndex = k;
+        if (len >= _niceLen || len == maxLen) return;
       }
     }
+  }
+
+  /// Encodes a rep match — the decoder's rep branch in reverse, including
+  /// the rep-distance list rotation.
+  void _encodeRep(int posState, int len, int index) {
+    _rc.encodeBit(_isMatch, (_state << 4) + posState, 1);
+    _rc.encodeBit(_isRep, _state, 1);
+    if (index == 0) {
+      _rc.encodeBit(_isRepG0, _state, 0);
+      _rc.encodeBit(_isRep0Long, (_state << 4) + posState, 1);
+    } else {
+      _rc.encodeBit(_isRepG0, _state, 1);
+      if (index == 1) {
+        _rc.encodeBit(_isRepG1, _state, 0);
+        final dist = _rep1;
+        _rep1 = _rep0;
+        _rep0 = dist;
+      } else if (index == 2) {
+        _rc.encodeBit(_isRepG1, _state, 1);
+        _rc.encodeBit(_isRepG2, _state, 0);
+        final dist = _rep2;
+        _rep2 = _rep1;
+        _rep1 = _rep0;
+        _rep0 = dist;
+      } else {
+        _rc.encodeBit(_isRepG1, _state, 1);
+        _rc.encodeBit(_isRepG2, _state, 1);
+        final dist = _rep3;
+        _rep3 = _rep2;
+        _rep2 = _rep1;
+        _rep1 = _rep0;
+        _rep0 = dist;
+      }
+    }
+    _encodeLength(_repLenProbs, len, posState);
+    _state = _state < 7 ? 8 : 11;
   }
 
   /// Encodes a simple match (new distance): the decoder's simple-match
@@ -365,6 +524,9 @@ final class LzmaEncoder {
   void _encodeMatch(int posState, int len, int dist) {
     _rc.encodeBit(_isMatch, (_state << 4) + posState, 1);
     _rc.encodeBit(_isRep, _state, 0);
+    _rep3 = _rep2;
+    _rep2 = _rep1;
+    _rep1 = _rep0;
     _rep0 = dist;
     _encodeLength(_lenProbs, len, posState);
 
