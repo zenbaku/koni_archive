@@ -47,4 +47,6 @@ export 'package:koni_archive_core/koni_archive_core.dart'
         normalizeEntryPath,
         validateWritePath;
 
+export 'package:koni_tar/koni_tar.dart' show TarWriteFormat;
+
 export 'src/archive.dart';

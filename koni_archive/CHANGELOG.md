@@ -2,6 +2,10 @@
 
 ## 0.4.0-dev (unreleased)
 
+- P2-2: `TarWriteFormat` re-exported from the facade — write `.tar`/`.cbt`
+  via `Archive.create(sink, format: const TarWriteFormat())` without a
+  direct koni_tar dependency.
+
 - P2-1: `Archive.create(sink, format:)` and the `createArchiveFile`
   (io.dart) write sugar, plus the write types re-exported. No built-in
   write formats registered yet.

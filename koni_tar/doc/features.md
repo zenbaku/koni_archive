@@ -24,9 +24,20 @@
 | GNU sparse (old `S` and PAX `GNU.sparse.*`) | `UnsupportedFeatureException` at `openRead`; listing still works |
 | Numeric fields beyond 2^53 − 1 (uniform cap, all platforms) | `UnsupportedFeatureException` |
 
-## Out of scope (Phase 1, §15)
+## Writing (Phase 2, P2-2)
 
-Sequential (non-seekable) input, multi-volume archives, writing.
+| Feature | Notes |
+| --- | --- |
+| ustar output | the interoperable default |
+| PAX extended headers | emitted for long names/links and >8 GiB sizes |
+| name/prefix split | long names that fall on a `/` use ustar's prefix field |
+| Directories, symlinks, other types | via `addEntry` |
+| Streaming input | `addStream` with a required, validated size |
+
+## Out of scope
+
+Sequential (non-seekable) input for reading, multi-volume archives, GNU
+long-name (`L`) emission (PAX is used instead — more portable).
 
 ## Spec references
 

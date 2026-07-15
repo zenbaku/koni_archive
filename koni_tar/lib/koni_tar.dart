@@ -14,3 +14,5 @@ library;
 
 export 'src/tar_format.dart';
 export 'src/tar_reader.dart' show TarReader;
+export 'src/tar_write_format.dart';
+export 'src/tar_writer.dart' show TarWriter;

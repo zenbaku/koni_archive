@@ -68,3 +68,23 @@ package:archive models symlinks/hardlinks as zero-length files and surfaces
 GNU `K` (long-link) pseudo-entries as files named after the link target, so
 the differential tests compare regular-file content only; link/type shapes
 are asserted against bsdtar's listing instead (fixtures test).
+
+## Writing (P2-2)
+
+`TarWriter` emits POSIX ustar, falling back to a PAX (`x`) extended header
+when a field does not fit: names longer than the 100+155 name/prefix
+fields (and not splittable on a `/`), link targets over 100 bytes, and
+sizes past the 11-octal-digit ustar limit (~8 GiB). The header field
+encoding mirrors the reader — same block offsets, octal fields, and
+signed-tolerant checksum, computed with the chksum field spaced.
+
+Streaming: `addStream` writes the header (size first, as ustar requires)
+then streams the data and pads to the 512-byte block; a byte count that
+differs from the declared size is a typed error (the header is already
+written, so the archive would be corrupt). Directories get a trailing
+slash; uid/gid are 0. `close()` writes the two zero end blocks.
+
+**Interop is the definition of done** (`test/tar_writer_interop_test.dart`,
+`interop` tag): the system `tar`/`bsdtar` extracts what we write
+byte-for-byte, including PAX long-name and unicode entries. Round-trip
+through our own reader is also tested but is not sufficient on its own.
