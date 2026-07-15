@@ -121,7 +121,10 @@ From `PROMPT_V1.md` §15 — roughly in expected demand order:
 * ~~7z reader: set `entry.isEncrypted` on parse~~ → done (matches the ZIP
   reader; the entry's folder-has-AES flag)
 * Sequential (non-seekable) input for TAR/gzip
-* HTTP-range `ByteSource` package (remote CBZ page reads)
+* ~~HTTP-range `ByteSource` package (remote CBZ page reads)~~ → done
+  (`koni_http_source`: `HttpRangeByteSource`, `package:http` + injectable
+  fetcher seam, `If-Range` guard; verified against a real `dart:io`
+  `HttpServer`)
 * gzip seek-index (zran-style) for random access into `.tar.gz`
 * 7z BCJ2, PPMd
 * GNU sparse tars

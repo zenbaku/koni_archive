@@ -37,6 +37,7 @@ the web via both dart2js and dart2wasm.
 | [`koni_gzip`](koni_gzip/)                  | GZIP adapter: single-entry `.gz` + layered `.tar.gz`                     |
 | [`koni_sevenz`](koni_sevenz/)              | 7z reader + writer (LZMA2 default, kEncodedHeader; AES-256 decrypt + encrypt) |
 | [`koni_rar`](koni_rar/)                    | RAR4/RAR5 reader (clean-room; password-protected file data)              |
+| [`koni_http_source`](koni_http_source/)    | HTTP-range `ByteSource`: read a remote archive without downloading it    |
 | [`bench`](bench/)                          | Benchmark harness + committed results — workspace member, never published |
 
 Application authors normally depend only on `koni_archive`.

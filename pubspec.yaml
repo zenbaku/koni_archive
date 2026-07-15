@@ -14,6 +14,7 @@ workspace:
   - koni_gzip
   - koni_sevenz
   - koni_rar
+  - koni_http_source
   - bench
 
 dev_dependencies:
