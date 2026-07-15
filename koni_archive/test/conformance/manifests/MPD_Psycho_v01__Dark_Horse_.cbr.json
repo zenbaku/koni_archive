@@ -14,1075 +14,1075 @@
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 001.jpg",
    "sizeBytes": 313632,
-   "crc32": null,
+   "crc32": "d2f0475d",
    "sha256": "beef3937315ccabb73ac36c921aa6d801ec454dcae5d7acca76b81e5b17cb5c9"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 002.jpg",
-   "sizeBytes": 313632,
-   "crc32": "d2f0475d",
+   "sizeBytes": 98482,
+   "crc32": "30b44a62",
    "sha256": "2c4b7f44bac3fb25a7c0c40f4570d077db4527168cf72312f4f2482b6eba869d"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 003.jpg",
-   "sizeBytes": 98482,
-   "crc32": "30b44a62",
+   "sizeBytes": 98759,
+   "crc32": "921d900c",
    "sha256": "4575bb23972c05f72d9dae0c76a03c690ef8e658eedfa0cf7fedaa032fd128a9"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 004.jpg",
-   "sizeBytes": 98759,
-   "crc32": "921d900c",
+   "sizeBytes": 551478,
+   "crc32": "af067ffc",
    "sha256": "b8bdb39a6efd7cff0d8d8ec1c1b7e39487d9e482f2ffa7eef3cec0f9ccdb83d7"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 005.jpg",
-   "sizeBytes": 551478,
-   "crc32": "af067ffc",
+   "sizeBytes": 1132088,
+   "crc32": "9e0225f8",
    "sha256": "9b9e6d402e80895ab3c28fdeda8fe2925dfed6b914a44d7ddff6119e7a8a8e58"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 006.jpg",
-   "sizeBytes": 1132088,
-   "crc32": "9e0225f8",
+   "sizeBytes": 124095,
+   "crc32": "68a2978e",
    "sha256": "bf07ce5047946982a3dacfcac496494c0649d542ac37f008c1ebad62620d03d8"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 007.jpg",
-   "sizeBytes": 124095,
-   "crc32": "68a2978e",
+   "sizeBytes": 486060,
+   "crc32": "58fc5d4d",
    "sha256": "7bbcc0b0ffc91a6a125798ed97b430363905b17f94093e69e5a36c1acb42744b"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 008.jpg",
-   "sizeBytes": 486060,
-   "crc32": "58fc5d4d",
+   "sizeBytes": 385376,
+   "crc32": "dd3b647d",
    "sha256": "3df0855f1a815d43b4ccdc92dae3e1ea3f8c5631a29443f0a0ea98314d025294"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 009.jpg",
-   "sizeBytes": 385376,
-   "crc32": "dd3b647d",
+   "sizeBytes": 280246,
+   "crc32": "5053fad1",
    "sha256": "3a9740f09a4bd0990895d893fc74a33b2bd35d8e0ab8820cbacd2c3c57c514c3"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 010.jpg",
-   "sizeBytes": 280246,
-   "crc32": "5053fad1",
+   "sizeBytes": 287494,
+   "crc32": "2f12af53",
    "sha256": "d489498987a49e6d283646e5f70b0bbc6763830ba3a802c61b07b515d8352ea6"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 011.jpg",
-   "sizeBytes": 287494,
-   "crc32": "2f12af53",
+   "sizeBytes": 171787,
+   "crc32": "6dfb5c36",
    "sha256": "972f42bc829ebcc3b4b80b019a37d5ca845fffffdad390b1f55b3ca6cc4fe7ec"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 012.jpg",
-   "sizeBytes": 171787,
-   "crc32": "6dfb5c36",
+   "sizeBytes": 425990,
+   "crc32": "d2224733",
    "sha256": "2266f180fb8576a96ed3eac1ee206460b5ab823544d8a96e6219cc7e795e79e4"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 013.jpg",
-   "sizeBytes": 425990,
-   "crc32": "d2224733",
+   "sizeBytes": 349655,
+   "crc32": "6fb4ecc6",
    "sha256": "5ddba242007d1cd4ed459c839c4a8611465754b9dcffd3e6f7094a3c8aa7fb90"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 014.jpg",
-   "sizeBytes": 349655,
-   "crc32": "6fb4ecc6",
+   "sizeBytes": 429155,
+   "crc32": "e1b46f24",
    "sha256": "a52fe1ae24f8c8a4ab6e898f57e91851e798f156135ec3f308fa7b542976183b"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 015.jpg",
-   "sizeBytes": 429155,
-   "crc32": "e1b46f24",
+   "sizeBytes": 340320,
+   "crc32": "01cf21ef",
    "sha256": "39bc96d721a5e925ebef6d8b656d24004c3f248bbb05b86ca3abb4a63993aa2c"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 016.jpg",
-   "sizeBytes": 340320,
-   "crc32": "01cf21ef",
+   "sizeBytes": 405219,
+   "crc32": "18bd8938",
    "sha256": "3f684d962dfda2b274470004617ca3a7f08e05dcafe4c32b676352008ea0981f"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 017.jpg",
-   "sizeBytes": 405219,
-   "crc32": "18bd8938",
+   "sizeBytes": 515608,
+   "crc32": "4a55e71a",
    "sha256": "0913107c394fae7700de19db02023d9724ca8961e342d7dfb8ca85effea9ecf0"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 018.jpg",
-   "sizeBytes": 515608,
-   "crc32": "4a55e71a",
+   "sizeBytes": 479459,
+   "crc32": "99a0f9bc",
    "sha256": "1ac7de9d37c86935b8d4ea2adb08f200dc78c4baac9b278c972d948227aa64ac"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 019.jpg",
-   "sizeBytes": 479459,
-   "crc32": "99a0f9bc",
+   "sizeBytes": 474081,
+   "crc32": "0f23b47a",
    "sha256": "e9e9ca3f33a9742eaa56c8f00be72c1358e4a494d3e3d9c7cc1ca44bef47188e"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 020.jpg",
-   "sizeBytes": 474081,
-   "crc32": "0f23b47a",
+   "sizeBytes": 579515,
+   "crc32": "e20c89df",
    "sha256": "88770f9e3657da82cc3b6f60f7b391ccc511dec03304c120b4f442e18453821b"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 021.jpg",
-   "sizeBytes": 579515,
-   "crc32": "e20c89df",
+   "sizeBytes": 438820,
+   "crc32": "8576c30d",
    "sha256": "c44fd98b56e5dcd768656a2b30ea9da6dcfa16495f46651f7cb6f07311baac87"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 022.jpg",
-   "sizeBytes": 438820,
-   "crc32": "8576c30d",
+   "sizeBytes": 490635,
+   "crc32": "6dc8bf81",
    "sha256": "e54b097ee931a7444f9a267c960e866bf917833fabbe5fa2f9efdb324ede4599"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 023.jpg",
-   "sizeBytes": 490635,
-   "crc32": "6dc8bf81",
+   "sizeBytes": 481184,
+   "crc32": "b615eede",
    "sha256": "3b2fb4a509ec73b10404839c995bf6d9e04475fa1c99fa239ce2029775551c62"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 024.jpg",
-   "sizeBytes": 481184,
-   "crc32": "b615eede",
+   "sizeBytes": 443724,
+   "crc32": "fe4eb7b5",
    "sha256": "7fb3a001bede6927dd67b32b819c87bdfd247c92322c68dddaa8674c0cb5b537"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 025.jpg",
-   "sizeBytes": 443724,
-   "crc32": "fe4eb7b5",
+   "sizeBytes": 349751,
+   "crc32": "86778843",
    "sha256": "1a19f8c60689643150409815462ace2981ced0bdc421f4ead8e487c3fb1e7668"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 026.jpg",
-   "sizeBytes": 349751,
-   "crc32": "86778843",
+   "sizeBytes": 409945,
+   "crc32": "d336ba70",
    "sha256": "e7dfac8c0cd911d5e633eb0edf8244686abb7905f64750fccb713b5c952cb4d8"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 027.jpg",
-   "sizeBytes": 409945,
-   "crc32": "d336ba70",
+   "sizeBytes": 433801,
+   "crc32": "2708ccce",
    "sha256": "676694090a1c1899c1406c58d67d6a2c11fb526951a6a0b0d8217fa5a20730f8"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 028.jpg",
-   "sizeBytes": 433801,
-   "crc32": "2708ccce",
+   "sizeBytes": 466521,
+   "crc32": "8d0dd814",
    "sha256": "71bd3574098615e032e649d8c0a36ef5bc34cca4c65b58b03bc5a71fd497d902"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 029.jpg",
-   "sizeBytes": 466521,
-   "crc32": "8d0dd814",
+   "sizeBytes": 388368,
+   "crc32": "b491838a",
    "sha256": "b4b0224f44effcc781d196f1a491317ce6fbfaf2d8557ec6afc9aef0ef489a13"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 030.jpg",
-   "sizeBytes": 388368,
-   "crc32": "b491838a",
+   "sizeBytes": 332402,
+   "crc32": "4700f8a8",
    "sha256": "c2144538667df781f2382583583573906a74ae51de40f7f22b9d3640732519c1"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 031.jpg",
-   "sizeBytes": 332402,
-   "crc32": "4700f8a8",
+   "sizeBytes": 419389,
+   "crc32": "18a2e4d8",
    "sha256": "aa2cfbf460a9e4291a937ab037cce8dcc4f09d71d767ad130a345c731c98352b"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 032.jpg",
-   "sizeBytes": 419389,
-   "crc32": "18a2e4d8",
+   "sizeBytes": 449053,
+   "crc32": "86199919",
    "sha256": "d7831cce6cff0099ffed30f3ee50a28b1906f67b5f1f98a78abf1ff0605b3cc8"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 033.jpg",
-   "sizeBytes": 449053,
-   "crc32": "86199919",
+   "sizeBytes": 435230,
+   "crc32": "2059923a",
    "sha256": "674cce2e8a422b29d58c732517f2f922c96576d4c8a887602b1a8e7fc17af05d"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 034.jpg",
-   "sizeBytes": 435230,
-   "crc32": "2059923a",
+   "sizeBytes": 470495,
+   "crc32": "38797c13",
    "sha256": "7e71bc4125b0ac44d7d755e0ce04875cd95c1d3062464b0c4291c58d95b672cd"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 035.jpg",
-   "sizeBytes": 470495,
-   "crc32": "38797c13",
+   "sizeBytes": 463790,
+   "crc32": "56c4f4f2",
    "sha256": "6a56e3ccc1e8e024fe385f4a6fcda1bf6a3d845630ac1387cc51f14c682b1c9f"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 036.jpg",
-   "sizeBytes": 463790,
-   "crc32": "56c4f4f2",
+   "sizeBytes": 358567,
+   "crc32": "4b9022e8",
    "sha256": "3689a32f084b01075681b0cf7ac9d129cea2ec7a200a11c947dccb6d352b33ca"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 037.jpg",
-   "sizeBytes": 358567,
-   "crc32": "4b9022e8",
+   "sizeBytes": 400350,
+   "crc32": "14458541",
    "sha256": "cd3a23ecffd33b58849c576fb7106b00716a2a3e4b91eeb206b84c58793c130c"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 038.jpg",
-   "sizeBytes": 400350,
-   "crc32": "14458541",
+   "sizeBytes": 408879,
+   "crc32": "c16166ef",
    "sha256": "6ebfc520bd036c8a45507f9df7b16daf0a1c0f68648ccf1bef028e23b8124349"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 039.jpg",
-   "sizeBytes": 408879,
-   "crc32": "c16166ef",
+   "sizeBytes": 402954,
+   "crc32": "06db5230",
    "sha256": "70b828076a64a99f6ca50cf0561dc0fc22e689bc5fe03956e7332c37b8ec6a6d"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 040.jpg",
-   "sizeBytes": 402954,
-   "crc32": "06db5230",
+   "sizeBytes": 360760,
+   "crc32": "5480bed2",
    "sha256": "9aec36601bfc877dc4f06c83b605cf6ce09e2022c38035db44f27b58221bcadc"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 041.jpg",
-   "sizeBytes": 360760,
-   "crc32": "5480bed2",
+   "sizeBytes": 897269,
+   "crc32": "3a3fcdc0",
    "sha256": "55f481ca8f10f8e5a144c8197ce2aec5ec340ec0ac12df909e4043db5a6f6dd4"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 042.jpg",
-   "sizeBytes": 897269,
-   "crc32": "3a3fcdc0",
+   "sizeBytes": 282793,
+   "crc32": "48e21ae4",
    "sha256": "c55c69519ef7d51d916f658a59a0e2dfbcae95798f32e33d49765c5e702378cb"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 043.jpg",
-   "sizeBytes": 282793,
-   "crc32": "48e21ae4",
+   "sizeBytes": 278472,
+   "crc32": "a80ca6a2",
    "sha256": "aac3bf2d62a126ce5253544f115d3d24c397d492c89c947ddbcbd58b7a34022a"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 044.jpg",
-   "sizeBytes": 278472,
-   "crc32": "a80ca6a2",
+   "sizeBytes": 536764,
+   "crc32": "80b13e0d",
    "sha256": "9c0477c95b94e5fcd305fd0a014860f0ef344f43488523bd3f56b0e32cf2eb82"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 045.jpg",
-   "sizeBytes": 536764,
-   "crc32": "80b13e0d",
+   "sizeBytes": 393051,
+   "crc32": "72ce8fef",
    "sha256": "1720d07aaf729859f3bc8b3092087507cd76524a269ea7b23116a5af0d7ef7ee"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 046.jpg",
-   "sizeBytes": 393051,
-   "crc32": "72ce8fef",
+   "sizeBytes": 359466,
+   "crc32": "d27836f5",
    "sha256": "4323f2bd38a1d4864b33eda1892ad04e7a92e9c1bc3a88e3a6f55593463aefe5"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 047.jpg",
-   "sizeBytes": 359466,
-   "crc32": "d27836f5",
+   "sizeBytes": 361313,
+   "crc32": "c6847a1c",
    "sha256": "16fcf1c32de6b627f92142a69d0bf74355562b45b75a349b0fcbe981b37cfb73"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 048.jpg",
-   "sizeBytes": 361313,
-   "crc32": "c6847a1c",
+   "sizeBytes": 650510,
+   "crc32": "ca7b4963",
    "sha256": "95e7f7e44de5badead8dbc78c73d0950f895438a53371a0c88c1f6529acfb3e8"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 049.jpg",
-   "sizeBytes": 650510,
-   "crc32": "ca7b4963",
+   "sizeBytes": 507338,
+   "crc32": "628756e3",
    "sha256": "8d95107422740929fe38db0bde1ecaba97199840c5f012a009a6c08fdbe2d015"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 050.jpg",
-   "sizeBytes": 507338,
-   "crc32": "628756e3",
+   "sizeBytes": 485337,
+   "crc32": "07471022",
    "sha256": "8237cd6668d40a7638c7f7335002734493d3305bfaee1a2ab1ccaed9cae7004f"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 051.jpg",
-   "sizeBytes": 485337,
-   "crc32": "07471022",
+   "sizeBytes": 494070,
+   "crc32": "f232164d",
    "sha256": "159b1fa6cab5d11df47f5daa107104faad9b5d6f125c38733d68f57cb5b1cb41"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 052.jpg",
-   "sizeBytes": 494070,
-   "crc32": "f232164d",
+   "sizeBytes": 526269,
+   "crc32": "b1f8fc07",
    "sha256": "6e9efc569c283935de941b892e6d4c0b3211427ec3d603f42887b91749a2c80c"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 053.jpg",
-   "sizeBytes": 526269,
-   "crc32": "b1f8fc07",
+   "sizeBytes": 512707,
+   "crc32": "dd120426",
    "sha256": "21a7573f5fb82b9ea452c8128e8ea065ae8606f245c37ff19aab4068d51e3e3f"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 054.jpg",
-   "sizeBytes": 512707,
-   "crc32": "dd120426",
+   "sizeBytes": 405187,
+   "crc32": "f759d9f9",
    "sha256": "318bd47f5c98abad8620fab213c71e4a5365dd30a618e864a5b26e8b7c64cc68"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 055.jpg",
-   "sizeBytes": 405187,
-   "crc32": "f759d9f9",
+   "sizeBytes": 456409,
+   "crc32": "f27b513f",
    "sha256": "5a50530ccba2312c0583b8df177ce0a63c93eb80d66434e59133ec8a4e0947d0"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 056.jpg",
-   "sizeBytes": 456409,
-   "crc32": "f27b513f",
+   "sizeBytes": 505872,
+   "crc32": "d292e5b3",
    "sha256": "cdd1f984f80a19299180c8e90e7f511f37469634cf71326a45d9486447d158ec"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 057.jpg",
-   "sizeBytes": 505872,
-   "crc32": "d292e5b3",
+   "sizeBytes": 334617,
+   "crc32": "6e3f10fc",
    "sha256": "61024020849ce7aef5eea892f645094bfd8e7942ff9de461df5015e04c9d8517"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 058.jpg",
-   "sizeBytes": 334617,
-   "crc32": "6e3f10fc",
+   "sizeBytes": 598341,
+   "crc32": "b3ab5310",
    "sha256": "501bf64468caf2e0ec2cad47a727489f03775d518a41f352ee9051aca2b22c0e"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 059.jpg",
-   "sizeBytes": 598341,
-   "crc32": "b3ab5310",
+   "sizeBytes": 399704,
+   "crc32": "362c28bd",
    "sha256": "213495313fab4e88dc32526333ea43254d3df86f7eaaa98c964af66735f61067"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 060.jpg",
-   "sizeBytes": 399704,
-   "crc32": "362c28bd",
+   "sizeBytes": 1110244,
+   "crc32": "b09bf112",
    "sha256": "6b87018e00b38246d00f816508aa83b64355d629eef9af0e7308ef7b5cc54c0c"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 061.jpg",
-   "sizeBytes": 1110244,
-   "crc32": "b09bf112",
+   "sizeBytes": 377333,
+   "crc32": "f00982a8",
    "sha256": "a7020207aee2e239ad30242ac5c9c887cec49971eae4bdd40a6135c5be1cc89f"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 062.jpg",
-   "sizeBytes": 377333,
-   "crc32": "f00982a8",
+   "sizeBytes": 528872,
+   "crc32": "1cb4994e",
    "sha256": "8f71dd2396c33adc6ab758be776d0421983b89b7a9d5e0b5eef05a7f9416d723"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 063.jpg",
-   "sizeBytes": 528872,
-   "crc32": "1cb4994e",
+   "sizeBytes": 511604,
+   "crc32": "8836a862",
    "sha256": "c51323347846be8e17a58cc767dbe550b813e65ee983ced3c7a78a56e2ff8482"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 064.jpg",
-   "sizeBytes": 511604,
-   "crc32": "8836a862",
+   "sizeBytes": 446570,
+   "crc32": "83875bc3",
    "sha256": "be2372f437193d42130db64a5ffd7ede38b1605569f16fb966eb7600f838c02f"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 065.jpg",
-   "sizeBytes": 446570,
-   "crc32": "83875bc3",
+   "sizeBytes": 484691,
+   "crc32": "6d5182bd",
    "sha256": "56620288af208a08c92bbf90684cb99d215219cd5445b50be88f511eb6a680ae"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 066.jpg",
-   "sizeBytes": 484691,
-   "crc32": "6d5182bd",
+   "sizeBytes": 362172,
+   "crc32": "e956b070",
    "sha256": "bb5b02815b3b2023961865e7f40f48e86de13cf6dead498269ee47a4c46e3a60"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 067.jpg",
-   "sizeBytes": 362172,
-   "crc32": "e956b070",
+   "sizeBytes": 347082,
+   "crc32": "707391b0",
    "sha256": "0ac669b08d8cf0d4aa9bca6e50145078a458c0c197fa4625ee2e5c32e8a0f5cd"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 068.jpg",
-   "sizeBytes": 347082,
-   "crc32": "707391b0",
+   "sizeBytes": 459090,
+   "crc32": "bdd5ff74",
    "sha256": "d136ed11f5c9f3d5935613b9893434b709ddc51317738c8d1a6fee5f17002e0e"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 069.jpg",
-   "sizeBytes": 459090,
-   "crc32": "bdd5ff74",
+   "sizeBytes": 279699,
+   "crc32": "7c036b68",
    "sha256": "87e557b04951fb49cc83b6cf9de2928f6b05ce81aceb311dbfb422379bb9c618"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 070.jpg",
-   "sizeBytes": 279699,
-   "crc32": "7c036b68",
+   "sizeBytes": 323408,
+   "crc32": "b7e9e842",
    "sha256": "081d9b4a3c8df572f829917dcd184127fb92b029e33e6939743c3578de23f890"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 071.jpg",
-   "sizeBytes": 323408,
-   "crc32": "b7e9e842",
+   "sizeBytes": 290673,
+   "crc32": "4b1d29f0",
    "sha256": "e96d454f4e9a7580e3374f25a47efc450f40db0c2c0da16808fdc9114104adbe"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 072.jpg",
-   "sizeBytes": 290673,
-   "crc32": "4b1d29f0",
+   "sizeBytes": 393891,
+   "crc32": "e83eb9a8",
    "sha256": "f468a9e7f15e5ab4f3b2a5e3bb5f19cd4efb8d701c785156f232a31a22db0e98"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 073.jpg",
-   "sizeBytes": 393891,
-   "crc32": "e83eb9a8",
+   "sizeBytes": 449236,
+   "crc32": "a7545b24",
    "sha256": "5f003dd9495794dec87dbc2199c2d411e8b776798edf09f95b91aab4a3d6481f"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 074.jpg",
-   "sizeBytes": 449236,
-   "crc32": "a7545b24",
+   "sizeBytes": 464288,
+   "crc32": "4cb91a85",
    "sha256": "7be2e10526b573e08a98042db00b9a5be268348bb14fea4a7961a574ec5e2196"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 075.jpg",
-   "sizeBytes": 464288,
-   "crc32": "4cb91a85",
+   "sizeBytes": 493856,
+   "crc32": "a4653bcd",
    "sha256": "6a0d091f469bb6253a7ef49510d4eb761d7fe85a1337588391b3129c9afff1a6"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 076.jpg",
-   "sizeBytes": 493856,
-   "crc32": "a4653bcd",
+   "sizeBytes": 333448,
+   "crc32": "6ed132ca",
    "sha256": "fd1b0955796592a23772ae3972395a9306546e9a0f1daf5b92e59df713c7a930"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 077.jpg",
-   "sizeBytes": 333448,
-   "crc32": "6ed132ca",
+   "sizeBytes": 296070,
+   "crc32": "7a0cee57",
    "sha256": "a106091b0cfd86b92775a15f6c1e26664d0d6198c1a8396cda0b4bd400865567"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 078.jpg",
-   "sizeBytes": 296070,
-   "crc32": "7a0cee57",
+   "sizeBytes": 435312,
+   "crc32": "c51e1214",
    "sha256": "096db119fae1bde5b85de26c328e4c917334325f26a7dd0690feea1b64d1d111"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 079.jpg",
-   "sizeBytes": 435312,
-   "crc32": "c51e1214",
+   "sizeBytes": 428600,
+   "crc32": "8f5751e4",
    "sha256": "ceca77ae2a84f62215874da556794bb2eb7fbaa18ca5040479d7398e2fcd24e0"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 080.jpg",
-   "sizeBytes": 428600,
-   "crc32": "8f5751e4",
+   "sizeBytes": 354155,
+   "crc32": "d173b175",
    "sha256": "f248e6203f6bec48d4ff29ff5b41cfaef9af201da6bd0e0c70d46d4966b6361c"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 081.jpg",
-   "sizeBytes": 354155,
-   "crc32": "d173b175",
+   "sizeBytes": 422863,
+   "crc32": "86a80ea4",
    "sha256": "c8f563199e39546255e407b46993ed983450f4fb87cf08ac7c646b0a4499dde3"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 082.jpg",
-   "sizeBytes": 422863,
-   "crc32": "86a80ea4",
+   "sizeBytes": 451614,
+   "crc32": "0a2f9c18",
    "sha256": "faced97841e5967ed5e4b058c18a568b5e3d73cb423ba432ec8446cbf102cf3a"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 083.jpg",
-   "sizeBytes": 451614,
-   "crc32": "0a2f9c18",
+   "sizeBytes": 425411,
+   "crc32": "890b4ab2",
    "sha256": "1786f19774336877ef1dc50b491f594cf9dfed10d0e61f816ec3d708987b24d4"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 084.jpg",
-   "sizeBytes": 425411,
-   "crc32": "890b4ab2",
+   "sizeBytes": 369413,
+   "crc32": "10a46aae",
    "sha256": "339f1235c635cac06ccfa7b03d381f424b7203594182122760f10a01663e6e41"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 085.jpg",
-   "sizeBytes": 369413,
-   "crc32": "10a46aae",
+   "sizeBytes": 455789,
+   "crc32": "632f0848",
    "sha256": "809dce34b43ecf3b1aa2771b50092e1a3f616366a61be9c02e34664a172f909e"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 086.jpg",
-   "sizeBytes": 455789,
-   "crc32": "632f0848",
+   "sizeBytes": 541032,
+   "crc32": "9740e8d7",
    "sha256": "aaa044b671980751bbf51d3cbec528f3f1d6523edec7558715b5611798dbfff4"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 087.jpg",
-   "sizeBytes": 541032,
-   "crc32": "9740e8d7",
+   "sizeBytes": 405668,
+   "crc32": "51d1bcf4",
    "sha256": "23f6843e7ca1c14a9422a0c873610a40b8e6b1404d4deedfff91f47ffae066f3"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 088.jpg",
-   "sizeBytes": 405668,
-   "crc32": "51d1bcf4",
+   "sizeBytes": 329676,
+   "crc32": "39b069c9",
    "sha256": "1898a7b766dc073a822e7b124cb5209c0c34f91c35ccc37baa09c028b0ccc7c4"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 089.jpg",
-   "sizeBytes": 329676,
-   "crc32": "39b069c9",
+   "sizeBytes": 369014,
+   "crc32": "64a70220",
    "sha256": "01b46a225cb52c3c6a1c2c714921b117d6b3122ce5cdf9c3fbc855eda1d40080"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 090.jpg",
-   "sizeBytes": 369014,
-   "crc32": "64a70220",
+   "sizeBytes": 376716,
+   "crc32": "eeda0c88",
    "sha256": "e788fdd243ff87037b209d1e90df35aac0b0a8d13bc708dd5609824002f593f5"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 091.jpg",
-   "sizeBytes": 376716,
-   "crc32": "eeda0c88",
+   "sizeBytes": 388207,
+   "crc32": "d60e69a7",
    "sha256": "f248f49b00c4192381fa152396f61d7f66d41e2d06a2f3243f11b8e04a9ac110"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 092.jpg",
-   "sizeBytes": 388207,
-   "crc32": "d60e69a7",
+   "sizeBytes": 300660,
+   "crc32": "91559bfb",
    "sha256": "2542ee9ed2e37667d6adc5181c0618465b0c540a222b5bea1102669756e3a92c"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 093.jpg",
-   "sizeBytes": 300660,
-   "crc32": "91559bfb",
+   "sizeBytes": 364198,
+   "crc32": "a1823e62",
    "sha256": "49c0ead9e2776e2c36c0f3cc4345f1c63639d55ba81ff2c33fb1ffb2632557db"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 094.jpg",
-   "sizeBytes": 364198,
-   "crc32": "a1823e62",
+   "sizeBytes": 378402,
+   "crc32": "4f4833e2",
    "sha256": "629a1972f1afed6018800f49c2a08c7030956953baad47898c468edd69b9ac04"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 095.jpg",
-   "sizeBytes": 378402,
-   "crc32": "4f4833e2",
+   "sizeBytes": 379570,
+   "crc32": "41ddb8d4",
    "sha256": "e3cecab90f492d908e183d125a103e8d8b037a2977e5ae83466888a8444bf190"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 096.jpg",
-   "sizeBytes": 379570,
-   "crc32": "41ddb8d4",
+   "sizeBytes": 267824,
+   "crc32": "e0e1f6f1",
    "sha256": "b0cfb44ceee57cf4080c0ada915f25cc2310d61028dcdd187ff361c83caa2b69"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 097.jpg",
-   "sizeBytes": 267824,
-   "crc32": "e0e1f6f1",
+   "sizeBytes": 382770,
+   "crc32": "fae2fc75",
    "sha256": "1ceded8189fd0d1c01c365356e14cb86a67db6386d2f6212221cfd2769549617"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 098.jpg",
-   "sizeBytes": 382770,
-   "crc32": "fae2fc75",
+   "sizeBytes": 349480,
+   "crc32": "6350c67a",
    "sha256": "ac4c33c44654fd500cb4c4f2f660697a238ff49c2a0a01e431110eb86a1221d6"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 099.jpg",
-   "sizeBytes": 349480,
-   "crc32": "6350c67a",
+   "sizeBytes": 313619,
+   "crc32": "6252156d",
    "sha256": "172cd03971c62573ef51ac812f38d1be36284ab06bdf68f0986d96cfc183241d"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 100.jpg",
-   "sizeBytes": 313619,
-   "crc32": "6252156d",
+   "sizeBytes": 332272,
+   "crc32": "5ee30d06",
    "sha256": "ed3e4ac3bc3cab3af72795d6781d3a384cf23ab34bc89c09c42f8577dee0654c"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 101.jpg",
-   "sizeBytes": 332272,
-   "crc32": "5ee30d06",
+   "sizeBytes": 440245,
+   "crc32": "37c7cd49",
    "sha256": "a21f5d377a99dfb5a3606f5fa7e551edb88b451542a4824a2a79e6bba6ac1ad9"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 102.jpg",
-   "sizeBytes": 440245,
-   "crc32": "37c7cd49",
+   "sizeBytes": 284665,
+   "crc32": "7e330a90",
    "sha256": "9aff66186a64699b96cff136e5d3b4d99c87ff47ca693cde26aff8d0c00f84b9"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 103.jpg",
-   "sizeBytes": 284665,
-   "crc32": "7e330a90",
+   "sizeBytes": 305893,
+   "crc32": "619edb86",
    "sha256": "c0760a74bb91aa0abac0e943eaf1f650b262cac1645b5b4e5a8d62e159519276"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 104.jpg",
-   "sizeBytes": 305893,
-   "crc32": "619edb86",
+   "sizeBytes": 439124,
+   "crc32": "878e98dd",
    "sha256": "d0c326c9baea28dccbe0403bf5e420c8c344ab76fc034abd740689bb5fce48f1"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 105.jpg",
-   "sizeBytes": 439124,
-   "crc32": "878e98dd",
+   "sizeBytes": 468945,
+   "crc32": "cb30e789",
    "sha256": "3004d69f91827fc3cd8709e37a2dbbee70e1158d7aa3766bd6576343a70543c2"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 106.jpg",
-   "sizeBytes": 468945,
-   "crc32": "cb30e789",
+   "sizeBytes": 391551,
+   "crc32": "3dc5ae8c",
    "sha256": "3244fcb064cc51102b169ed96fc01e151732241575c7f12ed6a4b3de00de8264"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 107.jpg",
-   "sizeBytes": 391551,
-   "crc32": "3dc5ae8c",
+   "sizeBytes": 493854,
+   "crc32": "2f9d3739",
    "sha256": "94f5627cc7b3b3146fde255f5658efb013e562a5f30923c80e1941ef0746cdb6"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 108.jpg",
-   "sizeBytes": 493854,
-   "crc32": "2f9d3739",
+   "sizeBytes": 474252,
+   "crc32": "3a5227ff",
    "sha256": "d3c8a6b4f7e9c2ec3635539989278e002aa2347dbdb86bbe92e7c056cbdee900"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 109.jpg",
-   "sizeBytes": 474252,
-   "crc32": "3a5227ff",
+   "sizeBytes": 470427,
+   "crc32": "6c812bde",
    "sha256": "38ae3b5664d177853baa46de8366c3faf35aceafbe2381b98bd40e9d565747e2"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 110.jpg",
-   "sizeBytes": 470427,
-   "crc32": "6c812bde",
+   "sizeBytes": 426348,
+   "crc32": "59be3134",
    "sha256": "ebce6fa2bea5a41594033b03f2b14484636ae96156b18b51553606b40593655b"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 111.jpg",
-   "sizeBytes": 426348,
-   "crc32": "59be3134",
+   "sizeBytes": 416674,
+   "crc32": "29b74506",
    "sha256": "a5ad5d497289c4e9ea97587cd8148b3fef377fce219b253ab50fde319520f6b6"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 112.jpg",
-   "sizeBytes": 416674,
-   "crc32": "29b74506",
+   "sizeBytes": 388135,
+   "crc32": "e4c0ead5",
    "sha256": "44444a7800b70be88d0766ae79a177cd374f0fdd3ada88473d7ed68a2ebefa0f"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 113.jpg",
-   "sizeBytes": 388135,
-   "crc32": "e4c0ead5",
+   "sizeBytes": 452592,
+   "crc32": "8edd2952",
    "sha256": "2f3c7afad91fc96d4f337abfa016c2d6288c8eaa214e07202de3d9b815137410"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 114.jpg",
-   "sizeBytes": 452592,
-   "crc32": "8edd2952",
+   "sizeBytes": 450303,
+   "crc32": "23ac7ca0",
    "sha256": "60ce34a4eae146d9ab5d317d49ab040884c3530a31e4ce9e87a852962c1999bb"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 115.jpg",
-   "sizeBytes": 450303,
-   "crc32": "23ac7ca0",
+   "sizeBytes": 460600,
+   "crc32": "34ae685d",
    "sha256": "eb01138c3708f334ce378361b0e532baffe9513ed2fdbc655ea824e343123513"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 116.jpg",
-   "sizeBytes": 460600,
-   "crc32": "34ae685d",
+   "sizeBytes": 424755,
+   "crc32": "7aab8af4",
    "sha256": "fb8e6ab931faf48665204549a8af008c951c43cb2a416d1905b47235c0cd2751"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 117.jpg",
-   "sizeBytes": 424755,
-   "crc32": "7aab8af4",
+   "sizeBytes": 431434,
+   "crc32": "2449fd6b",
    "sha256": "3f77093fb37878360039bdbce39bbfc34981b9195afe0f3c9e24e560a546235c"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 118.jpg",
-   "sizeBytes": 431434,
-   "crc32": "2449fd6b",
+   "sizeBytes": 312734,
+   "crc32": "d6727075",
    "sha256": "0fa2bdc525c0c9b801eb31e42bded74f7e283de9562f0ffb275a2179972d92b5"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 119.jpg",
-   "sizeBytes": 312734,
-   "crc32": "d6727075",
+   "sizeBytes": 425120,
+   "crc32": "9ef9e87c",
    "sha256": "a18318b5034f764ee112a5d7c10f24bb4cef0c0b6e8f2f77bb9ce08435630f13"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 120.jpg",
-   "sizeBytes": 425120,
-   "crc32": "9ef9e87c",
+   "sizeBytes": 370831,
+   "crc32": "9167c2fe",
    "sha256": "2407dbb47b29b28455f32e4d5b8e48313014a804b099aacf1cbd3e8af4cebb66"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 121.jpg",
-   "sizeBytes": 370831,
-   "crc32": "9167c2fe",
+   "sizeBytes": 447837,
+   "crc32": "0d2349e8",
    "sha256": "8c4da2156a23d2882df8bd6cad46894de2da19f8552ea590a5b481db0018e2b4"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 122.jpg",
-   "sizeBytes": 447837,
-   "crc32": "0d2349e8",
+   "sizeBytes": 428581,
+   "crc32": "f237d744",
    "sha256": "ee548196bd196925b8980cdb452a58ed9c90e952c4eef0e265dfa00273dd09b5"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 123.jpg",
-   "sizeBytes": 428581,
-   "crc32": "f237d744",
+   "sizeBytes": 584313,
+   "crc32": "bf9e6566",
    "sha256": "a7d8a7b585edfb492eae19de49e32f301272c3d4c44d68ea02b2fff31f8d8280"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 124.jpg",
-   "sizeBytes": 584313,
-   "crc32": "bf9e6566",
+   "sizeBytes": 639192,
+   "crc32": "66323598",
    "sha256": "6fd82e53ee05acfefc493237cb61903b2e71ba61cee7d83d7669b472d9b12d1b"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 125.jpg",
-   "sizeBytes": 639192,
-   "crc32": "66323598",
+   "sizeBytes": 429067,
+   "crc32": "7b32eb4b",
    "sha256": "8bf3a792e168d2e0c51c89542dbf30a7b70cddeb945fd3aa51168a6a86a92ec8"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 126.jpg",
-   "sizeBytes": 429067,
-   "crc32": "7b32eb4b",
+   "sizeBytes": 527227,
+   "crc32": "5b6ac04c",
    "sha256": "017a942f2657d07639640ddbdaad51c2ee3f8b5d3e4073db15821a843a139a8d"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 127.jpg",
-   "sizeBytes": 527227,
-   "crc32": "5b6ac04c",
+   "sizeBytes": 470362,
+   "crc32": "6e844c52",
    "sha256": "e66325a14327af84c705895418b8ac848b02e9e58c15736f6dafeb5ebdc7af25"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 128.jpg",
-   "sizeBytes": 470362,
-   "crc32": "6e844c52",
+   "sizeBytes": 512349,
+   "crc32": "e883d329",
    "sha256": "85dfa1a99d54586acfa32d760923a50914441ae0714fff1f1b243b81fa8139dc"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 129.jpg",
-   "sizeBytes": 512349,
-   "crc32": "e883d329",
+   "sizeBytes": 349068,
+   "crc32": "7257b1d0",
    "sha256": "eddd6b3b9aa6fe1b5e4d8f0372e24ed7f272db9e677425b8708e8bea430332ff"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 130.jpg",
-   "sizeBytes": 349068,
-   "crc32": "7257b1d0",
+   "sizeBytes": 207424,
+   "crc32": "3ca52b86",
    "sha256": "af4374336468ba07c42aae5d93b57cf31e91064200873bc5739a8ff5c852360a"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 131.jpg",
-   "sizeBytes": 207424,
-   "crc32": "3ca52b86",
+   "sizeBytes": 457724,
+   "crc32": "24aeab4d",
    "sha256": "46088e57043eea72d557306f4841b31db71b9b869696822dbdbb62107fa6c7ce"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 132.jpg",
-   "sizeBytes": 457724,
-   "crc32": "24aeab4d",
+   "sizeBytes": 441500,
+   "crc32": "8830ec52",
    "sha256": "2137d3bf712c7edfbc47f8103e6b3d16aff0582bce01f58359430e4d1b4ac0c3"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 133.jpg",
-   "sizeBytes": 441500,
-   "crc32": "8830ec52",
+   "sizeBytes": 410877,
+   "crc32": "4ed4ed15",
    "sha256": "62c99aa3c67d418f886af986de4c17e9e541dd3a4416d656ee43ae237ec33152"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 134.jpg",
-   "sizeBytes": 410877,
-   "crc32": "4ed4ed15",
+   "sizeBytes": 355477,
+   "crc32": "b724850f",
    "sha256": "d66cc37fc2718563dcc10dadb9ef0ebfd863cb0f3b7477ba6650f48dae5b82b5"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 135.jpg",
-   "sizeBytes": 355477,
-   "crc32": "b724850f",
+   "sizeBytes": 410540,
+   "crc32": "d464e1fb",
    "sha256": "726f8e34cf4f37d7490dc6b7ad16efc665e1f4e0724d243e18da3f6429ed7965"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 136.jpg",
-   "sizeBytes": 410540,
-   "crc32": "d464e1fb",
+   "sizeBytes": 364610,
+   "crc32": "7219ba11",
    "sha256": "90cc54d6803c34c6e610d5d3a5c162d1a738c9f0ca417ece17c08b1f930e7329"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 137.jpg",
-   "sizeBytes": 364610,
-   "crc32": "7219ba11",
+   "sizeBytes": 383970,
+   "crc32": "fc6c8c8a",
    "sha256": "86ac1f1872729bbdad02db1b36c3a16eaa08182628a426e70bf77b7617208e48"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 138.jpg",
-   "sizeBytes": 383970,
-   "crc32": "fc6c8c8a",
+   "sizeBytes": 335941,
+   "crc32": "c4a18d00",
    "sha256": "d7397fdf4a214d6fd30a9ae0eec0956f329f3598ce385931b7ee998d11576c90"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 139.jpg",
-   "sizeBytes": 335941,
-   "crc32": "c4a18d00",
+   "sizeBytes": 384678,
+   "crc32": "41bc9e5a",
    "sha256": "c5c8a1123b448c73aef5bfcca46c60883319e0c4e1dc4ac8dc4a1df43f86bc31"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 140.jpg",
-   "sizeBytes": 384678,
-   "crc32": "41bc9e5a",
+   "sizeBytes": 372239,
+   "crc32": "3219b5a3",
    "sha256": "a93d127df6f4fe7d3aab58b986ae0fa2ec9c1b1f16ca36d19d39c3675cba6ce7"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 141.jpg",
-   "sizeBytes": 372239,
-   "crc32": "3219b5a3",
+   "sizeBytes": 368949,
+   "crc32": "7290d11b",
    "sha256": "54462653acffe19b9cfcafe212ad14c2fd9647c09f77faba21b5d05947bde252"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 142.jpg",
-   "sizeBytes": 368949,
-   "crc32": "7290d11b",
+   "sizeBytes": 446073,
+   "crc32": "768d5e91",
    "sha256": "5f7cdfdd2e9020ac7af7b123eeb08babd0f22ef8b26c25a4c45b5effb6aa8595"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 143.jpg",
-   "sizeBytes": 446073,
-   "crc32": "768d5e91",
+   "sizeBytes": 396448,
+   "crc32": "29b44c27",
    "sha256": "740badcf1b1be6121362f4a88ebf3a81f2d253914181fe57ca1657d18e398c51"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 144.jpg",
-   "sizeBytes": 396448,
-   "crc32": "29b44c27",
+   "sizeBytes": 410918,
+   "crc32": "9d82b758",
    "sha256": "f34010ecd3f52a7094e5222e4ba91b84cfc7436d7812ebe322c838e7dfd67a96"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 145.jpg",
-   "sizeBytes": 410918,
-   "crc32": "9d82b758",
+   "sizeBytes": 397239,
+   "crc32": "3fa21943",
    "sha256": "7ffc7fe344e224a010118552d84ebd76ff61d8c98d263cba75f12fcad738dbd4"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 146.jpg",
-   "sizeBytes": 397239,
-   "crc32": "3fa21943",
+   "sizeBytes": 364244,
+   "crc32": "a02e1628",
    "sha256": "28cc05350c6a8f8ff21806d3786e65b56d04c1852c5463eaf96210ec32a1eb3b"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 147.jpg",
-   "sizeBytes": 364244,
-   "crc32": "a02e1628",
+   "sizeBytes": 461204,
+   "crc32": "82f9b23c",
    "sha256": "2a8c630c20cb1b354e348835cd9dc055ad91f92ad1df7d15156cb616f2be8d45"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 148.jpg",
-   "sizeBytes": 461204,
-   "crc32": "82f9b23c",
+   "sizeBytes": 443968,
+   "crc32": "70ceee30",
    "sha256": "c21a0343dd379412b4c9c512363b739d1b220e1237a5445d83cd61ff95b527fc"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 149.jpg",
-   "sizeBytes": 443968,
-   "crc32": "70ceee30",
+   "sizeBytes": 343276,
+   "crc32": "1c59642a",
    "sha256": "00ac6d92c148a17aab8f5a3d6da393b90b748112e19514f16d26937eb31f2c36"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 150.jpg",
-   "sizeBytes": 343276,
-   "crc32": "1c59642a",
+   "sizeBytes": 225954,
+   "crc32": "132e9df8",
    "sha256": "18be17622eb86f74a58af4d0eaa631dfd4fc0e281d1478947d2f3c71958abc68"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 151.jpg",
-   "sizeBytes": 225954,
-   "crc32": "132e9df8",
+   "sizeBytes": 369149,
+   "crc32": "5b93dd60",
    "sha256": "10a5849360b5ccaae450e338395409c247dec4705a2addb06379036a43f5aa28"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 152.jpg",
-   "sizeBytes": 369149,
-   "crc32": "5b93dd60",
+   "sizeBytes": 315645,
+   "crc32": "b901c24c",
    "sha256": "782adea691952a1b18d127fd1c8d627adf2ca1b28a0e4249b28e9030d8f941ec"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 153.jpg",
-   "sizeBytes": 315645,
-   "crc32": "b901c24c",
+   "sizeBytes": 396142,
+   "crc32": "a62d599a",
    "sha256": "501511f23f9dedda49491a0ce332c3c20a9cc7d36f5503275ffb032d6ba26597"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 154.jpg",
-   "sizeBytes": 396142,
-   "crc32": "a62d599a",
+   "sizeBytes": 366751,
+   "crc32": "b510c88a",
    "sha256": "24393a1d38c104da5ca4f5605f64668c7c9ccff615586a38466f056f22fc7762"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 155.jpg",
-   "sizeBytes": 366751,
-   "crc32": "b510c88a",
+   "sizeBytes": 374595,
+   "crc32": "0e6af3a0",
    "sha256": "771cab11ed37575ac3f4dfbd664335bd027cb003f723f6844178e6d97d74bf32"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 156.jpg",
-   "sizeBytes": 374595,
-   "crc32": "0e6af3a0",
+   "sizeBytes": 437272,
+   "crc32": "f62c9bc9",
    "sha256": "fa3b1db86963ee987680349dad88ea2974beb8f48d53e6eba288bf2e9899b08a"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 157.jpg",
-   "sizeBytes": 437272,
-   "crc32": "f62c9bc9",
+   "sizeBytes": 422470,
+   "crc32": "fa616f7d",
    "sha256": "62ddd07c668a631a2729e4e8fd87931398a11876ed39a0033b31dd4ee9c9f863"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 158.jpg",
-   "sizeBytes": 422470,
-   "crc32": "fa616f7d",
+   "sizeBytes": 547432,
+   "crc32": "ce769b67",
    "sha256": "09c3acb6b3ec10e27cd08f13f4a0efa796f314c7e8724fa4527df177a8233a5f"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 159.jpg",
-   "sizeBytes": 547432,
-   "crc32": "ce769b67",
+   "sizeBytes": 465759,
+   "crc32": "eee16f01",
    "sha256": "613dcdd083d6373a8c39ef585c542f83bda23be450b1e78c16ebd3afc207f34d"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 160.jpg",
-   "sizeBytes": 465759,
-   "crc32": "eee16f01",
+   "sizeBytes": 477523,
+   "crc32": "e9b8d99d",
    "sha256": "4c4498418009f49a17ef079195c3ad169b9e07bea62b03a2f014d92c29291f64"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 161.jpg",
-   "sizeBytes": 477523,
-   "crc32": "e9b8d99d",
+   "sizeBytes": 438823,
+   "crc32": "65c53c19",
    "sha256": "d8f6d30f1c3b2f2b3d818b0f846651b4dc0768aca8131ed2a2f489fbefd1fbe4"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 162.jpg",
-   "sizeBytes": 438823,
-   "crc32": "65c53c19",
+   "sizeBytes": 557859,
+   "crc32": "b72114fd",
    "sha256": "8f481c57deb9e78d969b926be04b569cbcf9393ba65af6aa5c8373ad6b18b9ae"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 163.jpg",
-   "sizeBytes": 557859,
-   "crc32": "b72114fd",
+   "sizeBytes": 454813,
+   "crc32": "e9738b47",
    "sha256": "eef7ea76ba2171abdb8c5c389f38e703f6f802f20d7ca39bcafaeafa81bd4b92"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 164.jpg",
-   "sizeBytes": 454813,
-   "crc32": "e9738b47",
+   "sizeBytes": 360259,
+   "crc32": "fb3d5c06",
    "sha256": "5255fe54441ab02ea9a5a6a9577211e37289917c1d1054fe9c45189d7451853b"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 165.jpg",
-   "sizeBytes": 360259,
-   "crc32": "fb3d5c06",
+   "sizeBytes": 388043,
+   "crc32": "ee0aef15",
    "sha256": "23365a2efeefabf8bc6aab742d5f83e5205499bff31543ac42a71dacae3f135b"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 166.jpg",
-   "sizeBytes": 388043,
-   "crc32": "ee0aef15",
+   "sizeBytes": 409170,
+   "crc32": "747d01b7",
    "sha256": "aeef1f56c7a172f4b90c419cbf98446ab15ed0572b87ab686bfced00cbcf0953"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 167.jpg",
-   "sizeBytes": 409170,
-   "crc32": "747d01b7",
+   "sizeBytes": 362190,
+   "crc32": "47909d18",
    "sha256": "e3249e445de6400603d1f2cb45a45844751b7233f43d139d8c13ba2bd86a3ca3"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 168.jpg",
-   "sizeBytes": 362190,
-   "crc32": "47909d18",
+   "sizeBytes": 360665,
+   "crc32": "9f891cea",
    "sha256": "bbb3d2eab4f273e592f84d0189b51d1004fa9b807b3d4174800a2b3b2369ae69"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 169.jpg",
-   "sizeBytes": 360665,
-   "crc32": "9f891cea",
+   "sizeBytes": 340765,
+   "crc32": "7ab2ee78",
    "sha256": "1ed362a9b7f5226cf50d53954e608226e44f1fa988f156e1f9a01521565f434f"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 170.jpg",
-   "sizeBytes": 340765,
-   "crc32": "7ab2ee78",
+   "sizeBytes": 354526,
+   "crc32": "29a08ef0",
    "sha256": "237fe313cdc02d6ec5417b369ba338775a359070c2d5946e2d1cc5fd2a57933b"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 171.jpg",
-   "sizeBytes": 354526,
-   "crc32": "29a08ef0",
+   "sizeBytes": 301763,
+   "crc32": "38fa6a4d",
    "sha256": "64c30b0e522efe48e18a226ae4a942106a944b253faf4e3168f8206fc413c2eb"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 172.jpg",
-   "sizeBytes": 301763,
-   "crc32": "38fa6a4d",
+   "sizeBytes": 262348,
+   "crc32": "d08a227a",
    "sha256": "8362d8f05b27f13f374da4cd45f25208c1142dad3ea8602260c254395938561c"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 173.jpg",
-   "sizeBytes": 262348,
-   "crc32": "d08a227a",
+   "sizeBytes": 237725,
+   "crc32": "bc3e79f8",
    "sha256": "6d206e93e38905eaeba817a0921ec43f85f344313282275f41499d70bd0ec814"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 174.jpg",
-   "sizeBytes": 237725,
-   "crc32": "bc3e79f8",
+   "sizeBytes": 403084,
+   "crc32": "c090c865",
    "sha256": "00d072bb753f5344acc6502e1c0b7a0cf1b77d4c8fa77f830f15b003d87aaf12"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 175.jpg",
-   "sizeBytes": 403084,
-   "crc32": "c090c865",
+   "sizeBytes": 356915,
+   "crc32": "5fd56928",
    "sha256": "c1f5ebc658d6a6b0532eff2510f5d8df5b63e86d0ec9c1cebcf0456ab9fd271e"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 176.jpg",
-   "sizeBytes": 356915,
-   "crc32": "5fd56928",
+   "sizeBytes": 315656,
+   "crc32": "9ce7d26e",
    "sha256": "061c8c1032ee7ca9d5ec33ead7a081a369f4382af243c87cc6e98b59462872bc"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 177.jpg",
-   "sizeBytes": 315656,
-   "crc32": "9ce7d26e",
+   "sizeBytes": 388146,
+   "crc32": "fcea7bb7",
    "sha256": "4ff634d9c6b3d4ebe8828e9ff50190a65d00232ca1cca96c4218782927b40068"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 178.jpg",
-   "sizeBytes": 388146,
-   "crc32": "fcea7bb7",
+   "sizeBytes": 226988,
+   "crc32": "61a9a962",
    "sha256": "72409ed6b36ecbe936e7d74e5ee67bca1505016193fe060cec11d2ac47e8b646"
   },
   {
    "path": "MPD-Psycho v01 (2007) (Digital) (Lovag-Empire)/MPD-Psycho v01 (2007) (Digital) (Lovag-Empire) 179.jpg",
-   "sizeBytes": 226988,
-   "crc32": "61a9a962",
+   "sizeBytes": 253313,
+   "crc32": "e45b9599",
    "sha256": "a336b73df456cefbd4a7b94d4c595c2c6624ec8b769ad82fc51e83fdcfb27662"
   }
  ]

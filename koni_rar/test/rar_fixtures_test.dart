@@ -151,35 +151,22 @@ void main() {
       );
     });
 
-    test(
-      'a RAR4 signature is detected but opening throws (M10 scope)',
-      () async {
-        // Rar!\x1A\x07\x00 + junk: recognized as RAR, refused as v4.
-        final v4 = Uint8List.fromList([
-          0x52,
-          0x61,
-          0x72,
-          0x21,
-          0x1A,
-          0x07,
-          0x00,
-          0x00,
-          ...List.filled(32, 0),
-        ]);
-        const format = RarFormat();
-        expect(await format.matches(MemoryByteSource(v4)), isTrue);
-        await expectLater(
-          format.openReader(MemoryByteSource(v4), const ArchiveReadOptions()),
-          throwsA(
-            isA<UnsupportedFeatureException>().having(
-              (e) => e.message,
-              'message',
-              contains('RAR4'),
-            ),
-          ),
-        );
-      },
-    );
+    test('a RAR4 signature is detected and parsed as v4 (M10)', () async {
+      // Rar!\x1A\x07\x00 + junk: recognized as RAR; the RAR4 container
+      // parser then rejects the malformed body with a typed error (real
+      // RAR4 CBRs are validated by the conformance suite against the
+      // corpus, since rar 7.x cannot author v4 fixtures).
+      final v4 = Uint8List.fromList([
+        0x52, 0x61, 0x72, 0x21, 0x1A, 0x07, 0x00, //
+        0x00, ...List.filled(32, 0),
+      ]);
+      const format = RarFormat();
+      expect(await format.matches(MemoryByteSource(v4)), isTrue);
+      await expectLater(
+        format.openReader(MemoryByteSource(v4), const ArchiveReadOptions()),
+        throwsA(isA<ArchiveException>()),
+      );
+    });
   });
 
   group('robustness (§7)', () {

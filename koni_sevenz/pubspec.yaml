@@ -1,14 +1,14 @@
 name: koni_sevenz
 description: >-
   7z reader for the koni_archive ecosystem, including CB7 comic archives.
-version: 0.3.0-dev
+version: 0.3.0
 environment:
   sdk: ^3.7.0
 resolution: workspace
 
 dependencies:
-  koni_archive_core: ^0.3.0-dev
-  koni_codecs: ^0.3.0-dev
+  koni_archive_core: ^0.3.0
+  koni_codecs: ^0.3.0
 
 dev_dependencies:
   lints: ^6.0.0

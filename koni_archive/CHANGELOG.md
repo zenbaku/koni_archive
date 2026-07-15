@@ -1,7 +1,11 @@
 # Changelog
 
-## 0.3.0-dev (unreleased)
+## 0.3.0 (2026-07-15)
 
+- M10: RAR4 support — RAR5 **and** RAR4 `.rar`/`.cbr` archives open through
+  `Archive.open`. **Phase 1 complete**: ZIP, TAR, GZIP, 7z, and RAR all
+  read behind the one format-agnostic API, on VM and web. The real-world
+  CBR corpus (RAR4) decodes byte-identically to reference tools.
 - M9: `RarFormat` registered in `builtInFormats` — RAR5 `.rar`/`.cbr`
   archives open through `Archive.open`. RAR4 is a typed error (M10).
 

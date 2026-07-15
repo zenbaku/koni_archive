@@ -10,6 +10,8 @@ import 'package:koni_archive_core/koni_archive_core.dart';
 import 'package:koni_rar/koni_rar.dart';
 import 'package:test/test.dart';
 
+import 'src/rar4_builder.dart';
+
 /// Corpus-driven fuzz smoke (§11): bit-flip and truncation mutations over
 /// the committed fixtures. Invariant (§7): any input either parses or
 /// throws a typed [ArchiveException] — never a RangeError, never another
@@ -36,6 +38,10 @@ void main() {
               .where((f) => f.path.endsWith('.rar') || f.path.endsWith('.cbr'))
               .map((f) => f.readAsBytesSync())
               .toList();
+      // The committed fixtures are all RAR5 (rar 7.x can't author v4), so
+      // seed the RAR4 container into the mutation pool explicitly.
+      fixtures.add(buildRar4Store({'a.txt': 'hello', 'dir/b.bin': 'x' * 500}));
+      fixtures.add(buildRar4Store({'only.txt': 'single stored entry'}));
       expect(fixtures, isNotEmpty);
 
       final deadline = DateTime.now().add(budget);

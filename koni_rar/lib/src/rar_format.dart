@@ -34,12 +34,6 @@ final class RarFormat extends ArchiveFormat {
   ) async {
     final head = await source.read(0, 8);
     final isV5 = head[6] == 0x01 && head[7] == 0x00;
-    if (!isV5) {
-      throw UnsupportedFeatureException(
-        'RAR4 archives are not supported yet (RAR5 only)',
-        format: 'rar',
-      );
-    }
-    return RarReader.parse(this, source, options);
+    return RarReader.parse(this, source, options, isRar4: !isV5);
   }
 }

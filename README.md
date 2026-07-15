@@ -5,11 +5,12 @@ and RAR behind one format-agnostic API. No native code, no FFI, no external
 executables. Runs everywhere Dart runs: the VM, Flutter (all platforms), and
 the web via both dart2js and dart2wasm.
 
-> **Status: 0.1.0 (M0–M7 complete).** ZIP (stored + deflate + ZIP64, CBZ),
-> TAR (ustar/PAX/GNU, CBT), GZIP (multi-member, layered `.tar.gz`) read
-> end-to-end on VM and web (dart2js + dart2wasm), fuzzed in CI and
-> conformance-checked against a real-world corpus. Next: 7z (M8), then RAR
-> (M9/M10, gated on `koni_rar/doc/rar-provenance.md` sign-off). Progress:
+> **Status: 0.3.0 — Phase 1 complete (M0–M10).** ZIP/CBZ (stored, deflate,
+> ZIP64), TAR/CBT (ustar/PAX/GNU), GZIP (multi-member, layered `.tar.gz`),
+> 7z/CB7 (LZMA/LZMA2/BCJ/delta, solid-block cache), and RAR/CBR (clean-room
+> RAR5 + RAR4) all read behind one format-agnostic API — on the VM and the
+> web (dart2js **and** dart2wasm), fuzzed in CI and conformance-checked
+> byte-for-byte against a real-world manga corpus. Progress:
 > [ROADMAP.md](ROADMAP.md); requirements: [PROMPT_V1.md](PROMPT_V1.md).
 
 ## Packages

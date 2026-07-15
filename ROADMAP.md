@@ -22,7 +22,7 @@ Last updated: 2026-07-15 · Statuses: ⬜ not started · 🟨 in progress · ✅
 | M7  | ZIP hardening        | ZIP64, data-descriptor edge cases, encoding hook, encrypted-entry detection polish | ZIP64 fixtures pass; mojibake fixtures decode via hook | ✅     |
 | M8  | 7z                   | Container + LZMA → LZMA2 → BCJ(x86) → delta; solid-block LRU cache; BCJ2/PPMd/AES→typed errors | CB7 page-flip usable (bench recorded)                  | ✅     |
 | M9  | RAR5                 | ✅ Gate passed: provenance signed off 2026-07-15. Container + RAR5 codec           | CBR (v5) works                                         | ✅     |
-| M10 | RAR4                 | PPMd variant H + RarVM filters. Largest single milestone                          | CBR (v4) works — flagship use case complete            | 🟨     |
+| M10 | RAR4                 | Container + store + method-29 (v29 LZSS/Huffman); PPMd/RarVM/solid→typed errors    | CBR (v4) works — flagship use case complete            | ✅     |
 
 Every milestone additionally carries the standing definition of done
 (`PROMPT_V1.md` §13.2): all CI platforms green incl. dart2wasm, fixtures passing,
@@ -51,7 +51,7 @@ the codec infrastructure from M4's standalone-codec pattern.
 
 * **0.1.0** at M5 — facade, core, codecs, tar, zip, gzip (CBZ/CBT support).
 * **0.2.0** at M8 — sevenz (CB7 support).
-* **0.3.0** at M10 — rar (CBR support). Phase 1 complete.
+* **0.3.0** at M10 — rar (CBR support). **Phase 1 complete (2026-07-15).**
 * All packages stay 0.x with lockstep minor bumps until Phase 2 stabilizes the API.
 
 ---

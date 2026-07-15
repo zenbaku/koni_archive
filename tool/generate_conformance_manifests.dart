@@ -105,23 +105,27 @@ path = sys.argv[1]
 listing = subprocess.run(['unrar', 'lt', path], capture_output=True, text=True)
 entries = []
 name = size = crc = typ = None
+def flush():
+    global name, size, crc, typ
+    if typ == 'File' and name is not None:
+        data = subprocess.run(['unrar', 'p', '-inul', path, name],
+                              capture_output=True).stdout
+        entries.append({
+            'path': name,
+            'sizeBytes': size if size is not None else len(data),
+            'crc32': crc,
+            'sha256': hashlib.sha256(data).hexdigest(),
+        })
+    name = size = crc = typ = None
 for line in listing.stdout.splitlines():
     t = line.strip()
-    if t.startswith('Name: '): name = t[6:]
+    if t.startswith('Name: '):
+        flush()
+        name = t[6:]
     elif t.startswith('Size: '): size = int(t[6:].strip() or 0)
     elif t.startswith('CRC32: '): crc = t[7:].strip().lower().rjust(8, '0')
-    elif t.startswith('Type: '):
-        typ = t[6:].strip()
-        if typ == 'File' and name is not None:
-            data = subprocess.run(['unrar', 'p', '-inul', path, name],
-                                  capture_output=True).stdout
-            entries.append({
-                'path': name,
-                'sizeBytes': size if size is not None else len(data),
-                'crc32': crc,
-                'sha256': hashlib.sha256(data).hexdigest(),
-            })
-        name = size = crc = None
+    elif t.startswith('Type: '): typ = t[6:].strip()
+flush()
 raw = open(path, 'rb').read()
 ver = subprocess.run(['unrar'], capture_output=True, text=True).stdout.splitlines()[0].strip()
 print(json.dumps({

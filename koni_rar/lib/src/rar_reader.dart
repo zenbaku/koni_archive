@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:koni_archive_core/koni_archive_core.dart';
 
+import 'rar4_container.dart';
+import 'rar4_decoder.dart';
 import 'rar5_container.dart';
 import 'rar5_decoder.dart';
 
@@ -11,9 +13,10 @@ const int _readChunkSize = 64 * 1024;
 /// Cap on a single decoded file / solid run (§7).
 const int _maxFileSize = 1024 * 1024 * 1024;
 
-/// Reader for RAR5 archives (and CBR comics). Created via
-/// `RarFormat.openReader`. RAR4 is detected and reported as a typed error
-/// (M10 scope).
+/// Reader for RAR5 and RAR4 archives (and CBR comics). Created via
+/// `RarFormat.openReader`. RAR5 handles store + methods 1–5 (solid and
+/// non-solid); RAR4 handles store + method-29 (non-solid). PPMd, RarVM
+/// filters, and solid RAR4 surface as typed errors (see `doc/features.md`).
 final class RarReader extends ArchiveReader {
   RarReader._(this.format, this._source, this._options, this._headers)
     : entries = List.unmodifiable([for (final h in _headers) _toEntry(h)]) {
@@ -39,17 +42,22 @@ final class RarReader extends ArchiveReader {
   int _solidNextIndex = 0;
   bool _closed = false;
 
-  /// Parses the container. RAR5 headers are plaintext (unless whole-archive
-  /// encryption is used); O(entry count), no content decode (§4).
+  /// Parses the container (RAR5 or RAR4, per [isRar4]). Headers are
+  /// plaintext unless whole-archive encryption is used; O(entry count), no
+  /// content decode (§4).
   static Future<RarReader> parse(
     ArchiveFormat format,
     ByteSource source,
-    ArchiveReadOptions options,
-  ) async {
-    final toc = await Rar5Toc.parse(source, 8);
+    ArchiveReadOptions options, {
+    required bool isRar4,
+  }) async {
+    final toc =
+        isRar4
+            ? await parseRar4(source, 7) // RAR4 signature is 7 bytes
+            : await Rar5Toc.parse(source, 8);
     if (toc.headerEncrypted) {
       throw EncryptedArchiveException(
-        'the archive uses encrypted headers (-hp); not supported (§15)',
+        'the archive uses encrypted headers; not supported (§15)',
         format: 'rar',
       );
     }
@@ -104,7 +112,7 @@ final class RarReader extends ArchiveReader {
         entryPath: entry.path,
       );
     }
-    if (header.version != 50) {
+    if (header.version != 50 && header.version != 29) {
       throw UnsupportedFeatureException(
         'unsupported RAR compression version ${header.version}',
         format: 'rar',
@@ -133,6 +141,16 @@ final class RarReader extends ArchiveReader {
     try {
       decoded = await _decodeToBytes(index, header, entry.path);
     } on FormatException catch (e) {
+      // A decoder feature we deliberately defer (RarVM filters, PPMd)
+      // surfaces as an unsupported-feature error, not corruption (§8/§9),
+      // so one such entry never implies the archive is damaged.
+      if (e.message.contains('not supported')) {
+        throw UnsupportedFeatureException(
+          e.message,
+          format: 'rar',
+          entryPath: entry.path,
+        );
+      }
       throw CorruptArchiveException(
         'bad compressed data: ${e.message}',
         format: 'rar',
@@ -195,13 +213,27 @@ final class RarReader extends ArchiveReader {
             ? header.unpackedSize
             : header.windowSize,
       );
-      final decoder = Rar5Decoder(Uint8List(windowLen));
-      decoder.decompressFile(data, header.unpackedSize);
-      return Uint8List.sublistView(decoder.output, 0, header.unpackedSize);
+      final output = Uint8List(windowLen);
+      if (header.version == 29) {
+        Rar4Decoder(output).decompressFile(data, header.unpackedSize);
+      } else {
+        Rar5Decoder(output).decompressFile(data, header.unpackedSize);
+      }
+      return Uint8List.sublistView(output, 0, header.unpackedSize);
     }
 
-    // Solid: decode from the run start into a shared window, keeping every
-    // file's output so a later (or repeat) read is a slice.
+    // Solid RAR4 uses persistent cross-file table state that differs from
+    // RAR5; it is a documented deferral (§8) — real-world CBRs are
+    // non-solid. Solid RAR5 is fully supported below.
+    if (header.version == 29) {
+      throw UnsupportedFeatureException(
+        'solid RAR4 archives are not supported yet',
+        format: 'rar',
+        entryPath: entryPath,
+      );
+    }
+    // Solid RAR5: decode from the run start into a shared window, keeping
+    // every file's output so a later (or repeat) read is a slice.
     return _decodeSolid(index, header, entryPath);
   }
 
