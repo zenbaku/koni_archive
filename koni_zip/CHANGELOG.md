@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0 (2026-07-15)
+
+- M7 hardening shipped here: see below.
+
 ## 0.1.0 (2026-07-15)
 
 - M7: ZIP hardening.

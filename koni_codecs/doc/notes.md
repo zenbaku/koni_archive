@@ -53,3 +53,24 @@ zlib module (`zlib.compressobj(level, zlib.DEFLATED, -15)`) and hand-framed
 gzip members; the VM differential suite generates fresh vectors from
 `dart:io`'s ZLibCodec on every run. Degenerate-Huffman and corruption
 vectors are hand-rolled bit streams (see inflate_test.dart).
+
+## LZMA / LZMA2 / branch filters (M8)
+
+- Implemented from the public-domain LZMA specification (LzmaSpec.cpp /
+  lzma-specification.txt, LZMA SDK). Differential-tested against liblzma
+  through CPython's `lzma` module (FORMAT_ALONE, FORMAT_RAW LZMA2,
+  FILTER_DELTA, FILTER_X86 pipelines).
+- Archive containers always know output sizes, so `LzmaDecoder` /
+  `Lzma2Decoder` write into a caller-provided buffer that doubles as the
+  match window (no separate window management). Input is chunk-driven with
+  suspension at symbol boundaries (64-byte starvation guard) — §6.4's
+  chunked model; the `Converter` facade is deferred until a standalone
+  `.lzma`/`.xz` consumer exists (§13.1).
+- Range-coder arithmetic stays within unsigned 32-bit (explicit masks) —
+  portable to dart2js.
+- `bcjX86Decode`/`deltaDecode` operate in place on whole buffers (folders
+  decode as units in 7z); the BCJ algorithm follows the public-domain
+  Bra86/xz-embedded reference and is vector-verified against liblzma.
+
+Regeneration of LZMA vectors: see `test/src/lzma_vectors.dart` header
+(CPython `lzma.compress` invocations are documented per vector).

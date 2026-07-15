@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0 (2026-07-15)
+
+- lockstep release; no changes since 0.1.0.
+
 ## 0.1.0 (2026-07-15)
 
 - M2: TAR reader, full §8 scope.

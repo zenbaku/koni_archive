@@ -10,5 +10,8 @@
 library;
 
 export 'src/bit_reader.dart';
+export 'src/filters.dart';
 export 'src/gzip.dart';
 export 'src/inflate.dart';
+export 'src/lzma.dart';
+export 'src/lzma2.dart';

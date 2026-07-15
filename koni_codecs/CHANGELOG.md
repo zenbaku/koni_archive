@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0 (2026-07-15)
+
+- M8: LZMA (`LzmaDecoder`), LZMA2 (`Lzma2Decoder`), and branch filters
+  (`deltaDecode`, `bcjX86Decode`) — implemented from the public-domain
+  LZMA specification, differential-tested against liblzma (CPython
+  vectors), chunk-driven with buffer-backed windows.
+
 ## 0.1.0 (2026-07-15)
 
 - M4: inflate + gzip codecs.

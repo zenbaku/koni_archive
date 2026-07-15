@@ -52,9 +52,10 @@ void main() {
     );
   });
 
-  test('builtInFormats order: zip, gzip, tar (heuristic probe last)', () {
+  test('builtInFormats order: precise magics first, tar last', () {
     expect(builtInFormats.formats.map((f) => f.name).toList(), [
       'zip',
+      '7z',
       'gzip',
       'tar',
     ]);

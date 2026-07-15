@@ -1,13 +1,13 @@
 name: koni_tar
 description: >-
   TAR reader (ustar, PAX, GNU extensions) for the koni_archive ecosystem.
-version: 0.1.0
+version: 0.2.0
 environment:
   sdk: ^3.7.0
 resolution: workspace
 
 dependencies:
-  koni_archive_core: ^0.1.0
+  koni_archive_core: ^0.2.0
 
 dev_dependencies:
   archive: ^4.0.0

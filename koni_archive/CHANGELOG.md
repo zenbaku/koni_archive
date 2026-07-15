@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0 (2026-07-15)
+
+- M8: `SevenZFormat` registered in `builtInFormats` — `.7z`/`.cb7`
+  archives open through `Archive.open`; CB7 page-flip served by the
+  solid-block LRU cache.
+
 ## 0.1.0 (2026-07-15)
 
 - M6: the facade layers TAR into gzip — `.tar.gz`/`.tgz` opens as the

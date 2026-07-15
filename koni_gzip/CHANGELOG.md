@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0 (2026-07-15)
+
+- M6 tar.gz layering shipped here: see below.
+
 ## 0.1.0 (2026-07-15)
 
 - M6: `.tar.gz` layering (§8) — `GzipFormat(layeredFormats: [...])` probes

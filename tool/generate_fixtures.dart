@@ -14,6 +14,7 @@
 // its own set (M2: tar, M3/M5: zip, M4: gzip, M8: 7z, M9/M10: rar — including
 // the synthetic CBZ/CBR/CB7 fixtures with dummy page images).
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -40,7 +41,139 @@ final List<FixtureSet> fixtureSets = [
   TarFixtureSet(),
   ZipFixtureSet(),
   GzipFixtureSet(),
+  SevenZFixtureSet(),
 ];
+
+/// 7z fixtures (M8): codec/filter matrix, solid + non-solid blocks,
+/// encrypted and deferred-codec archives, and a synthetic CB7 comic.
+final class SevenZFixtureSet implements FixtureSet {
+  @override
+  String get id => 'sevenz';
+
+  @override
+  String get package => 'koni_sevenz';
+
+  @override
+  List<String> get requiredTools => ['7zz'];
+
+  @override
+  Future<void> generate(Directory outDir) async {
+    final staging = Directory.systemTemp.createTempSync('koni_archive_fx');
+    try {
+      final root = staging.path;
+      final out = outDir.absolute.path;
+
+      void file(String rel, List<int> bytes) {
+        File('$root/$rel')
+          ..createSync(recursive: true)
+          ..writeAsBytesSync(bytes);
+      }
+
+      file('hello.txt', 'hello, 7z!\n'.codeUnits);
+      file('empty.txt', const []);
+      file(
+        'nested/deep/data.bin',
+        List.generate(100000, (i) => ((i * 7) ^ (i >> 3)) & 0xFF),
+      );
+      file('日本語/ページ001.txt', 'unicode page\n'.codeUnits);
+      // Synthetic x86-ish payload so the BCJ filter has calls to convert.
+      final code = <int>[];
+      var seed = 12345;
+      while (code.length < 50000) {
+        seed = (seed * 1103515245 + 12345) & 0x7FFFFFFF;
+        if (seed % 7 == 0) {
+          code.addAll([
+            0xE8,
+            seed & 0xFF,
+            (seed >> 8) & 0xFF,
+            (seed >> 16) & 0x0F,
+            0x00,
+          ]);
+        } else {
+          code.add(seed & 0xFF);
+        }
+      }
+      file('program.bin', code);
+      for (var i = 1; i <= 3; i++) {
+        file('comic/page00$i.png', TarFixtureSet._dummyPng(i));
+      }
+      file(
+        'comic/ComicInfo.xml',
+        '<ComicInfo><Series>Synthetic</Series></ComicInfo>\n'.codeUnits,
+      );
+
+      await TarFixtureSet._run('chmod', ['-R', 'u=rwX,go=rX', '.'], cwd: root);
+      final all =
+          staging
+              .listSync(recursive: true)
+              .map((e) => e.path.substring(root.length + 1))
+              .toList();
+      await TarFixtureSet._run('touch', [
+        '-t', '202001020304.05', ...all, '.', //
+      ], cwd: root);
+
+      Future<void> sevenZip(
+        String name,
+        List<String> args,
+        List<String> members,
+      ) => TarFixtureSet._run('7zz', [
+        'a', '-y', '-stl', // -stl: archive mtime from newest file
+        ...args,
+        '$out/$name',
+        ...members,
+      ], cwd: root);
+
+      const basicMembers = ['hello.txt', 'empty.txt', 'nested', '日本語'];
+      // Default (LZMA2, solid).
+      await sevenZip('lzma2_solid.7z', ['-m0=LZMA2', '-ms=on'], basicMembers);
+      await sevenZip('lzma2_nonsolid.7z', [
+        '-m0=LZMA2',
+        '-ms=off',
+      ], basicMembers);
+      await sevenZip('lzma1.7z', ['-m0=LZMA'], basicMembers);
+      await sevenZip('copy.7z', ['-m0=Copy'], basicMembers);
+      await sevenZip('deflate.7z', ['-m0=Deflate'], basicMembers);
+      await sevenZip(
+        'bcj_lzma2.7z',
+        [
+          '-m0=BCJ', '-m1=LZMA2', //
+        ],
+        ['program.bin'],
+      );
+      await sevenZip(
+        'delta_lzma2.7z',
+        [
+          '-m0=Delta:4', '-m1=LZMA2', //
+        ],
+        ['nested/deep/data.bin'],
+      );
+      // Deferred codecs -> typed errors (§8).
+      await sevenZip('ppmd.7z', ['-m0=PPMd'], ['hello.txt']);
+      await sevenZip(
+        'bcj2.7z',
+        ['-m0=BCJ2', '-m1=LZMA2', '-m2=LZMA', '-m3=LZMA'],
+        ['program.bin'],
+      );
+      await sevenZip('encrypted.7z', ['-psecret'], ['hello.txt']);
+      await sevenZip(
+        'encrypted_header.7z',
+        ['-psecret', '-mhe=on'],
+        ['hello.txt'],
+      );
+      // CB7 comic (solid LZMA2), the flagship shape.
+      await TarFixtureSet._run('7zz', [
+        'a',
+        '-y',
+        '-m0=LZMA2',
+        '-ms=on',
+        '$out/synthetic_comic.cb7',
+        'comic',
+      ], cwd: root);
+    } finally {
+      staging.deleteSync(recursive: true);
+    }
+  }
+}
 
 /// GZIP fixtures (M4): named, anonymous, and multi-member .gz files.
 final class GzipFixtureSet implements FixtureSet {
@@ -484,7 +617,11 @@ Future<Map<String, String?>> _detectTools() async {
   final result = <String, String?>{};
   for (final MapEntry(key: name, value: cmd) in _versionCommands.entries) {
     try {
-      final probe = await Process.run(cmd.first, cmd.skip(1).toList());
+      // Timeout guard: a Gatekeeper-blocked binary hangs at exec forever.
+      final probe = await Process.run(
+        cmd.first,
+        cmd.skip(1).toList(),
+      ).timeout(const Duration(seconds: 30));
       final lines = '${probe.stdout}\n${probe.stderr}'
           .split('\n')
           .map((l) => l.trim())
@@ -496,6 +633,8 @@ Future<Map<String, String?>> _detectTools() async {
         orElse: () => lines.first,
       );
     } on ProcessException {
+      result[name] = null;
+    } on TimeoutException {
       result[name] = null;
     }
   }

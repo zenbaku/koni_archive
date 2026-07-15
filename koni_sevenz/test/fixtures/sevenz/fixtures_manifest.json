@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "set": "sevenz",
+  "tools": {
+    "7zz": "7-Zip (z) 26.02 (arm64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-06-25"
+  },
+  "files": [
+    "bcj2.7z",
+    "bcj_lzma2.7z",
+    "copy.7z",
+    "deflate.7z",
+    "delta_lzma2.7z",
+    "encrypted.7z",
+    "encrypted_header.7z",
+    "lzma1.7z",
+    "lzma2_nonsolid.7z",
+    "lzma2_solid.7z",
+    "ppmd.7z",
+    "synthetic_comic.cb7"
+  ]
+}
