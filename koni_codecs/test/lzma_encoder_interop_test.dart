@@ -43,8 +43,10 @@ void main() {
   }
 
   final payloads = <String, Uint8List Function()>{
-    'ascii text': () =>
-        Uint8List.fromList(('the quick brown fox, lzma edition. ' * 250).codeUnits),
+    'ascii text':
+        () => Uint8List.fromList(
+          ('the quick brown fox, lzma edition. ' * 250).codeUnits,
+        ),
     'random bytes': () {
       final random = Random(1234);
       return Uint8List.fromList(
@@ -52,9 +54,10 @@ void main() {
       );
     },
     'all zeros': () => Uint8List(100000),
-    'byte structure': () => Uint8List.fromList(
-      List.generate(65536, (i) => ((i * 3) ^ (i >> 5)) & 0xFF),
-    ),
+    'byte structure':
+        () => Uint8List.fromList(
+          List.generate(65536, (i) => ((i * 3) ^ (i >> 5)) & 0xFF),
+        ),
     'single byte': () => Uint8List.fromList([0]),
   };
 
@@ -174,8 +177,9 @@ void main() {
       markTestSkipped('no `python3` on PATH; liblzma interop skipped');
       return;
     }
-    final payload =
-        Uint8List.fromList(('chunked lzma2 for the seven-zip writer. ' * 2000).codeUnits);
+    final payload = Uint8List.fromList(
+      ('chunked lzma2 for the seven-zip writer. ' * 2000).codeUnits,
+    );
     final encoder = Lzma2Encoder(chunkSize: 1 << 13);
     final stream = encoder.encode(payload);
     expect(await liblzmaDecodeRaw2(stream, 1 << 23), payload);
@@ -245,7 +249,11 @@ void main() {
 /// Frames a raw LZMA stream as `.lzma` (FORMAT_ALONE): 13-byte header of
 /// props byte, little-endian u32 dictionary size, little-endian u64
 /// uncompressed size.
-Uint8List _aloneFrame(LzmaEncoder encoder, int uncompressedSize, Uint8List stream) {
+Uint8List _aloneFrame(
+  LzmaEncoder encoder,
+  int uncompressedSize,
+  Uint8List stream,
+) {
   final header = Uint8List(13);
   header.setAll(0, encoder.sevenZipProps());
   var size = uncompressedSize;

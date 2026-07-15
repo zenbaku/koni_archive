@@ -90,8 +90,7 @@ void _row(
     watch.stop();
     if (watch.elapsed < best) best = watch.elapsed;
   }
-  final mbps =
-      payload.length / (1024 * 1024) / (best.inMicroseconds / 1e6);
+  final mbps = payload.length / (1024 * 1024) / (best.inMicroseconds / 1e6);
   final ratio = (100 * outputSize / payload.length).toStringAsFixed(1);
   stdout.writeln(
     '| $name | ${(best.inMicroseconds / 1000).toStringAsFixed(1)} ms | '

@@ -48,9 +48,7 @@ void main() {
     });
 
     test('long all-ones runs force carry cascades through 0xFF caches', () {
-      final ops = [
-        for (var i = 0; i < 10000; i++) _Op.direct(0x3FFFFFFF, 30),
-      ];
+      final ops = [for (var i = 0; i < 10000; i++) _Op.direct(0x3FFFFFFF, 30)];
       _roundTrip(ops, reason: 'all-ones direct bits');
     });
 
@@ -129,7 +127,9 @@ void main() {
   group('LzmaEncoder round-trips through LzmaDecoder', () {
     final payloads = <String, Uint8List Function()>{
       'ascii text':
-          () => Uint8List.fromList(('koni archive writes LZMA now. ' * 100).codeUnits),
+          () => Uint8List.fromList(
+            ('koni archive writes LZMA now. ' * 100).codeUnits,
+          ),
       'random bytes': () {
         final random = Random(42);
         return Uint8List.fromList(
@@ -137,8 +137,8 @@ void main() {
         );
       },
       'all zeros': () => Uint8List(30000),
-      'byte ramp': () =>
-          Uint8List.fromList(List.generate(8192, (i) => i & 0xFF)),
+      'byte ramp':
+          () => Uint8List.fromList(List.generate(8192, (i) => i & 0xFF)),
       'single byte': () => Uint8List.fromList([0x7F]),
       'empty': () => Uint8List(0),
     };
@@ -148,10 +148,7 @@ void main() {
         final payload = build();
         final encoder = LzmaEncoder();
         final stream = encoder.encode(payload);
-        expect(
-          _decodeOurs(stream, encoder.propsByte, payload.length),
-          payload,
-        );
+        expect(_decodeOurs(stream, encoder.propsByte, payload.length), payload);
       });
     }
 
@@ -185,8 +182,9 @@ void main() {
     });
 
     test('repetitive text produces real compression', () {
-      final payload =
-          Uint8List.fromList(('a page of prose, repeated often enough. ' * 2000).codeUnits);
+      final payload = Uint8List.fromList(
+        ('a page of prose, repeated often enough. ' * 2000).codeUnits,
+      );
       final encoder = LzmaEncoder();
       final stream = encoder.encode(payload);
       expect(_decodeOurs(stream, encoder.propsByte, payload.length), payload);
@@ -206,9 +204,10 @@ void main() {
     });
 
     test('match runs exactly to the end of the buffer', () {
-      final payload = Uint8List.fromList(
-        [...('abcdefgh' * 2).codeUnits, ...('XYZW1234' * 40).codeUnits],
-      );
+      final payload = Uint8List.fromList([
+        ...('abcdefgh' * 2).codeUnits,
+        ...('XYZW1234' * 40).codeUnits,
+      ]);
       final encoder = LzmaEncoder();
       final stream = encoder.encode(payload);
       expect(_decodeOurs(stream, encoder.propsByte, payload.length), payload);
@@ -317,8 +316,9 @@ void main() {
     }
 
     test('compressible text: single compressed chunk, reset 3 first', () {
-      final payload =
-          Uint8List.fromList(('lzma2 framing over lzma1 chunks. ' * 500).codeUnits);
+      final payload = Uint8List.fromList(
+        ('lzma2 framing over lzma1 chunks. ' * 500).codeUnits,
+      );
       final stream = Lzma2Encoder().encode(payload);
       expect(stream[0], 0xE0, reason: 'first chunk resets props+state+dict');
       expect(stream.last, 0, reason: 'end marker');
@@ -485,9 +485,7 @@ final class _Op {
   _Op.bit(this.slot, this.value) : kind = _OpKind.bit, bits = 1;
   _Op.direct(this.value, this.bits) : kind = _OpKind.direct, slot = 0;
   _Op.tree(this.bits, this.value) : kind = _OpKind.tree, slot = 0;
-  _Op.treeReverse(this.bits, this.value)
-    : kind = _OpKind.treeReverse,
-      slot = 0;
+  _Op.treeReverse(this.bits, this.value) : kind = _OpKind.treeReverse, slot = 0;
 
   final _OpKind kind;
   final int slot; // probability slot for single bits

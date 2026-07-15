@@ -54,32 +54,35 @@ void main() {
     return sink.takeBytes();
   }
 
-  test('7zz t validates a koni_sevenz archive (lzma2 default + copy)', () async {
-    if (sevenZip == null) {
-      markTestSkipped('no `7zz` on PATH; interop check skipped');
-      return;
-    }
-    final archive = await build(const ArchiveWriteOptions());
-    final dir = Directory.systemTemp.createTempSync('koni_7z_interop');
-    try {
-      final path = '${dir.path}/out.7z';
-      File(path).writeAsBytesSync(archive);
-      final result = await Process.run(
-        sevenZip,
-        ['t', path],
-        stdoutEncoding: latin1,
-        stderrEncoding: latin1,
-      );
-      expect(
-        result.exitCode,
-        0,
-        reason: '7zz t failed: ${result.stdout}\n${result.stderr}',
-      );
-      expect(result.stdout, contains('Everything is Ok'));
-    } finally {
-      dir.deleteSync(recursive: true);
-    }
-  });
+  test(
+    '7zz t validates a koni_sevenz archive (lzma2 default + copy)',
+    () async {
+      if (sevenZip == null) {
+        markTestSkipped('no `7zz` on PATH; interop check skipped');
+        return;
+      }
+      final archive = await build(const ArchiveWriteOptions());
+      final dir = Directory.systemTemp.createTempSync('koni_7z_interop');
+      try {
+        final path = '${dir.path}/out.7z';
+        File(path).writeAsBytesSync(archive);
+        final result = await Process.run(
+          sevenZip,
+          ['t', path],
+          stdoutEncoding: latin1,
+          stderrEncoding: latin1,
+        );
+        expect(
+          result.exitCode,
+          0,
+          reason: '7zz t failed: ${result.stdout}\n${result.stderr}',
+        );
+        expect(result.stdout, contains('Everything is Ok'));
+      } finally {
+        dir.deleteSync(recursive: true);
+      }
+    },
+  );
 
   test('7zz validates a many-entry archive (multi-byte 7z numbers)', () async {
     if (sevenZip == null) {
@@ -172,77 +175,82 @@ void main() {
     }
   });
 
-  test('7zz extracts every coder, incl. multi-chunk + fallback LZMA2', () async {
-    if (sevenZip == null) {
-      markTestSkipped('no `7zz` on PATH; interop check skipped');
-      return;
-    }
-    final random = Random(17);
-    // > 2 MiB compressible: several full-size LZMA2 chunks. Noise segments
-    // force uncompressed-chunk fallbacks and state resets mid-stream.
-    final big = BytesBuilder(copy: false);
-    for (var i = 0; i < 8; i++) {
-      big.add(utf8.encode('panel $i of a very repetitive comic page. ' * 8000));
-      big.add(List.generate(40000, (_) => random.nextInt(256)));
-    }
-    final expected = <String, (ArchiveCompression?, Uint8List)>{
-      'big.dat': (null, big.takeBytes()), // lzma2 default
-      'classic.bin': (
-        ArchiveCompression.lzma,
-        Uint8List.fromList(utf8.encode('lzma1 folder ' * 5000)),
-      ),
-      'flate.txt': (
-        ArchiveCompression.deflate,
-        Uint8List.fromList(utf8.encode('deflate folder ' * 2000)),
-      ),
-      'stored.raw': (
-        ArchiveCompression.stored,
-        Uint8List.fromList(List.generate(5000, (i) => (i * 31) & 0xFF)),
-      ),
-    };
+  test(
+    '7zz extracts every coder, incl. multi-chunk + fallback LZMA2',
+    () async {
+      if (sevenZip == null) {
+        markTestSkipped('no `7zz` on PATH; interop check skipped');
+        return;
+      }
+      final random = Random(17);
+      // > 2 MiB compressible: several full-size LZMA2 chunks. Noise segments
+      // force uncompressed-chunk fallbacks and state resets mid-stream.
+      final big = BytesBuilder(copy: false);
+      for (var i = 0; i < 8; i++) {
+        big.add(
+          utf8.encode('panel $i of a very repetitive comic page. ' * 8000),
+        );
+        big.add(List.generate(40000, (_) => random.nextInt(256)));
+      }
+      final expected = <String, (ArchiveCompression?, Uint8List)>{
+        'big.dat': (null, big.takeBytes()), // lzma2 default
+        'classic.bin': (
+          ArchiveCompression.lzma,
+          Uint8List.fromList(utf8.encode('lzma1 folder ' * 5000)),
+        ),
+        'flate.txt': (
+          ArchiveCompression.deflate,
+          Uint8List.fromList(utf8.encode('deflate folder ' * 2000)),
+        ),
+        'stored.raw': (
+          ArchiveCompression.stored,
+          Uint8List.fromList(List.generate(5000, (i) => (i * 31) & 0xFF)),
+        ),
+      };
 
-    final sink = BytesBuilderSink();
-    final writer = const SevenZWriteFormat().openWriter(
-      sink,
-      const ArchiveWriteOptions(),
-    );
-    for (final MapEntry(key: path, value: (method, content))
-        in expected.entries) {
-      await writer.addBytes(
-        ArchiveEntrySpec(path: path, compression: method),
-        content,
+      final sink = BytesBuilderSink();
+      final writer = const SevenZWriteFormat().openWriter(
+        sink,
+        const ArchiveWriteOptions(),
       );
-    }
-    await writer.close();
-    await sink.close();
-
-    final dir = Directory.systemTemp.createTempSync('koni_7z_coders');
-    try {
-      final path = '${dir.path}/coders.7z';
-      File(path).writeAsBytesSync(sink.takeBytes());
-      final out = Directory('${dir.path}/x')..createSync();
-      final result = await Process.run(
-        sevenZip,
-        ['x', path, '-o${out.path}', '-y'],
-        stdoutEncoding: latin1,
-        stderrEncoding: latin1,
-      );
-      expect(
-        result.exitCode,
-        0,
-        reason: '7zz x failed: ${result.stdout}\n${result.stderr}',
-      );
-      for (final MapEntry(key: p, value: (_, content)) in expected.entries) {
-        expect(
-          File('${out.path}/$p').readAsBytesSync(),
+      for (final MapEntry(key: path, value: (method, content))
+          in expected.entries) {
+        await writer.addBytes(
+          ArchiveEntrySpec(path: path, compression: method),
           content,
-          reason: 'content of $p',
         );
       }
-    } finally {
-      dir.deleteSync(recursive: true);
-    }
-  });
+      await writer.close();
+      await sink.close();
+
+      final dir = Directory.systemTemp.createTempSync('koni_7z_coders');
+      try {
+        final path = '${dir.path}/coders.7z';
+        File(path).writeAsBytesSync(sink.takeBytes());
+        final out = Directory('${dir.path}/x')..createSync();
+        final result = await Process.run(
+          sevenZip,
+          ['x', path, '-o${out.path}', '-y'],
+          stdoutEncoding: latin1,
+          stderrEncoding: latin1,
+        );
+        expect(
+          result.exitCode,
+          0,
+          reason: '7zz x failed: ${result.stdout}\n${result.stderr}',
+        );
+        for (final MapEntry(key: p, value: (_, content)) in expected.entries) {
+          expect(
+            File('${out.path}/$p').readAsBytesSync(),
+            content,
+            reason: 'content of $p',
+          );
+        }
+      } finally {
+        dir.deleteSync(recursive: true);
+      }
+    },
+  );
 }
 
 String? _find(String name) {

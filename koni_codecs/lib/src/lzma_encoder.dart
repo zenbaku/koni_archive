@@ -90,7 +90,12 @@ final class RangeEncoder {
 
   /// Encodes [symbol] as [numBits] bits, LSB first, through a reverse
   /// bit-tree at `probs[offset..]` (the decoder's `_treeReverse`).
-  void encodeTreeReverse(Uint16List probs, int offset, int numBits, int symbol) {
+  void encodeTreeReverse(
+    Uint16List probs,
+    int offset,
+    int numBits,
+    int symbol,
+  ) {
     var m = 1;
     var rest = symbol;
     for (var i = 0; i < numBits; i++) {
@@ -157,7 +162,13 @@ final class LzmaEncoder {
   LzmaEncoder({this.lc = 3, this.lp = 0, this.pb = 2, this.dictSize = 1 << 23})
     : _lpMask = (1 << lp) - 1,
       _pbMask = (1 << pb) - 1 {
-    if (lc < 0 || lc > 8 || lp < 0 || lp > 4 || pb < 0 || pb > 4 || lc + lp > 4) {
+    if (lc < 0 ||
+        lc > 8 ||
+        lp < 0 ||
+        lp > 4 ||
+        pb < 0 ||
+        pb > 4 ||
+        lc + lp > 4) {
       throw ArgumentError('invalid LZMA properties lc=$lc lp=$lp pb=$pb');
     }
     if (dictSize < (1 << 12) || dictSize > (1 << 30)) {
@@ -347,8 +358,7 @@ final class LzmaEncoder {
     if (pos + _minMatch > _dataEnd) {
       return false; // too close to the end even to hash
     }
-    final maxLen =
-        _dataEnd - pos < _maxMatch ? _dataEnd - pos : _maxMatch;
+    final maxLen = _dataEnd - pos < _maxMatch ? _dataEnd - pos : _maxMatch;
     final h = _hash4(pos);
     var candidate = _head[h];
     assert(
