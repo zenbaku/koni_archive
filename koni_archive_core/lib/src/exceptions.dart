@@ -19,6 +19,7 @@ library;
 ///   - [UnsupportedFeatureException]
 ///     - [UnsupportedCompressionException]
 ///   - [EncryptedArchiveException]
+///     - [InvalidPasswordException]
 ///   - [SizeLimitExceededException]
 ///   - [ArchiveClosedException]
 ///   - [EntryNotFoundException]
@@ -157,11 +158,32 @@ class UnsupportedCompressionException extends UnsupportedFeatureException {
   final int? methodId;
 }
 
-/// The archive (or the requested entry) is encrypted. Phase 1 detects
-/// encryption and reports it; decryption is a non-goal (§15).
+/// The archive (or the requested entry) is encrypted and no password was
+/// supplied, or it uses an encryption scheme this implementation does not
+/// support (`doc/encryption-scope.md` — e.g. ZIP strong encryption, RAR4
+/// encrypted headers).
 class EncryptedArchiveException extends ArchiveException {
   /// Creates an [EncryptedArchiveException].
   EncryptedArchiveException(
+    super.message, {
+    super.format,
+    super.offset,
+    super.entryPath,
+  });
+}
+
+/// The supplied password failed the format's password check.
+///
+/// How reliably a wrong password is *distinguishable from corruption*
+/// varies by format: RAR5 carries an 8-byte check value (practically
+/// certain), WinZip AES a 2-byte verifier (1/65536 false accept),
+/// zipcrypto a 1-byte check (1/256 — a wrong password can also surface as
+/// a [CorruptArchiveException] or [ChecksumMismatchException] instead),
+/// and 7z has no check at all, so a wrong password there always surfaces
+/// as corrupt data or a checksum mismatch, never as this exception.
+class InvalidPasswordException extends EncryptedArchiveException {
+  /// Creates an [InvalidPasswordException].
+  InvalidPasswordException(
     super.message, {
     super.format,
     super.offset,

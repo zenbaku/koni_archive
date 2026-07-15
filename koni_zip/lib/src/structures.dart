@@ -253,21 +253,43 @@ final class CentralEntry {
   CentralEntry._({
     required this.entry,
     required this.methodId,
+    required this.effectiveMethodId,
     required this.localHeaderOffset,
     required this.compressedSize,
+    required this.flags,
+    required this.dosTime,
+    required this.aesExtra,
   });
 
   /// The public entry model.
   final ArchiveEntry entry;
 
-  /// Raw ZIP method id (0 = stored, 8 = deflate, …).
+  /// Raw ZIP method id from the record (0 = stored, 8 = deflate, 99 = the
+  /// WinZip AES wrapper).
   final int methodId;
+
+  /// Compression method to apply *after* decryption. Equals [methodId]
+  /// except for AES (method 99), where it is the inner method named by the
+  /// 0x9901 extra field.
+  final int effectiveMethodId;
 
   /// Absolute offset of the local file header (prefix-adjusted).
   final int localHeaderOffset;
 
-  /// Stored byte count of the content in the archive.
+  /// Stored byte count of the content in the archive — including any
+  /// encryption header/salt/MAC overhead.
   final int compressedSize;
+
+  /// General-purpose bit flags (bit 0 = encrypted, bit 3 = data
+  /// descriptor). Needed to pick the traditional-cipher password check.
+  final int flags;
+
+  /// Raw DOS mod-time field — the traditional cipher's check byte when the
+  /// entry carries a data descriptor (bit 3).
+  final int dosTime;
+
+  /// The 0x9901 extra payload when [methodId] is 99, else null.
+  final Uint8List? aesExtra;
 
   /// Parses the whole central directory.
   static Future<List<CentralEntry>> parseDirectory(
@@ -367,9 +389,11 @@ final class CentralEntry {
     // AE-x (method 99, whose 0x9901 extra names the real inner method).
     final isEncrypted = flags & 0x1 != 0 || flags & 0x40 != 0 || methodId == 99;
     var effectiveMethodId = methodId;
+    Uint8List? aesExtra;
     if (methodId == 99) {
       final aes = _findExtra(extra, 0x9901);
       if (aes != null && aes.length >= 7) {
+        aesExtra = aes;
         effectiveMethodId = aes[5] | (aes[6] << 8);
       }
     }
@@ -407,8 +431,12 @@ final class CentralEntry {
     return CentralEntry._(
       entry: entry,
       methodId: methodId,
+      effectiveMethodId: effectiveMethodId,
       localHeaderOffset: localHeaderOffset + prefixLength,
       compressedSize: compressedSize,
+      flags: flags,
+      dosTime: dosTime,
+      aesExtra: aesExtra,
     );
   }
 

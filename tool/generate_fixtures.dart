@@ -338,7 +338,7 @@ final class ZipFixtureSet implements FixtureSet {
   String get package => 'koni_zip';
 
   @override
-  List<String> get requiredTools => ['zip'];
+  List<String> get requiredTools => ['zip', '7zz'];
 
   @override
   Future<void> generate(Directory outDir) async {
@@ -406,7 +406,36 @@ final class ZipFixtureSet implements FixtureSet {
       await zipUp('stored_basic.zip', ['-0'], basicMembers);
       await zipUp('zip64.zip', ['-0', '-fz'], basicMembers);
       await zipUp('deflated.zip', ['-9'], basicMembers);
+      // Traditional PKWARE ("zipcrypto"): the original stored fixture plus
+      // a deflated multi-file one exercising the decrypt→inflate path.
       await zipUp('encrypted.zip', ['-0', '-P', 'secret'], ['hello.txt']);
+      await zipUp('encrypted_zipcrypto_deflate.zip', [
+        '-9',
+        '-P',
+        'secret',
+      ], ['hello.txt', 'nested/deep/data.bin']);
+
+      // WinZip AES (method 99) — Info-ZIP zip(1) cannot author these, so
+      // 7zz does. It writes AE-2 (HMAC-authenticated, CRC field zeroed);
+      // the AE-1 CRC-verify branch is covered by an in-test byte patch.
+      Future<void> sevenZipAes(
+        String name,
+        List<String> args,
+        List<String> members,
+      ) => TarFixtureSet._run('7zz', [
+        'a', '-y', '-tzip', '-psecret', //
+        ...args,
+        '$out/$name',
+        ...members,
+      ], cwd: root);
+      await sevenZipAes('encrypted_aes256.zip', [
+        '-mem=AES256',
+      ], ['hello.txt', 'nested/deep/data.bin']);
+      await sevenZipAes('encrypted_aes128.zip', ['-mem=AES128'], ['hello.txt']);
+      await sevenZipAes('encrypted_aes256_stored.zip', [
+        '-mm=Copy',
+        '-mem=AES256',
+      ], ['hello.txt']);
       const comicMembers = [
         'comic/',
         'comic/ComicInfo.xml',

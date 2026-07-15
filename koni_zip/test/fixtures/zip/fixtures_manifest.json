@@ -2,13 +2,18 @@
   "schema": 1,
   "set": "zip",
   "tools": {
-    "zip": "This is Zip 3.0 (July 5th 2008), by Info-ZIP, with modifications by Apple Inc."
+    "zip": "This is Zip 3.0 (July 5th 2008), by Info-ZIP, with modifications by Apple Inc.",
+    "7zz": "7-Zip (z) 26.02 (arm64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-06-25"
   },
   "files": [
     "comment.zip",
     "deflated.zip",
     "empty.zip",
     "encrypted.zip",
+    "encrypted_aes128.zip",
+    "encrypted_aes256.zip",
+    "encrypted_aes256_stored.zip",
+    "encrypted_zipcrypto_deflate.zip",
     "prefixed.zip",
     "stored_basic.zip",
     "synthetic_comic.cbz",

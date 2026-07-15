@@ -37,6 +37,7 @@ export 'package:koni_archive_core/koni_archive_core.dart'
         EncryptedArchiveException,
         EntryNotFoundException,
         InvalidHeaderException,
+        InvalidPasswordException,
         MemoryByteSource,
         NormalizedEntryPath,
         SizeLimitExceededException,

@@ -19,7 +19,9 @@ await for (final chunk in archive.openRead(page)) {
 
 Stored and deflated entries stream end-to-end with CRC-32 verification —
 CBZ works, validated against a real-world corpus via reference-tool
-manifests. Exotic methods, encrypted entries, and ZIP64 are detected with
-typed errors that never brick the rest of the archive. See
-[doc/features.md](doc/features.md) for the full matrix and
+manifests. Password-protected archives — both traditional PKWARE
+("zipcrypto") and WinZip AES — decrypt when you pass
+`ArchiveReadOptions.password`. Exotic methods, ZIP strong encryption, and
+ZIP64 are detected with typed errors that never brick the rest of the
+archive. See [doc/features.md](doc/features.md) for the full matrix and
 [doc/notes.md](doc/notes.md) for design decisions.

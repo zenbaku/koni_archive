@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:koni_archive_core/koni_archive_core.dart';
 import 'package:koni_codecs/koni_codecs.dart';
 
 import 'structures.dart';
+import 'zip_crypto.dart';
 
 /// Chunk size for streaming entry content out of the source.
 const int _readChunkSize = 64 * 1024;
@@ -54,89 +56,79 @@ final class ZipReader extends ArchiveReader {
     // Entry-scoped failures surface here, never at open (§9): one exotic
     // entry must not brick the archive.
     if (entry.isEncrypted) {
-      throw EncryptedArchiveException(
-        central.methodId == 99
-            ? 'entry is AES-encrypted (method 99)'
-            : 'entry is encrypted (traditional PKWARE encryption)',
-        format: 'zip',
-        entryPath: entry.path,
-      );
-    }
-    switch (central.methodId) {
-      case 0:
-        if (entry.uncompressedSize != central.compressedSize) {
-          throw CorruptArchiveException(
-            'stored entry sizes disagree '
-            '(compressed ${central.compressedSize}, '
-            'uncompressed ${entry.uncompressedSize})',
-            format: 'zip',
-            entryPath: entry.path,
-          );
-        }
-        return _streamStored(central, entry);
-      case 8:
-        return _streamDeflated(central, entry);
-      default:
-        throw UnsupportedCompressionException(
-          'compression method "${entry.compression.name}" '
-          '(id ${central.methodId}) is not supported',
-          methodName: entry.compression.name,
-          methodId: central.methodId,
-          format: 'zip',
-          entryPath: entry.path,
-        );
-    }
-  }
-
-  Stream<Uint8List> _streamStored(
-    CentralEntry central,
-    ArchiveEntry entry,
-  ) async* {
-    final dataOffset = await _dataOffset(central, entry);
-    if (dataOffset + central.compressedSize > _source.length) {
-      throw UnexpectedEofException(
-        'entry data extends past the end of the archive',
-        format: 'zip',
-        offset: dataOffset,
-        entryPath: entry.path,
-      );
-    }
-    final crc =
-        _options.verifyChecksums && entry.crc32 != null ? Crc32() : null;
-    var remaining = central.compressedSize;
-    var offset = dataOffset;
-    while (remaining > 0) {
-      if (_closed) {
-        throw ArchiveClosedException(
-          'archive was closed while streaming entry',
+      if (central.flags & 0x40 != 0) {
+        throw EncryptedArchiveException(
+          'entry uses ZIP strong encryption (SES), which is not supported '
+          '($_encryptionScopeRef)',
           format: 'zip',
           entryPath: entry.path,
         );
       }
-      final chunkSize = remaining < _readChunkSize ? remaining : _readChunkSize;
-      final chunk = await _source.read(offset, chunkSize);
-      crc?.add(chunk);
-      offset += chunkSize;
-      remaining -= chunkSize;
-      yield chunk;
+      if (central.methodId == 99 && central.aesExtra == null) {
+        throw CorruptArchiveException(
+          'AES entry is missing its 0x9901 extra field',
+          format: 'zip',
+          entryPath: entry.path,
+        );
+      }
+      if (_options.password == null) {
+        throw EncryptedArchiveException(
+          central.methodId == 99
+              ? 'entry is AES-encrypted; supply ArchiveReadOptions.password'
+              : 'entry is encrypted (traditional PKWARE); '
+                  'supply ArchiveReadOptions.password',
+          format: 'zip',
+          entryPath: entry.path,
+        );
+      }
     }
-    if (crc != null && crc.value != entry.crc32) {
-      throw ChecksumMismatchException(
-        'CRC-32 mismatch: archive records '
-        '0x${entry.crc32!.toRadixString(16)}, content is '
-        '0x${crc.value.toRadixString(16)}',
-        expected: entry.crc32,
-        actual: crc.value,
-        format: 'zip',
-        entryPath: entry.path,
-      );
+
+    final method =
+        central.methodId == 99 ? central.effectiveMethodId : central.methodId;
+    switch (method) {
+      case 0:
+        final contentLength = _contentLength(central);
+        if (entry.uncompressedSize != contentLength) {
+          throw CorruptArchiveException(
+            'stored entry sizes disagree '
+            '(content $contentLength, uncompressed ${entry.uncompressedSize})',
+            format: 'zip',
+            entryPath: entry.path,
+          );
+        }
+        return _streamEntry(central, entry, compressed: false);
+      case 8:
+        return _streamEntry(central, entry, compressed: true);
+      default:
+        throw UnsupportedCompressionException(
+          'compression method "${entry.compression.name}" '
+          '(id $method) is not supported',
+          methodName: entry.compression.name,
+          methodId: method,
+          format: 'zip',
+          entryPath: entry.path,
+        );
     }
   }
 
-  Stream<Uint8List> _streamDeflated(
+  static const String _encryptionScopeRef = 'doc/encryption-scope.md';
+
+  /// Length of the decrypted content: the archive's stored size less any
+  /// encryption header/salt/MAC overhead.
+  int _contentLength(CentralEntry central) {
+    if (!central.entry.isEncrypted) return central.compressedSize;
+    if (central.methodId == 99) {
+      final params = WinZipAesParams.fromExtra(central.aesExtra!);
+      return central.compressedSize - (params?.overhead ?? 0);
+    }
+    return central.compressedSize - ZipCryptoCipher.headerSize;
+  }
+
+  Stream<Uint8List> _streamEntry(
     CentralEntry central,
-    ArchiveEntry entry,
-  ) async* {
+    ArchiveEntry entry, {
+    required bool compressed,
+  }) async* {
     final dataOffset = await _dataOffset(central, entry);
     if (dataOffset + central.compressedSize > _source.length) {
       throw UnexpectedEofException(
@@ -146,8 +138,217 @@ final class ZipReader extends ArchiveReader {
         entryPath: entry.path,
       );
     }
-    final crc =
-        _options.verifyChecksums && entry.crc32 != null ? Crc32() : null;
+
+    // AE-2 authenticates with HMAC and zeroes the CRC field, so CRC
+    // verification is skipped there; every other scheme keeps a real CRC.
+    var verifyCrc = _options.verifyChecksums && entry.crc32 != null;
+    if (central.methodId == 99) {
+      final params = WinZipAesParams.fromExtra(central.aesExtra!);
+      if (params != null && params.vendorVersion == 2) verifyCrc = false;
+    }
+
+    final content = _decryptedContent(central, entry, dataOffset);
+    if (compressed) {
+      yield* _emitDeflated(entry, content, verifyCrc);
+    } else {
+      yield* _emitStored(entry, content, _contentLength(central), verifyCrc);
+    }
+  }
+
+  /// Yields the decrypted, still-compression-layer content of the entry.
+  /// For plaintext entries this is the raw stored bytes; for encrypted
+  /// entries the cipher header/salt is stripped and the trailing MAC (AES)
+  /// is verified once the ciphertext is exhausted.
+  Stream<Uint8List> _decryptedContent(
+    CentralEntry central,
+    ArchiveEntry entry,
+    int dataOffset,
+  ) {
+    if (!entry.isEncrypted) {
+      return _rawRegion(entry, dataOffset, central.compressedSize);
+    }
+    if (central.methodId == 99) {
+      return _aesContent(central, entry, dataOffset);
+    }
+    return _zipCryptoContent(central, entry, dataOffset);
+  }
+
+  /// Streams `length` raw bytes from [offset], honoring close mid-stream.
+  Stream<Uint8List> _rawRegion(
+    ArchiveEntry entry,
+    int offset,
+    int length,
+  ) async* {
+    var remaining = length;
+    var pos = offset;
+    while (remaining > 0) {
+      _throwIfClosed(entry);
+      final take = remaining < _readChunkSize ? remaining : _readChunkSize;
+      yield await _source.read(pos, take);
+      pos += take;
+      remaining -= take;
+    }
+  }
+
+  Stream<Uint8List> _zipCryptoContent(
+    CentralEntry central,
+    ArchiveEntry entry,
+    int dataOffset,
+  ) async* {
+    if (central.compressedSize < ZipCryptoCipher.headerSize) {
+      throw CorruptArchiveException(
+        'encrypted entry is too small for its 12-byte cipher header',
+        format: 'zip',
+        entryPath: entry.path,
+      );
+    }
+    final cipher = ZipCryptoCipher(_passwordBytes());
+    var headerRemaining = ZipCryptoCipher.headerSize;
+    final header = Uint8List(ZipCryptoCipher.headerSize);
+    await for (final raw in _rawRegion(
+      entry,
+      dataOffset,
+      central.compressedSize,
+    )) {
+      final chunk = Uint8List.fromList(raw);
+      cipher.process(chunk);
+      var contentStart = 0;
+      if (headerRemaining > 0) {
+        final take =
+            headerRemaining < chunk.length ? headerRemaining : chunk.length;
+        header.setRange(
+          ZipCryptoCipher.headerSize - headerRemaining,
+          ZipCryptoCipher.headerSize - headerRemaining + take,
+          chunk,
+        );
+        headerRemaining -= take;
+        contentStart = take;
+        if (headerRemaining == 0) {
+          _checkZipCryptoHeader(central, entry, header);
+        }
+      }
+      if (contentStart < chunk.length) {
+        yield Uint8List.sublistView(chunk, contentStart);
+      }
+    }
+  }
+
+  void _checkZipCryptoHeader(
+    CentralEntry central,
+    ArchiveEntry entry,
+    Uint8List header,
+  ) {
+    // The final header byte is checked against the CRC-32 high byte, or —
+    // when the entry was written with a data descriptor (bit 3) — the DOS
+    // mod-time high byte, matching what the encoder had available.
+    final expected =
+        (central.flags & 0x08) != 0
+            ? (central.dosTime >> 8) & 0xFF
+            : ((entry.crc32 ?? 0) >> 24) & 0xFF;
+    if (header[ZipCryptoCipher.headerSize - 1] != expected) {
+      throw InvalidPasswordException(
+        'password rejected by the traditional-cipher check byte',
+        format: 'zip',
+        entryPath: entry.path,
+      );
+    }
+  }
+
+  Stream<Uint8List> _aesContent(
+    CentralEntry central,
+    ArchiveEntry entry,
+    int dataOffset,
+  ) async* {
+    final params = WinZipAesParams.fromExtra(central.aesExtra!);
+    if (params == null) {
+      throw CorruptArchiveException(
+        'malformed AES (0x9901) extra field',
+        format: 'zip',
+        entryPath: entry.path,
+      );
+    }
+    if (central.compressedSize < params.overhead) {
+      throw CorruptArchiveException(
+        'AES entry is too small for its salt/verifier/MAC overhead',
+        format: 'zip',
+        entryPath: entry.path,
+      );
+    }
+    final head = await _source.read(dataOffset, params.saltLength + 2);
+    final salt = Uint8List.sublistView(head, 0, params.saltLength);
+    final verifier = Uint8List.sublistView(head, params.saltLength);
+    final decryptor = WinZipAesDecryptor.derive(
+      passwordBytes: _passwordBytes(),
+      params: params,
+      salt: Uint8List.fromList(salt),
+      verifier: Uint8List.fromList(verifier),
+      onBadPassword:
+          () =>
+              throw InvalidPasswordException(
+                'password rejected by the AES verifier',
+                format: 'zip',
+                entryPath: entry.path,
+              ),
+    );
+
+    final cipherStart = dataOffset + params.saltLength + 2;
+    final cipherLength =
+        central.compressedSize - params.overhead; // ciphertext only
+    var remaining = cipherLength;
+    var pos = cipherStart;
+    while (remaining > 0) {
+      _throwIfClosed(entry);
+      final take = remaining < _readChunkSize ? remaining : _readChunkSize;
+      final chunk = Uint8List.fromList(await _source.read(pos, take));
+      decryptor.process(chunk);
+      pos += take;
+      remaining -= take;
+      yield chunk;
+    }
+
+    final mac = await _source.read(pos, WinZipAesParams.macLength);
+    if (!decryptor.verifyMac(Uint8List.fromList(mac))) {
+      throw ChecksumMismatchException(
+        'AES authentication code (HMAC-SHA1) mismatch',
+        format: 'zip',
+        entryPath: entry.path,
+      );
+    }
+  }
+
+  Uint8List _passwordBytes() =>
+      Uint8List.fromList(utf8.encode(_options.password!));
+
+  Stream<Uint8List> _emitStored(
+    ArchiveEntry entry,
+    Stream<Uint8List> content,
+    int contentLength,
+    bool verifyCrc,
+  ) async* {
+    final crc = verifyCrc ? Crc32() : null;
+    var produced = 0;
+    await for (final chunk in content) {
+      _throwIfClosed(entry);
+      produced += chunk.length;
+      crc?.add(chunk);
+      yield chunk;
+    }
+    if (produced != contentLength) {
+      throw CorruptArchiveException(
+        'stored entry produced $produced byte(s), expected $contentLength',
+        format: 'zip',
+        entryPath: entry.path,
+      );
+    }
+    _verifyCrc(crc, entry);
+  }
+
+  Stream<Uint8List> _emitDeflated(
+    ArchiveEntry entry,
+    Stream<Uint8List> content,
+    bool verifyCrc,
+  ) async* {
+    final crc = verifyCrc ? Crc32() : null;
     final pending = <Uint8List>[];
     var producedTotal = 0;
     final inflater = RawInflater(
@@ -158,39 +359,29 @@ final class ZipReader extends ArchiveReader {
       },
     );
 
-    var remaining = central.compressedSize;
-    var offset = dataOffset;
     try {
-      while (remaining > 0 && !inflater.isFinished) {
-        if (_closed) {
-          throw ArchiveClosedException(
-            'archive was closed while streaming entry',
-            format: 'zip',
-            entryPath: entry.path,
-          );
+      await for (final chunk in content) {
+        _throwIfClosed(entry);
+        if (!inflater.isFinished) {
+          inflater.addInput(chunk);
+          // Decompression-bomb guard (§7): decoded output beyond the
+          // claimed uncompressed size is a typed error.
+          if (producedTotal > entry.uncompressedSize) {
+            throw SizeLimitExceededException(
+              'decoded output exceeds the claimed uncompressed size '
+              '(${entry.uncompressedSize} bytes)',
+              limit: entry.uncompressedSize,
+              format: 'zip',
+              entryPath: entry.path,
+            );
+          }
+          for (final decoded in pending) {
+            yield decoded;
+          }
+          pending.clear();
         }
-        final chunkSize =
-            remaining < _readChunkSize ? remaining : _readChunkSize;
-        final chunk = await _source.read(offset, chunkSize);
-        offset += chunkSize;
-        remaining -= chunkSize;
-        inflater.addInput(chunk);
-        // Decompression-bomb guard (§7): decoded output beyond the claimed
-        // uncompressed size is a typed error, detected before buffering
-        // grows further.
-        if (producedTotal > entry.uncompressedSize) {
-          throw SizeLimitExceededException(
-            'decoded output exceeds the claimed uncompressed size '
-            '(${entry.uncompressedSize} bytes)',
-            limit: entry.uncompressedSize,
-            format: 'zip',
-            entryPath: entry.path,
-          );
-        }
-        for (final decoded in pending) {
-          yield decoded;
-        }
-        pending.clear();
+        // Fully drain `content` even once the inflate stream ends, so an
+        // encrypted entry's trailing MAC is always reached and verified.
       }
       inflater.finish(); // throws FormatException when truncated
     } on FormatException catch (e) {
@@ -211,6 +402,10 @@ final class ZipReader extends ArchiveReader {
         entryPath: entry.path,
       );
     }
+    _verifyCrc(crc, entry);
+  }
+
+  void _verifyCrc(Crc32? crc, ArchiveEntry entry) {
     if (crc != null && crc.value != entry.crc32) {
       throw ChecksumMismatchException(
         'CRC-32 mismatch: archive records '
@@ -218,6 +413,16 @@ final class ZipReader extends ArchiveReader {
         '0x${crc.value.toRadixString(16)}',
         expected: entry.crc32,
         actual: crc.value,
+        format: 'zip',
+        entryPath: entry.path,
+      );
+    }
+  }
+
+  void _throwIfClosed(ArchiveEntry entry) {
+    if (_closed) {
+      throw ArchiveClosedException(
+        'archive was closed while streaming entry',
         format: 'zip',
         entryPath: entry.path,
       );
