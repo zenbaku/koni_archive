@@ -62,7 +62,7 @@ the codec infrastructure from M4's standalone-codec pattern.
 | --- | ----------- | ------------------------------------------------- | ------ |
 | P2-1 | Write API  | Format-agnostic `ArchiveWriter` abstraction       | ✅     |
 | P2-2 | TAR write  | ustar + PAX emission, streaming input             | ✅     |
-| P2-3 | ZIP write  | Stored + deflate compression, ZIP64               | 🟨     |
+| P2-3 | ZIP write  | Stored + deflate compression, ZIP64               | ✅     |
 | P2-4 | 7z write   | Eventually; scope TBD                             | ⬜     |
 
 RAR writing is permanently out of scope.

@@ -21,6 +21,25 @@
 | Duplicate paths | all exposed, index order; `entry()` is last-wins |
 | `.cbz` comic archives | stored + deflated CBZs work end-to-end |
 
+## Writing (P2-3)
+
+| Feature | Notes |
+| --- | --- |
+| Stored entries (method 0) | streamed; declared size validated against bytes |
+| Deflate entries (method 8) | default; via koni_codecs `RawDeflater`, universally decodable |
+| Per-entry / global compression | `ArchiveEntrySpec.compression` overrides `ArchiveWriteOptions` |
+| Streaming, append-only output | local header + data descriptor (flag bit 3); no seek-back, works to a socket/Blob sink |
+| Data descriptors | `PK\x07\x08` + crc/csize/usize after each entry |
+| Central directory + EOCD | assembled at `close()`; central values authoritative |
+| ZIP64 (EOCD64 + locator, 0x0001 extras) | emitted only when count > 0xFFFF or a size/offset > 32-bit; interop-validated at 70k entries |
+| Directories | zero-length stored entries, trailing `/` |
+| Symlinks | target stored as content, S_IFLNK external attribute |
+| UTF-8 names | always, with language-encoding flag (bit 11) |
+| Unix mode / DOS timestamp | external attributes (host 3); DOS 2 s wall-time-as-UTC |
+| Path safety | `validateWritePath` rejects absolute/drive/`..`-escape with `ArgumentError` |
+| Size-mismatch guard | too few bytes → `CorruptArchiveException`; too many → `SizeLimitExceededException` |
+| Interop DoD | Info-ZIP `unzip -t` validates and `unzip` extracts our output byte-for-byte (incl. ZIP64 + unicode) |
+
 ## Detected → typed error
 
 | Feature | Error |

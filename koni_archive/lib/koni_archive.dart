@@ -48,5 +48,6 @@ export 'package:koni_archive_core/koni_archive_core.dart'
         validateWritePath;
 
 export 'package:koni_tar/koni_tar.dart' show TarWriteFormat;
+export 'package:koni_zip/koni_zip.dart' show ZipWriteFormat;
 
 export 'src/archive.dart';

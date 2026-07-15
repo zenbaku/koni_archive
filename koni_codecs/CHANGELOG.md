@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.0-dev (unreleased)
+
+- P2-3: `DeflateEncoder` (raw DEFLATE, RFC 1951) — the compression
+  counterpart of `InflateDecoder`, added for the ZIP writer. Greedy LZ77
+  (hash-chain matching) with fixed-Huffman blocks, ≤ 32 KiB blocks (bounded
+  memory, no cross-block matches). dart:convert `Converter` idiom (one-shot
+  or `startChunkedConversion`) over the resumable `RawDeflater` engine.
+  Output is universally decodable — differential-tested against `dart:io`
+  zlib and Info-ZIP `unzip`, not just our own inflater. Ratio improvements
+  (lazy matching, dynamic Huffman) are deferred; correctness and portability
+  (VM/dart2js/dart2wasm) come first. Bench recorded in bench/results/.
+
 ## 0.3.0 (2026-07-15)
 
 - Lockstep release; no changes since 0.2.0.

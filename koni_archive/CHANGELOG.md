@@ -2,6 +2,13 @@
 
 ## 0.4.0-dev (unreleased)
 
+- P2-3: `ZipWriteFormat` re-exported from the facade — write `.zip`/`.cbz`
+  via `Archive.create(sink, format: const ZipWriteFormat())`. Stored +
+  deflate compression (per-entry or global), streaming append-only output
+  (data descriptors, no seek-back), ZIP64 when count/size overflows 32 bits,
+  directories, and symlinks. Info-ZIP `unzip` validates and extracts our
+  output byte-for-byte (interop, incl. a 70k-entry ZIP64 archive).
+
 - P2-2: `TarWriteFormat` re-exported from the facade — write `.tar`/`.cbt`
   via `Archive.create(sink, format: const TarWriteFormat())` without a
   direct koni_tar dependency.

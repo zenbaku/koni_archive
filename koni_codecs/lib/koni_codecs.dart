@@ -10,6 +10,7 @@
 library;
 
 export 'src/bit_reader.dart';
+export 'src/deflate.dart';
 export 'src/filters.dart';
 export 'src/gzip.dart';
 export 'src/inflate.dart';

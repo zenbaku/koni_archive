@@ -1,3 +1,5 @@
 tags:
   fuzz:
     timeout: 5m
+  interop:
+    timeout: 2m

@@ -14,3 +14,5 @@ library;
 
 export 'src/zip_format.dart';
 export 'src/zip_reader.dart' show ZipReader;
+export 'src/zip_write_format.dart';
+export 'src/zip_writer.dart' show ZipWriter;

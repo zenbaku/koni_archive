@@ -46,6 +46,35 @@ code, §13.1).
 - This package duplicates a private CRC-32 (1 KiB table): the zero-
   dependency policy (§2) forbids using koni_archive_core's.
 
+## Deflate encoding (P2-3)
+
+The compression counterpart of the M4 inflater, added for the ZIP writer.
+`DeflateEncoder` (dart:convert `Converter`, one-shot or `startChunkedConversion`)
+sits over the resumable `RawDeflater` engine, mirroring the decode side.
+
+- **Correctness before ratio.** Greedy LZ77 (hash-chain match finding,
+  chain depth 128) emitting *fixed*-Huffman blocks. Fixed codes were chosen
+  over dynamic because they need no two-pass frequency counting and no
+  code-length tree emission, and they decode everywhere. Output is
+  universally decodable — verified against `dart:io`'s zlib and Info-ZIP
+  `unzip`, not just our own inflater.
+- **≤ 32 KiB blocks, no cross-block matches.** Input is buffered into 32 KiB
+  blocks; matches are only sought within the current block, so every match
+  distance stays < 32768 (the DEFLATE window) by construction and memory is
+  bounded regardless of input size. The cost is ratio at block seams — an
+  explicitly deferred improvement, not a correctness gap.
+- **LSB-first bit writer.** `_BitWriter` accumulates bits low-to-high (RFC
+  1951 order); Huffman codes are pre-reversed into LSB-first form at table
+  build time. The accumulator invariant keeps every value < 2^24 (bitCount
+  < 8 before each write, value < 2^16), which dart2js's 32-bit bitwise ops
+  model exactly — same portability discipline as the inflate bit buffer.
+- **Deferred ratio levers (not correctness):** lazy matching, dynamic
+  Huffman blocks, cross-block matching, and a stored-block fallback for
+  incompressible runs. Callers storing already-compressed data (CBZ images)
+  sidestep the last one at the ZIP layer by selecting `stored` per entry.
+  See `bench/results/2026-07-15-p2-3-deflate-encode-*` for the measured
+  speed/ratio tradeoff versus package:archive and native zlib.
+
 ## Test vector provenance (§11, §13.7)
 
 Static vectors in `test/src/vectors.dart` were generated with CPython's

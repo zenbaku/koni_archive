@@ -97,3 +97,53 @@ Method 99 entries surface the *actual* inner method from the 0x9901 extra
 field in `ArchiveEntry.compression` while staying `isEncrypted` (reading
 throws `EncryptedArchiveException`). The strong-encryption flag (bit 6)
 also marks entries encrypted.
+
+## Writing: streaming layout (P2-3)
+
+`ZipWriter` writes strictly forward — it never seeks back to patch a header,
+so it works over an append-only `ByteSink` (and thus to a socket or a web
+`Blob` sink). Each entry is: local header → compressed data → data
+descriptor. Because CRC-32 and the compressed size are only known *after* the
+data is streamed, the local header sets the streaming flag (bit 3) and writes
+zeros for crc/csize/usize; the real values follow in the trailing data
+descriptor (`PK\x07\x08` + crc + csize + usize). The central directory,
+assembled from the same records, is authoritative — exactly the invariant the
+*reader* already relies on, so the two sides meet in the middle.
+
+## Writing: compression choice (P2-3)
+
+Default is deflate (via koni_codecs `RawDeflater`); `stored` is selectable
+globally (`ArchiveWriteOptions.compression`) or per entry
+(`ArchiveEntrySpec.compression`) — the escape hatch for already-compressed
+payloads like CBZ images, where deflate would only burn CPU. An unsupported
+method (anything but stored/deflate) is an `UnsupportedCompressionException`
+at `addStream`, symmetric with the reader. Directories and empty files are
+written `stored` regardless (nothing to compress).
+
+## Writing: ZIP64 emission thresholds (P2-3)
+
+A plain EOCD is written whenever everything fits 32 bits; the ZIP64 records
+(per-entry 0x0001 extra, EOCD64, EOCD64 locator) are emitted only when
+forced — total entry count > 0xFFFF, or any size/offset > 0xFFFFFFFF. This
+keeps common archives byte-for-byte minimal while staying correct at scale.
+When ZIP64 triggers, the classic EOCD carries the 0xFFFF/0xFFFFFFFF sentinels
+and the real counts live in the EOCD64 — the layout our own reader parses and
+that Info-ZIP `unzip` validates (interop covers a 70k-entry archive, the one
+scoped feature self-round-trip can't prove).
+
+## Writing: symlinks and metadata (P2-3)
+
+Symlinks store the target as the entry *content* with the S_IFLNK bit in the
+external attributes (unix host) — the inverse of how the reader recovers a
+link target, so `koni_zip` round-trips its own symlinks and `unzip` recreates
+them. Names are always written UTF-8 with the language-encoding flag (bit 11)
+set. Timestamps go into the DOS field (2 s, wall-time-as-UTC); the sub-field
+`UT` extra is a possible future refinement, not needed for interop.
+
+## Writing: path safety (P2-3)
+
+`validateWritePath` (core) *rejects* absolute paths, drive letters, and
+`..` escapes with `ArgumentError` before any bytes are written — the
+deliberate inverse of the read side's `normalizeEntryPath`, which sanitizes
+hostile names on the way *out*. A writer must never silently rewrite the
+caller's path; a bad path is a programming error, surfaced immediately.
