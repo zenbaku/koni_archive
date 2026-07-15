@@ -72,22 +72,34 @@ tasks:
   publish:
     desc: >-
       Publish all packages to pub.dev in dependency order (each prompts for
-      confirmation). If a later package reports its dependency isn't found yet,
-      wait a moment for pub.dev to propagate and re-run — already-published
-      packages are skipped by pub.
+      confirmation). Idempotent — a version already on pub.dev is skipped, so
+      re-run it after a pub.dev new-package rate-limit pause (at most 4
+      brand-new packages per few minutes): wait a few minutes, re-run, repeat
+      until all are up. If a dependent reports its dependency isn't found yet,
+      that's propagation lag — wait a moment and re-run.
     cmds:
       - for: { var: PACKAGES }
         cmd: |
-          echo "── publish {{.ITEM}} ──"
-          (cd {{.ITEM}} && dart pub publish)
+          ver=$(awk '/^version:/{print $2; exit}' {{.ITEM}}/pubspec.yaml)
+          if curl -sf -o /dev/null "https://pub.dev/api/packages/{{.ITEM}}/versions/$ver"; then
+            echo "✓ {{.ITEM}} $ver already on pub.dev — skipping"
+          else
+            echo "→ publishing {{.ITEM}} $ver"
+            (cd {{.ITEM}} && dart pub publish)
+          fi
 
   publish:force:
-    desc: Same as `publish` but non-interactive (dart pub publish --force)
+    desc: Same as `publish` but non-interactive (skips published, --force)
     cmds:
       - for: { var: PACKAGES }
         cmd: |
-          echo "── publish (force) {{.ITEM}} ──"
-          (cd {{.ITEM}} && dart pub publish --force)
+          ver=$(awk '/^version:/{print $2; exit}' {{.ITEM}}/pubspec.yaml)
+          if curl -sf -o /dev/null "https://pub.dev/api/packages/{{.ITEM}}/versions/$ver"; then
+            echo "✓ {{.ITEM}} $ver already on pub.dev — skipping"
+          else
+            echo "→ publishing {{.ITEM}} $ver"
+            (cd {{.ITEM}} && dart pub publish --force)
+          fi
 
   release:
     desc: Full guarded release — verify, dry-run, then publish (confirms each)
