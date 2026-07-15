@@ -75,11 +75,27 @@ permanently out of scope.
 
 ---
 
+## Phase 3 — Encryption/password support, read side (scope in `doc/encryption-scope.md`)
+
+| #    | Milestone            | Scope (summary)                                                    | Status |
+| ---- | -------------------- | ------------------------------------------------------------------ | ------ |
+| P3-1 | Crypto primitives    | AES, CBC/CTR, SHA-1, SHA-256, HMAC, PBKDF2 in koni_codecs; vector-tested on VM + dart2js + dart2wasm | ⬜     |
+| P3-2 | ZIP decryption       | zipcrypto + WinZip AE-1/AE-2; `password` read option + `InvalidPasswordException` in core | ⬜     |
+| P3-3 | 7z decryption        | AES-256 coder in the folder chain (buffer-per-coder refactor) + encrypted headers | ⬜     |
+| P3-4 | RAR5 decryption      | File + header decryption, PBKDF2 keys, check value, tweaked CRCs   | ⬜     |
+| P3-5 | RAR4 decryption      | Salted file data (iterated-SHA-1 KDF, AES-128); encrypted headers stay deferred | ⬜     |
+
+Release point: **0.5.0** at P3-5 (lockstep, git-only). Write-side encryption
+and ZIP strong-encryption (SES) stay deferred — see the scope doc.
+
+---
+
 ## Deferred backlog (typed errors today; candidates for post-Phase-1)
 
 From `PROMPT_V1.md` §15 — roughly in expected demand order:
 
-* Encryption/password support (ZIP AES/zipcrypto, 7z AES, RAR)
+* ~~Encryption/password support (ZIP AES/zipcrypto, 7z AES, RAR)~~ → **Phase 3 above**
+* Write-side encryption (ZIP AES, 7z AES) — after Phase 3 proves the read side
 * Sequential (non-seekable) input for TAR/gzip
 * HTTP-range `ByteSource` package (remote CBZ page reads)
 * gzip seek-index (zran-style) for random access into `.tar.gz`
