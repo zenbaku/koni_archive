@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'exceptions.dart';
 
 /// Random-access byte source — the input abstraction every archive reader
-/// consumes (PROMPT_V1.md §3). Never a file path, never a raw stream.
+/// consumes (§3). Never a file path, never a raw stream.
 ///
 /// ## Contract
 ///

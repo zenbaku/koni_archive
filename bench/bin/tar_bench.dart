@@ -1,4 +1,4 @@
-// TAR benchmarks (M2, PROMPT_V1.md §10): koni_archive vs package:archive.
+// TAR benchmarks (M2, §10): koni_archive vs package:archive.
 //
 //   dart run --no-enable-asserts bench/bin/tar_bench.dart
 //

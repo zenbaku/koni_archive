@@ -1,4 +1,4 @@
-// Deflate-encode benchmarks (P2-3, PROMPT_V1.md §10): koni_codecs
+// Deflate-encode benchmarks (P2-3, §10): koni_codecs
 // DeflateEncoder vs package:archive, with the platform zlib (dart:io) as an
 // extra reference. Encoding is the ZIP-writer hot path.
 //

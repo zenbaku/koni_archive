@@ -1,4 +1,4 @@
-// LZMA-encode benchmarks (P2-4b, PROMPT_V1.md §10): koni_codecs LzmaEncoder
+// LZMA-encode benchmarks (P2-4b, §10): koni_codecs LzmaEncoder
 // / Lzma2Encoder — the 7z-writer hot path. package:archive has no LZMA
 // encoder, so times are absolute, not ratios; DeflateEncoder runs on the
 // same payload as an in-repo reference point.

@@ -1,4 +1,4 @@
-/// Typed exception hierarchy for archive-content problems (PROMPT_V1.md §9).
+/// Typed exception hierarchy for archive-content problems (§9).
 ///
 /// Every archive-content failure anywhere in the koni_archive ecosystem is an
 /// [ArchiveException] subtype — never a bare [Exception], [StateError], or

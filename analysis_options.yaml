@@ -2,7 +2,7 @@
 # The analyzer resolves the nearest analysis_options.yaml walking up from each
 # file, so workspace members inherit this file without per-package copies.
 #
-# Policy (PROMPT_V1.md §11/§12): package:lints/recommended is the floor, all
+# Policy (§11/§12): package:lints/recommended is the floor, all
 # public API must be documented, and CI treats every diagnostic as fatal.
 
 include: package:lints/recommended.yaml

@@ -1,4 +1,4 @@
-// Inflate benchmarks (M4, PROMPT_V1.md §10): koni_codecs vs
+// Inflate benchmarks (M4, §10): koni_codecs vs
 // package:archive, with the platform zlib (dart:io) as an extra reference.
 //
 //   dart run --no-enable-asserts bench/bin/inflate_bench.dart

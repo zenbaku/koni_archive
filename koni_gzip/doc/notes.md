@@ -1,6 +1,6 @@
 # koni_gzip — implementation notes
 
-Decisions made where PROMPT_V1.md leaves room (recorded per §13.3).
+Decisions made where the spec left room (recorded per §13.3).
 
 ## Single-entry model (§8)
 

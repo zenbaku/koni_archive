@@ -1,5 +1,5 @@
 // Generates per-archive conformance manifests from the owner-provided
-// real-world corpus (PROMPT_V1.md §11).
+// real-world corpus (§11).
 //
 // The corpus contains copyrighted archives and is NEVER committed. This
 // script runs on the owner's machine, lists and hashes each archive's

@@ -1,7 +1,7 @@
 // Generates committed test fixture archives using locally installed
 // reference tools (zip, tar, 7zz, rar, gzip, …).
 //
-// Policy (PROMPT_V1.md §11): fixtures are produced by reference tools on the
+// Policy (§11): fixtures are produced by reference tools on the
 // owner's machine and committed; CI never needs the tools, only the committed
 // archives. Each run records the version of every tool used in a
 // `fixtures_manifest.json` next to the generated fixtures, so provenance is

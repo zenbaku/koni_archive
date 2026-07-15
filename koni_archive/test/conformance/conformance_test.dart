@@ -1,4 +1,4 @@
-/// Conformance runner (PROMPT_V1.md §11).
+/// Conformance runner (§11).
 ///
 /// Decodes every archive in the owner-provided real-world corpus with
 /// koni_archive and checks it against the committed reference manifests in

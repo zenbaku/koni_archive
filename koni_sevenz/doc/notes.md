@@ -1,7 +1,7 @@
 # koni_sevenz — implementation notes
 
 Decisions made where the format description leaves room, matched against
-7zz as the reference tool (PROMPT_V1.md §13.3).
+7zz as the reference tool (§13.3).
 
 ## Spec provenance (§13.7)
 

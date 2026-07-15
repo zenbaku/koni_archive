@@ -1,6 +1,6 @@
 # koni_archive_core — implementation notes
 
-Decisions made where PROMPT_V1.md leaves room (recorded per §13.3).
+Decisions made where the spec left room (recorded per §13.3).
 
 ## Exception hierarchy shape (M1)
 

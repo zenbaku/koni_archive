@@ -1,7 +1,7 @@
 # Conformance manifests
 
 Committed, per-archive reference manifests for the owner-provided real-world
-corpus (PROMPT_V1.md §11). The corpus itself is copyrighted and **never
+corpus (§11). The corpus itself is copyrighted and **never
 committed** — only these manifests are. They are generated on the owner's
 machine by `tool/generate_conformance_manifests.dart` using *reference tools*
 (unzip, tar, 7zz, unrar), never koni_archive itself, so they are independent

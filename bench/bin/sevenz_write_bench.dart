@@ -1,4 +1,4 @@
-// 7z-write benchmarks (P2-4a, PROMPT_V1.md §10): end-to-end archive
+// 7z-write benchmarks (P2-4a, §10): end-to-end archive
 // creation through SevenZWriter. package:archive has no 7z support, so times
 // are absolute, not ratios.
 //

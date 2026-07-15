@@ -1,8 +1,8 @@
 # koni_archive — Roadmap
 
-Tracking document. **`PROMPT_V1.md` is the source of truth for requirements**;
-section references below point into it. Update the Status column as work lands —
-scope changes belong in `PROMPT_V1.md`, not here.
+Tracking document for the milestones behind each release. Update the Status
+column as work lands. (Older `§N` references in code comments point at the
+original design spec, kept as section breadcrumbs.)
 
 Last updated: 2026-07-15 · Statuses: ⬜ not started · 🟨 in progress · ✅ done
 
@@ -25,7 +25,7 @@ Last updated: 2026-07-15 · Statuses: ⬜ not started · 🟨 in progress · ✅
 | M10 | RAR4                 | Container + store + method-29 (v29 LZSS/Huffman); PPMd/RarVM/solid→typed errors    | CBR (v4) works — flagship use case complete            | ✅     |
 
 Every milestone additionally carries the standing definition of done
-(`PROMPT_V1.md` §13.2): all CI platforms green incl. dart2wasm, fixtures passing,
+(§13.2): all CI platforms green incl. dart2wasm, fixtures passing,
 fuzz smoke clean, dartdoc complete, CHANGELOG entry, benchmarks recorded on hot
 paths.
 
@@ -66,7 +66,7 @@ the codec infrastructure from M4's standalone-codec pattern.
 
 ---
 
-## Phase 2 — Writing (unscheduled, scope in `PROMPT_V1.md` §15/§16)
+## Phase 2 — Writing (§15/§16)
 
 | #   | Milestone   | Scope (summary)                                   | Status |
 | --- | ----------- | ------------------------------------------------- | ------ |
@@ -116,7 +116,7 @@ l -p` listing a hidden-header archive). Deferred: ZIP traditional zipcrypto
 
 ## Deferred backlog (typed errors today; candidates for post-Phase-1)
 
-From `PROMPT_V1.md` §15 — roughly in expected demand order:
+Roughly in expected demand order:
 
 * ~~Encryption/password support (ZIP AES/zipcrypto, 7z AES, RAR)~~ → **Phase 3 above**
 * ~~Write-side encryption (ZIP AES, 7z AES)~~ → **Phase 4 above**

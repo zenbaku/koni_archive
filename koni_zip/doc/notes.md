@@ -1,7 +1,7 @@
 # koni_zip — implementation notes
 
 Decisions made where the spec (PKWARE APPNOTE) is ambiguous, matched against
-the reference tools (Info-ZIP zip/unzip) per PROMPT_V1.md §13.3.
+the reference tools (Info-ZIP zip/unzip) per §13.3.
 
 ## EOCD location (§5)
 

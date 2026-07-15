@@ -1,7 +1,7 @@
 # koni_tar — implementation notes
 
 Decisions made where the spec is ambiguous, matched against the reference
-tools (bsdtar/GNU tar) per PROMPT_V1.md §13.3.
+tools (bsdtar/GNU tar) per §13.3.
 
 ## Laziness caveat (§4)
 

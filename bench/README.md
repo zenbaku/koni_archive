@@ -3,7 +3,7 @@
 Benchmark harness for the koni_archive ecosystem. Workspace member, **never
 published**.
 
-Planned benchmarks (PROMPT_V1.md §10) — each compared against
+Planned benchmarks (§10) — each compared against
 `package:archive` as the baseline:
 
 - list a 20k-entry archive

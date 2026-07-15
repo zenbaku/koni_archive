@@ -2,7 +2,7 @@
 
 > **Status: APPROVED by the project owner on 2026-07-15.** RAR
 > implementation work (M9/M10) may proceed under the rules below
-> (PROMPT_V1.md §8, §13.5).
+> (§8, §13.5).
 
 ## Why this document exists
 

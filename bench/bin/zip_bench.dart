@@ -1,4 +1,4 @@
-// ZIP benchmarks (M3, PROMPT_V1.md §10): koni_archive vs package:archive.
+// ZIP benchmarks (M3, §10): koni_archive vs package:archive.
 //
 //   dart run --no-enable-asserts bench/bin/zip_bench.dart
 //
