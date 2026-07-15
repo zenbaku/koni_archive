@@ -295,12 +295,16 @@ final class LzmaEncoder {
   static const int _maxMatch = 273;
   static const int _maxChain = 48; // search depth (ratio vs speed)
   static const int _niceLen = 64; // stop searching once this long
-  static const int _hashBits = 17;
 
   static final Uint8List _emptyData = Uint8List(0);
   static final Int32List _emptyChain = Int32List(0);
 
-  final Int32List _head = Int32List(1 << _hashBits);
+  // The table scales with the input (~one slot per position, 16–22 bits):
+  // an undersized table fills every bucket with colliding candidates, and
+  // on incompressible data each chain step is a cache-missing false probe —
+  // the difference between ~16 MiB/s and ~0.4 MiB/s on noise.
+  Int32List _head = _emptyChain;
+  int _hashMask = 0;
   Int32List _prev = _emptyChain;
   int _dataEnd = 0;
 
@@ -311,7 +315,15 @@ final class LzmaEncoder {
   void _bindData(Uint8List data) {
     _data = data;
     _dataEnd = data.length;
-    _head.fillRange(0, _head.length, -1);
+    var bits = data.length.bitLength;
+    if (bits < 16) bits = 16;
+    if (bits > 22) bits = 22;
+    final size = 1 << bits;
+    if (_head.length != size) {
+      _head = Int32List(size);
+      _hashMask = size - 1;
+    }
+    _head.fillRange(0, size, -1);
     _prev = data.isEmpty ? _emptyChain : Int32List(data.length);
   }
 
@@ -321,8 +333,9 @@ final class LzmaEncoder {
     final lo = x & 0xFFFF;
     final hi = x >>> 16;
     // lo * 40503 < 2^32 and the sum < 2^33; the final mask only keeps low
-    // bits, which agree across platforms.
-    return (lo * 40503 + hi * 27469) & ((1 << _hashBits) - 1);
+    // bits, which agree across platforms (and depends only on the input
+    // length, so output stays deterministic per input).
+    return (lo * 40503 + hi * 27469) & _hashMask;
   }
 
   /// Longest match ending the chain walk early at [_niceLen]; candidates

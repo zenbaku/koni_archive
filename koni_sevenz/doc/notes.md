@@ -56,23 +56,30 @@ signature header sits at offset 0 but records the *offset, size, and CRC of
 the trailing header* — unknown until every packed stream and the header are
 produced. An append-only `ByteSink` (§16) cannot seek back to patch offset
 0, so the writer buffers the packed streams in memory and, at `close`, emits
-signature header + packed data + header in one pass. Input still streams
-through the compressor (only the compressed output accumulates), so peak
-memory is bounded by the *compressed* archive size — but this is a genuine
-departure from the TAR/ZIP streaming invariant and is inherent to appending
-a random-access format, not a shortcut. Documented on `SevenZWriter` and in
-`doc/features.md`.
+signature header + packed data + header in one pass. Copy/Deflate input
+streams through the compressor (only the compressed output accumulates), so
+peak memory is bounded by the *compressed* archive size — a genuine
+departure from the TAR/ZIP streaming invariant, inherent to appending a
+random-access format, not a shortcut. LZMA/LZMA2 entries (P2-4b) add the
+entry's *uncompressed* bytes while that one entry encodes: the koni_codecs
+encoders are buffer-based (the input buffer doubles as the match window,
+mirroring the buffer-based decoders), so peak memory also includes the
+largest LZMA entry plus its match-finder chains (~4 bytes per input byte).
+Documented on `SevenZWriter` and in `doc/features.md`.
 
 ## Writing: layout (P2-4a)
 
-One folder per non-empty file (non-solid), each a single Copy or Deflate
-coder, 1-in/1-out, no properties. This keeps the header the exact inverse of
+One folder per non-empty file (non-solid), each a single coder (LZMA2 by
+default; LZMA, Deflate, Copy selectable), 1-in/1-out, with the coder's
+attribute blob when it has one (LZMA2: the dictionary-size byte; LZMA: the
+5-byte props + dict-size blob). This keeps the header the exact inverse of
 what the reader parses and lets `SubStreamsInfo` be omitted entirely: with
 one substream per folder, the per-folder CRC in `UnpackInfo` *is* the
-substream CRC. The header is written uncompressed (`kHeader`, not
-`kEncodedHeader`). Solid folders, header compression, and LZMA/LZMA2 are
-P2-4b (see `doc/writing-scope.md`); until then there is no cross-file
-compression and header overhead scales with the file count.
+substream CRC. Since P2-4b the header itself is LZMA-compressed
+(`kEncodedHeader`) whenever compressed-plus-wrapper is smaller than plain —
+the wrapper is a one-folder StreamsInfo whose packed stream sits after the
+main packed streams. Solid folders remain deferred (no cross-file
+compression; header overhead scales with the file count).
 
 ## Writing: metadata encoding (inverse of the reader)
 
@@ -88,9 +95,12 @@ compression and header overhead scales with the file count.
 - FILETIME (mtime): the exact inverse of the reader's conversion, split into
   32-bit halves with `%`/`~/` arithmetic that stays below 2^53 (JS-safe).
 
-## Writing: default codec (provisional)
+## Writing: default codec
 
-Deflate is the default (compressed-by-default, like ZIP). When P2-4b lands
-the LZMA2 encoder, the default becomes LZMA2 — a deliberate, tracked default
-change, noted so it is not a surprise. `stored` (Copy) is always selectable
-per entry or globally.
+LZMA2 is the default since P2-4b — the format's own default, making our
+output "normal" 7z. (P2-4a shipped with Deflate as a tracked provisional
+default.) The LZMA dictionary is sized to the entry (floored at 4 KiB,
+capped at 8 MiB) so decoders never over-allocate. `stored` (Copy),
+`deflate`, and `lzma` (v1) are selectable per entry or globally; for
+already-compressed content (CB7 pages) prefer `stored`, which streams and
+avoids LZMA's incompressible-data worst case (bench recorded).

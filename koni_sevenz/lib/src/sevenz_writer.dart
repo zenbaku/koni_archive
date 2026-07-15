@@ -22,12 +22,16 @@ import 'header.dart';
 /// the compressed archive size — inherent to appending a 7z, whose reader is
 /// itself a random-access format.
 ///
-/// ## This milestone (P2-4a)
+/// ## Coders (P2-4b)
 ///
-/// Copy (method `00`) and Deflate (method `04 01 08`, the default, via
-/// koni_codecs) coders, one folder per non-empty file (non-solid). LZMA /
-/// LZMA2 folders and header compression arrive in P2-4b; see
-/// `doc/writing-scope.md`.
+/// LZMA2 (coder `21`, the format's own default), LZMA (`03 01 01`),
+/// Deflate (`04 01 08`), and Copy (`00`); one folder per non-empty file
+/// (non-solid). The header itself is LZMA-compressed (kEncodedHeader)
+/// whenever that comes out smaller. LZMA coders are buffer-based: an
+/// entry's *uncompressed* bytes are held in memory while it is encoded
+/// (the buffer doubles as the match window), so peak memory adds the
+/// largest entry's size to the packed-stream buffering described above —
+/// Copy and Deflate entries still stream.
 final class SevenZWriter extends ArchiveWriter {
   /// Creates a writer appending to [_sink].
   SevenZWriter(this.format, this._sink, this._options);
@@ -44,10 +48,26 @@ final class SevenZWriter extends ArchiveWriter {
   final List<_FileRecord> _files = [];
   bool _closed = false;
 
-  // Internal coder selector: 0 = Copy, 8 = Deflate (mirrors the ZIP method
-  // ids for a shared mental model; the 7z coder id bytes differ).
+  // Internal coder selector (Copy/Deflate mirror the ZIP method ids for a
+  // shared mental model; the 7z coder id bytes differ).
   static const int _copy = 0;
   static const int _deflate = 8;
+  static const int _lzma = 14;
+  static const int _lzma2 = 15;
+
+  static const List<int> _copyId = [0x00];
+  static const List<int> _deflateId = [0x04, 0x01, 0x08];
+  static const List<int> _lzmaId = [0x03, 0x01, 0x01];
+  static const List<int> _lzma2Id = [0x21];
+
+  /// Dictionary bytes an LZMA coder is asked for: the entry size (the
+  /// whole buffer is the window), floored at the format minimum and capped
+  /// at 8 MiB so decoders never over-allocate for huge entries.
+  static int _dictSizeFor(int length) {
+    if (length < 1 << 12) return 1 << 12;
+    if (length > 1 << 23) return 1 << 23;
+    return length;
+  }
 
   static const List<int> _signature = [0x37, 0x7A, 0xBC, 0xAF, 0x27, 0x1C];
 
@@ -159,9 +179,15 @@ final class SevenZWriter extends ArchiveWriter {
     }
 
     final method = _methodOf(spec);
-    final (packSize, crc) = await _compress(path, method, content, size);
+    final (packSize, crc, props) = await _compress(path, method, content, size);
     _folders.add(
-      _Folder(method: method, packSize: packSize, unpackSize: size, crc: crc),
+      _Folder(
+        coderId: _coderIdOf(method),
+        props: props,
+        packSize: packSize,
+        unpackSize: size,
+        crc: crc,
+      ),
     );
     _files.add(
       _FileRecord(
@@ -177,10 +203,7 @@ final class SevenZWriter extends ArchiveWriter {
       type: type,
       uncompressedSize: size,
       compressedSize: packSize,
-      compression:
-          method == _copy
-              ? ArchiveCompression.stored
-              : ArchiveCompression.deflate,
+      compression: _compressionOf(method),
       crc32: crc,
       modified: spec.modified,
       posixMode: spec.posixMode,
@@ -189,9 +212,11 @@ final class SevenZWriter extends ArchiveWriter {
   }
 
   /// Streams [content] into the packed buffer under [method], returning the
-  /// compressed size and the CRC-32 of the *uncompressed* bytes (the folder
-  /// CRC 7z records). Validates the declared [size] against the stream.
-  Future<(int, int)> _compress(
+  /// compressed size, the CRC-32 of the *uncompressed* bytes (the folder
+  /// CRC 7z records), and the coder's attribute blob when it has one.
+  /// Validates the declared [size] against the stream. Copy and Deflate
+  /// stream; the LZMA coders buffer the entry (see the class note).
+  Future<(int, int, Uint8List?)> _compress(
     String path,
     int method,
     Stream<Uint8List> content,
@@ -200,6 +225,7 @@ final class SevenZWriter extends ArchiveWriter {
     final crc = Crc32();
     var uncompressed = 0;
     var packSize = 0;
+    Uint8List? props;
 
     void checkOverrun(int chunkLength) {
       uncompressed += chunkLength;
@@ -220,7 +246,7 @@ final class SevenZWriter extends ArchiveWriter {
         _packed.add(chunk);
         packSize += chunk.length;
       }
-    } else {
+    } else if (method == _deflate) {
       final deflater = RawDeflater(
         onOutput: (out) {
           _packed.add(out);
@@ -233,6 +259,27 @@ final class SevenZWriter extends ArchiveWriter {
         deflater.add(chunk);
       }
       deflater.finish();
+    } else {
+      final buffer = BytesBuilder(copy: false);
+      await for (final chunk in content) {
+        checkOverrun(chunk.length);
+        crc.add(chunk);
+        buffer.add(chunk);
+      }
+      final data = buffer.takeBytes();
+      final dictSize = _dictSizeFor(data.length);
+      Uint8List out;
+      if (method == _lzma) {
+        final encoder = LzmaEncoder(dictSize: dictSize);
+        out = encoder.encode(data);
+        props = encoder.sevenZipProps();
+      } else {
+        final encoder = Lzma2Encoder(dictSize: dictSize);
+        out = encoder.encode(data);
+        props = Uint8List.fromList([encoder.dictSizeProp]);
+      }
+      _packed.add(out);
+      packSize = out.length;
     }
 
     if (uncompressed != size) {
@@ -242,7 +289,7 @@ final class SevenZWriter extends ArchiveWriter {
         entryPath: path,
       );
     }
-    return (packSize, crc.value);
+    return (packSize, crc.value, props);
   }
 
   @override
@@ -253,12 +300,33 @@ final class SevenZWriter extends ArchiveWriter {
     final packed = _packed.takeBytes();
     final header = _buildHeader();
 
+    // kEncodedHeader: LZMA-compress the header itself; keep whichever form
+    // is smaller overall. The header's packed stream joins the packed area
+    // right after the folders' streams (packPos = main packed length).
+    var trailing = header;
+    Uint8List? headerPacked;
+    final encoder = LzmaEncoder(dictSize: _dictSizeFor(header.length));
+    final compressed = encoder.encode(header);
+    final wrapped = _buildEncodedHeader(
+      packPos: packed.length,
+      packSize: compressed.length,
+      unpackSize: header.length,
+      props: encoder.sevenZipProps(),
+      crc: Crc32.compute(header),
+    );
+    if (compressed.length + wrapped.length < header.length) {
+      headerPacked = compressed;
+      trailing = wrapped;
+    }
+
+    final packedTotal = packed.length + (headerPacked?.length ?? 0);
+
     // Start header (20 bytes): offset + size + CRC of the trailing header.
     final startHeader =
         _SevenZBuffer()
-          ..u64(packed.length) // NextHeaderOffset (from byte 32)
-          ..u64(header.length) // NextHeaderSize
-          ..u32(Crc32.compute(header)); // NextHeaderCRC
+          ..u64(packedTotal) // NextHeaderOffset (from byte 32)
+          ..u64(trailing.length) // NextHeaderSize
+          ..u32(Crc32.compute(trailing)); // NextHeaderCRC
     final startBytes = startHeader.take();
 
     final signature =
@@ -270,7 +338,48 @@ final class SevenZWriter extends ArchiveWriter {
 
     await _sink.add(signature.take());
     if (packed.isNotEmpty) await _sink.add(packed);
-    await _sink.add(header);
+    if (headerPacked != null) await _sink.add(headerPacked);
+    await _sink.add(trailing);
+  }
+
+  /// The kEncodedHeader structure: a StreamsInfo describing the single
+  /// LZMA folder that decompresses to the real header (the exact shape the
+  /// reader's encoded-header branch parses).
+  Uint8List _buildEncodedHeader({
+    required int packPos,
+    required int packSize,
+    required int unpackSize,
+    required Uint8List props,
+    required int crc,
+  }) {
+    final h =
+        _SevenZBuffer()
+          ..number(SevenZId.encodedHeader)
+          // PackInfo
+          ..number(SevenZId.packInfo)
+          ..number(packPos)
+          ..number(1)
+          ..number(SevenZId.size)
+          ..number(packSize)
+          ..number(SevenZId.end)
+          // UnpackInfo: one LZMA folder with its attribute blob.
+          ..number(SevenZId.unpackInfo)
+          ..number(SevenZId.folder)
+          ..number(1)
+          ..writeByte(0) // folders are inline
+          ..number(1) // numCoders
+          ..writeByte(_lzmaId.length | 0x20) // id size + attributes bit
+          ..writeBytes(_lzmaId)
+          ..number(props.length)
+          ..writeBytes(props)
+          ..number(SevenZId.codersUnpackSize)
+          ..number(unpackSize)
+          ..number(SevenZId.crc)
+          ..writeByte(1) // all CRCs defined
+          ..u32(crc)
+          ..number(SevenZId.end) // end UnpackInfo
+          ..number(SevenZId.end); // end StreamsInfo
+    return h.take();
   }
 
   // ---- header serialization (inverse of header.dart's parsers) ----
@@ -322,14 +431,19 @@ final class SevenZWriter extends ArchiveWriter {
   }
 
   void _writeFolder(_SevenZBuffer h, _Folder folder) {
-    final id = folder.method == _copy ? const [0x00] : const [0x04, 0x01, 0x08];
-    // One coder, 1-in/1-out, no properties: flags = id-size in the low
-    // nibble (no complex bit, no attributes bit). No bind pairs, and the
-    // single packed stream index is implicit.
+    // One coder, 1-in/1-out: flags = id-size in the low nibble, plus the
+    // attributes bit when the coder carries properties (LZMA/LZMA2). No
+    // bind pairs, and the single packed stream index is implicit.
+    final props = folder.props;
     h
       ..number(1) // numCoders
-      ..writeByte(id.length)
-      ..writeBytes(id);
+      ..writeByte(folder.coderId.length | (props == null ? 0 : 0x20))
+      ..writeBytes(folder.coderId);
+    if (props != null) {
+      h
+        ..number(props.length)
+        ..writeBytes(props);
+    }
   }
 
   void _writeFilesInfo(_SevenZBuffer h) {
@@ -397,18 +511,34 @@ final class SevenZWriter extends ArchiveWriter {
 
   int _methodOf(ArchiveEntrySpec spec) {
     final requested = spec.compression ?? _options.compression;
-    if (requested == null || requested == ArchiveCompression.deflate) {
-      return _deflate;
+    if (requested == null || requested == ArchiveCompression.lzma2) {
+      return _lzma2; // the format's own default
     }
+    if (requested == ArchiveCompression.lzma) return _lzma;
+    if (requested == ArchiveCompression.deflate) return _deflate;
     if (requested == ArchiveCompression.stored) return _copy;
     throw UnsupportedCompressionException(
-      '7z writing supports stored (copy) and deflate; "${requested.name}" is '
-      'not available (LZMA is P2-4b)',
+      '7z writing supports stored (copy), deflate, lzma, and lzma2; '
+      '"${requested.name}" is not available',
       methodName: requested.name,
       format: '7z',
       entryPath: spec.path,
     );
   }
+
+  static List<int> _coderIdOf(int method) => switch (method) {
+    _copy => _copyId,
+    _deflate => _deflateId,
+    _lzma => _lzmaId,
+    _ => _lzma2Id,
+  };
+
+  static ArchiveCompression _compressionOf(int method) => switch (method) {
+    _copy => ArchiveCompression.stored,
+    _deflate => ArchiveCompression.deflate,
+    _lzma => ArchiveCompression.lzma,
+    _ => ArchiveCompression.lzma2,
+  };
 
   /// The Windows attribute word: the DOS directory bit plus, when a unix
   /// mode is meaningful, the `FILE_ATTRIBUTE_UNIX_EXTENSION` (0x8000) flag
@@ -443,13 +573,15 @@ final class SevenZWriter extends ArchiveWriter {
 /// A written folder: one coder over one file's content.
 final class _Folder {
   _Folder({
-    required this.method,
+    required this.coderId,
+    required this.props,
     required this.packSize,
     required this.unpackSize,
     required this.crc,
   });
 
-  final int method;
+  final List<int> coderId;
+  final Uint8List? props;
   final int packSize;
   final int unpackSize;
   final int crc;

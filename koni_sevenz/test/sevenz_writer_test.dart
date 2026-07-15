@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:koni_archive_core/koni_archive_core.dart';
@@ -41,7 +42,7 @@ Future<Map<String, Uint8List>> readFiles(Uint8List archive) async {
 
 void main() {
   group('round-trip through the reader (CRC verified by default)', () {
-    test('deflate (default) entries survive', () async {
+    test('lzma2 (default) entries survive', () async {
       final data = Uint8List.fromList(utf8.encode('koni 7z! ' * 500));
       late ArchiveEntry written;
       final archive = await writeArchive((w) async {
@@ -57,12 +58,56 @@ void main() {
 
       // The writer's returned entry carries the compressed size; the redundant
       // input compressed well. (The reader exposes uncompressed size only.)
-      expect(written.compression, ArchiveCompression.deflate);
+      expect(written.compression, ArchiveCompression.lzma2);
       expect(written.compressedSize, lessThan(written.uncompressedSize));
 
       final reader = await read(archive);
       final big = reader.entries.firstWhere((e) => e.path.endsWith('data.txt'));
-      expect(big.compression, ArchiveCompression.deflate);
+      expect(big.compression, ArchiveCompression.lzma2);
+    });
+
+    test('explicit deflate entries survive', () async {
+      final data = Uint8List.fromList(utf8.encode('deflate me ' * 300));
+      final archive = await writeArchive(
+        (w) async {
+          await w.addBytes(ArchiveEntrySpec(path: 'data.txt'), data);
+        },
+        options: const ArchiveWriteOptions(
+          compression: ArchiveCompression.deflate,
+        ),
+      );
+      expect((await readFiles(archive))['data.txt'], data);
+      final reader = await read(archive);
+      expect(reader.entries.single.compression, ArchiveCompression.deflate);
+    });
+
+    test('explicit lzma (v1) entries survive', () async {
+      final data = Uint8List.fromList(utf8.encode('classic lzma ' * 300));
+      final archive = await writeArchive(
+        (w) async {
+          await w.addBytes(ArchiveEntrySpec(path: 'data.txt'), data);
+        },
+        options: const ArchiveWriteOptions(
+          compression: ArchiveCompression.lzma,
+        ),
+      );
+      expect((await readFiles(archive))['data.txt'], data);
+      final reader = await read(archive);
+      expect(reader.entries.single.compression, ArchiveCompression.lzma);
+    });
+
+    test('incompressible lzma2 entries fall back inside the codec', () async {
+      final random = Random(3);
+      final data = Uint8List.fromList(
+        List.generate(150000, (_) => random.nextInt(256)),
+      );
+      late ArchiveEntry written;
+      final archive = await writeArchive((w) async {
+        written = await w.addBytes(ArchiveEntrySpec(path: 'noise.bin'), data);
+      });
+      expect((await readFiles(archive))['noise.bin'], data);
+      // LZMA2 uncompressed chunks: tiny framing overhead, no blow-up.
+      expect(written.compressedSize!, lessThan(data.length + 100));
     });
 
     test('stored (copy) entries survive', () async {
@@ -99,7 +144,7 @@ void main() {
       final reader = await read(archive);
       final byPath = {for (final e in reader.entries) e.path: e};
       expect(byPath['image.png']!.compression, ArchiveCompression.stored);
-      expect(byPath['text.txt']!.compression, ArchiveCompression.deflate);
+      expect(byPath['text.txt']!.compression, ArchiveCompression.lzma2);
     });
 
     test('metadata, directories, empty files, and unicode names', () async {
@@ -192,11 +237,43 @@ void main() {
       );
     });
 
+    test('large headers are LZMA-compressed (kEncodedHeader)', () async {
+      // The trailing header starts at 32 + NextHeaderOffset (from the start
+      // header) and opens with 0x17 when encoded, 0x01 when plain.
+      int trailingId(Uint8List archive) {
+        var offset = 0;
+        for (var i = 19; i >= 12; i--) {
+          offset = offset * 256 + archive[i];
+        }
+        return archive[32 + offset];
+      }
+
+      final many = await writeArchive((w) async {
+        for (var i = 0; i < 60; i++) {
+          await w.addBytes(
+            ArchiveEntrySpec(path: 'dir$i/some-file-name-$i.txt'),
+            _bytes('content $i'),
+          );
+        }
+      });
+      expect(trailingId(many), 0x17, reason: 'big header must be encoded');
+      expect((await readFiles(many))['dir7/some-file-name-7.txt'], isNotNull);
+
+      final tiny = await writeArchive((w) async {
+        await w.addBytes(ArchiveEntrySpec(path: 'a'), _bytes('x'));
+      });
+      expect(
+        trailingId(tiny),
+        0x01,
+        reason: 'a header the encoding cannot shrink stays plain',
+      );
+    });
+
     test('unsupported compression method is rejected', () async {
       final sink = BytesBuilderSink();
       final writer = const SevenZWriteFormat().openWriter(
         sink,
-        const ArchiveWriteOptions(compression: ArchiveCompression.lzma),
+        const ArchiveWriteOptions(compression: ArchiveCompression.bzip2),
       );
       await expectLater(
         writer.addBytes(ArchiveEntrySpec(path: 'x'), _bytes('data')),

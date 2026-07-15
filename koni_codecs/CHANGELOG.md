@@ -2,6 +2,20 @@
 
 ## 0.4.0-dev (unreleased)
 
+- P2-4b: LZMA/LZMA2 compression — `LzmaEncoder`, `Lzma2Encoder`, and the
+  carry-aware `RangeEncoder`, the encode direction of the M8 decoders
+  (identical probability-model layout, lockstep updates). Hash-chain match
+  finder over an input-scaled table with rep-distance matches and a
+  one-step lazy heuristic (7-Zip fast-mode shape; optimal parsing is a
+  deferred ratio lever). LZMA2 framing with per-chunk range-coder restart,
+  uncompressed-chunk fallback for incompressible spans, and state-reset
+  resynchronization. Buffer-based one-shot API mirroring the decoders (the
+  input buffer is the window). Output is byte-identical on VM, dart2js,
+  and dart2wasm (golden-pinned) and decodes under liblzma (CPython
+  interop: FORMAT_ALONE for LZMA1, FORMAT_RAW for LZMA2) and our own
+  decoders; ratio lands within ~1 point of liblzma preset 6 on repo docs
+  (bench recorded).
+
 - P2-3: `DeflateEncoder` (raw DEFLATE, RFC 1951) — the compression
   counterpart of `InflateDecoder`, added for the ZIP writer. Greedy LZ77
   (hash-chain matching) with fixed-Huffman blocks, ≤ 32 KiB blocks (bounded

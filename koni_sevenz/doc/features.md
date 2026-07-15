@@ -21,12 +21,15 @@
 | AES-encrypted headers | `EncryptedArchiveException` at open |
 | Multi-volume, external headers/names | `UnsupportedFeatureException` |
 
-## Writing (P2-4a)
+## Writing (P2-4a container, P2-4b LZMA)
 
 | Feature | Notes |
 | --- | --- |
+| LZMA2 folders (coder `21`) | **default**; via koni_codecs `Lzma2Encoder`, buffers the entry while encoding (the buffer is the match window) |
+| LZMA folders (coder `03 01 01`) | selectable; via koni_codecs `LzmaEncoder`, same buffering |
+| Compressed headers (kEncodedHeader) | header LZMA-compressed whenever that is smaller; plain otherwise |
 | Copy folders (method `00`) | streamed through the compressor; declared size validated |
-| Deflate folders (method `04 01 08`) | default; via koni_codecs `RawDeflater` |
+| Deflate folders (method `04 01 08`) | selectable; via koni_codecs `RawDeflater` |
 | Per-entry / global compression | `ArchiveEntrySpec.compression` overrides `ArchiveWriteOptions` |
 | Container | signature + start header (next-header CRC), PackInfo, UnpackInfo, per-folder CRC-32, uncompressed FilesInfo |
 | Metadata | UTF-16LE names, FILETIME mtimes, unix mode + symlink/dir typing via the Windows attribute word |
@@ -34,7 +37,7 @@
 | Symlinks | target stored as content, S_IFLNK in the attribute word; `7zz -snl` restores the link |
 | Path safety | `validateWritePath` rejects absolute/drive/`..`-escape with `ArgumentError` |
 | Size-mismatch guard | too few → `CorruptArchiveException`; too many → `SizeLimitExceededException` |
-| Interop DoD | `7zz t` validates and `7zz x` extracts byte-for-byte (deflate + copy, dirs, empty, unicode, symlink, 300-entry multi-byte numbers) |
+| Interop DoD | `7zz t` validates and `7zz x` extracts byte-for-byte (all four coders incl. multi-chunk + fallback LZMA2 and encoded headers; dirs, empty, unicode, symlink, 300-entry multi-byte numbers); the LZMA codecs are additionally liblzma-verified in koni_codecs |
 
 **Not streaming, by construction.** Unlike TAR/ZIP writing, 7z writing
 **buffers the compressed packed streams in memory** until `close()`: the

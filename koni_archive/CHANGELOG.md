@@ -2,9 +2,19 @@
 
 ## 0.4.0-dev (unreleased)
 
+- P2-4b: 7z writing is now format-faithful — **LZMA2 is the default
+  coder** (was deflate), with LZMA (v1) also selectable per entry or
+  globally, and headers are LZMA-compressed (kEncodedHeader) whenever that
+  is smaller. Powered by the new koni_codecs encoders (liblzma- and
+  7zz-interop-verified); `7zz t`/`7zz x` validate and extract every coder
+  byte-for-byte, including multi-chunk LZMA2 with uncompressed-chunk
+  fallbacks. LZMA folders buffer the entry's uncompressed bytes while
+  encoding (the buffer is the match window); Copy/Deflate entries still
+  stream. Solid folders remain deferred (one folder per file).
+
 - P2-4a: `SevenZWriteFormat` re-exported from the facade — write `.7z`/`.cb7`
   via `Archive.create(sink, format: const SevenZWriteFormat())`. Copy and
-  Deflate (default) folders, one per non-empty file; full container
+  Deflate (default at the time) folders, one per non-empty file; full container
   (signature/start header, PackInfo/UnpackInfo with per-folder CRC-32,
   uncompressed FilesInfo), UTF-16 names, FILETIME mtimes, unix modes,
   directories, empty files, and symlinks. `7zz` validates and extracts our

@@ -1,7 +1,11 @@
 # P2-4 — 7z write: scope proposal
 
-Status: **proposal, not started.** This document scopes the work so the
-build order and the deferrals are agreed before any code. It follows the
+Status: **complete** — P2-4a landed 2026-07-15 (commit 3ad095f), P2-4b
+landed 2026-07-15 (LZMA/LZMA2 encoder, LZMA2 default coder,
+kEncodedHeader). Kept as the record of the scoping decision; deferrals
+listed below (optimal parsing, delta/BCJ encode, solid folders) remain
+deferred. This document scoped the work so the
+build order and the deferrals were agreed before any code. It follows the
 Phase 2 pattern (P2-1 API, P2-2 TAR, P2-3 ZIP) and the standing constraints:
 pure Dart, VM + dart2js + dart2wasm, streaming/bounded memory, typed errors,
 interop is the definition of done.
