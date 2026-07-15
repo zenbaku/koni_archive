@@ -6,4 +6,5 @@
 library;
 
 export 'koni_archive_core.dart';
+export 'src/io/file_byte_sink.dart';
 export 'src/io/file_byte_source.dart';

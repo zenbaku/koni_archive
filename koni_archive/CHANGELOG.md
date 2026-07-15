@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0-dev (unreleased)
+
+- P2-1: `Archive.create(sink, format:)` and the `createArchiveFile`
+  (io.dart) write sugar, plus the write types re-exported. No built-in
+  write formats registered yet.
+
 ## 0.3.0 (2026-07-15)
 
 - M10: RAR4 support — RAR5 **and** RAR4 `.rar`/`.cbr` archives open through

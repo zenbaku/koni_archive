@@ -15,6 +15,7 @@
 library;
 
 export 'src/byte_reader.dart';
+export 'src/byte_sink.dart';
 export 'src/byte_source.dart';
 export 'src/checksums.dart';
 export 'src/entry.dart';
@@ -23,3 +24,5 @@ export 'src/format.dart';
 export 'src/path_normalization.dart';
 export 'src/read_options.dart';
 export 'src/reader.dart';
+export 'src/write_options.dart';
+export 'src/writer.dart';

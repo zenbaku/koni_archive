@@ -23,9 +23,15 @@ export 'package:koni_archive_core/koni_archive_core.dart'
         ArchiveException,
         ArchiveFormat,
         ArchiveFormatRegistry,
+        ArchiveEntrySpec,
         ArchiveReadOptions,
         ArchiveReader,
+        ArchiveWriteFormat,
+        ArchiveWriteOptions,
+        ArchiveWriter,
+        ByteSink,
         ByteSource,
+        BytesBuilderSink,
         ChecksumMismatchException,
         CorruptArchiveException,
         EncryptedArchiveException,
@@ -38,6 +44,7 @@ export 'package:koni_archive_core/koni_archive_core.dart'
         UnsupportedCompressionException,
         UnsupportedFeatureException,
         UnsupportedFormatException,
-        normalizeEntryPath;
+        normalizeEntryPath,
+        validateWritePath;
 
 export 'src/archive.dart';

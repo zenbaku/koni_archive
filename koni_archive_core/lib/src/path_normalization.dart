@@ -49,3 +49,49 @@ NormalizedEntryPath normalizeEntryPath(String rawPath) {
   }
   return (path: segments.join('/'), escapedRoot: escapedRoot);
 }
+
+/// Validates and normalizes a caller-supplied path for **writing** (Phase
+/// 2). Unlike [normalizeEntryPath], which silently sanitizes hostile input
+/// on read, this rejects a bad path with an [ArgumentError] — the writer's
+/// caller is a programmer, and silently rewriting their requested path
+/// would be surprising.
+///
+/// Backslashes become `/`; empty and `.` segments are dropped. Throws
+/// [ArgumentError] when the path is absolute (leading `/` or a drive
+/// letter), escapes the archive root via `..`, or is empty after cleaning.
+/// Returns the cleaned, `/`-separated path.
+String validateWritePath(String rawPath) {
+  final withSlashes = rawPath.replaceAll(r'\', '/');
+  if (withSlashes.startsWith('/')) {
+    throw ArgumentError.value(rawPath, 'path', 'must not be absolute');
+  }
+  if (withSlashes.length >= 2 && withSlashes.codeUnitAt(1) == 0x3A /* : */ ) {
+    final letter = withSlashes.codeUnitAt(0);
+    final isAlpha =
+        (letter >= 0x41 && letter <= 0x5A) ||
+        (letter >= 0x61 && letter <= 0x7A);
+    if (isAlpha) {
+      throw ArgumentError.value(
+        rawPath,
+        'path',
+        'must not contain a drive letter',
+      );
+    }
+  }
+  final segments = <String>[];
+  for (final segment in withSlashes.split('/')) {
+    if (segment.isEmpty || segment == '.') continue;
+    if (segment == '..') {
+      throw ArgumentError.value(
+        rawPath,
+        'path',
+        'must not escape the archive root with ".."',
+      );
+    }
+    segments.add(segment);
+  }
+  if (segments.isEmpty) {
+    throw ArgumentError.value(rawPath, 'path', 'is empty');
+  }
+  return segments.join('/');
+}

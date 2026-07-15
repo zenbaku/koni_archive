@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0-dev (unreleased)
+
+- P2-1: write API — `ByteSink` (+ `BytesBuilderSink`, `FileByteSink` in
+  io.dart), `ArchiveEntrySpec`, `ArchiveWriter` / `ArchiveWriteFormat`
+  SPI, `ArchiveWriteOptions`, and `validateWritePath` (reject unsafe
+  paths). Mirrors the read side; reuses the entry/compression enums,
+  checksums, and exceptions. No format writers yet (TAR at P2-2).
+
 ## 0.3.0 (2026-07-15)
 
 - Lockstep release; no changes since 0.2.0.

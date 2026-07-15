@@ -93,6 +93,20 @@ final class Archive {
     options: options,
   );
 
+  /// Creates a writer that appends a new archive of [format] to [sink]
+  /// (Phase 2) — the write counterpart of [open].
+  ///
+  /// Writing names the format explicitly (there is nothing to auto-detect).
+  /// Synchronous: opening a writer does no I/O. Add entries with
+  /// [ArchiveWriter.addBytes] / [ArchiveWriter.addStream] /
+  /// [ArchiveWriter.addEntry], then call [ArchiveWriter.close] to finalize;
+  /// the caller owns [sink] and closes it.
+  static ArchiveWriter create(
+    ByteSink sink, {
+    required ArchiveWriteFormat format,
+    ArchiveWriteOptions options = const ArchiveWriteOptions(),
+  }) => format.openWriter(sink, options);
+
   /// The detected (or forced) format of this archive.
   ArchiveFormat get format => _reader.format;
 
