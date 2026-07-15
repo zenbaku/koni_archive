@@ -58,6 +58,8 @@ the codec infrastructure from M4's standalone-codec pattern.
 * **0.5.0** at P3-5 — reading password-protected archives across all
   formats (ZIP zipcrypto/AES, 7z AES, RAR5/RAR4 file encryption). **Phase 3
   complete (2026-07-15).** Git-only.
+* **Phase 4** (write-side encryption: ZIP WinZip AES, 7z AES-256) landed
+  lockstep in the 0.5.0-series (git-only). **Complete (2026-07-15).**
 * All packages stay 0.x with lockstep minor bumps until the API stabilizes.
 
 ---
@@ -89,8 +91,23 @@ permanently out of scope.
 | P3-5 | RAR4 decryption      | Salted file data (iterated-SHA-1 KDF, AES-128), store + compressed; fixtures via rar 6.24; encrypted headers stay deferred | ✅     |
 
 Release point: **0.5.0** at P3-5 (lockstep, git-only) — **Phase 3 complete
-(2026-07-15).** Write-side encryption and ZIP strong-encryption (SES) stay
-deferred — see the scope doc.
+(2026-07-15).** ZIP strong-encryption (SES) stays deferred — see the scope
+doc.
+
+---
+
+## Phase 4 — Encryption/password support, write side (scope in `doc/encryption-scope.md`)
+
+| #    | Milestone       | Scope (summary)                                                  | Status |
+| ---- | --------------- | ---------------------------------------------------------------- | ------ |
+| P4-1 | ZIP encryption  | WinZip AES-256 (AE-2, method 99): per-entry salt, PBKDF2-HMAC-SHA1 keys, AES-CTR + HMAC-SHA1 tag, CRC zeroed | ✅     |
+| P4-2 | 7z encryption   | AES-256-CBC file data: `compressor → AES` folder chain, iterated-SHA-256 KDF, per-folder IV; `-mhe` headers deferred | ✅     |
+
+`ArchiveWriteOptions.password` (whole-archive, AES-256) drives both; TAR
+rejects it (no standard encryption). Verified by self round-trip on VM +
+dart2js + dart2wasm and by `7zz x -p` decrypting our output byte-for-byte.
+Deferred: ZIP traditional zipcrypto (write), ZIP AES-128/192 (write), 7z
+`-mhe` (write) — see the scope doc.
 
 ---
 
@@ -99,7 +116,9 @@ deferred — see the scope doc.
 From `PROMPT_V1.md` §15 — roughly in expected demand order:
 
 * ~~Encryption/password support (ZIP AES/zipcrypto, 7z AES, RAR)~~ → **Phase 3 above**
-* Write-side encryption (ZIP AES, 7z AES) — after Phase 3 proves the read side
+* ~~Write-side encryption (ZIP AES, 7z AES)~~ → **Phase 4 above**
+* 7z reader: set `entry.isEncrypted` on parse (the ZIP reader already does;
+  a small read-side API-consistency fix)
 * Sequential (non-seekable) input for TAR/gzip
 * HTTP-range `ByteSource` package (remote CBZ page reads)
 * gzip seek-index (zran-style) for random access into `.tar.gz`

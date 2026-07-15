@@ -43,9 +43,9 @@ final class AesCbcDecryptor {
   }
 }
 
-/// AES-CBC encryption. Present for the primitives' round-trip tests and
-/// the RAR4 fixture builder (P3-5); the write-side archive encryption
-/// that would use it in production is deferred (`doc/encryption-scope.md`).
+/// AES-CBC encryption. Used by the 7z write-side encryption (Phase 4,
+/// `doc/encryption-scope.md`), and by the primitives' round-trip tests and
+/// the RAR4 fixture builder (P3-5).
 final class AesCbcEncryptor {
   /// Creates an encryptor over [cipher] starting from [iv] (16 bytes).
   AesCbcEncryptor(this._cipher, Uint8List iv) : _prev = Uint8List(16) {

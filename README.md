@@ -14,8 +14,10 @@ the web via both dart2js and dart2wasm.
 > ZIP, and 7z also write — 7z with our own LZMA/LZMA2 encoder (LZMA2
 > default, compressed headers). Password-protected archives decrypt across
 > every format via `ArchiveReadOptions.password`: ZIP (zipcrypto + WinZip
-> AES), 7z (AES-256, incl. encrypted headers), and RAR5/RAR4 file data — on
-> pure-Dart, vector-tested AES/SHA/HMAC/PBKDF2 primitives in koni_codecs.
+> AES), 7z (AES-256, incl. encrypted headers), and RAR5/RAR4 file data —
+> and ZIP (WinZip AES-256) and 7z (AES-256) can be *written* encrypted via
+> `ArchiveWriteOptions.password` — on pure-Dart, vector-tested
+> AES/SHA/HMAC/PBKDF2 primitives in koni_codecs.
 > Everything is interop-verified against the reference tools (bsdtar, unzip,
 > 7zz, rar; the LZMA codecs additionally against liblzma) — on the VM and
 > the web (dart2js **and** dart2wasm), fuzzed in CI and conformance-checked
@@ -31,9 +33,9 @@ the web via both dart2js and dart2wasm.
 | [`koni_archive_core`](koni_archive_core/)  | `ByteSource`, entry model, exceptions, detection registry, checksums    |
 | [`koni_codecs`](koni_codecs/)              | Compression codecs (deflate, LZMA/LZMA2 — decode *and* encode) + crypto primitives (`crypto.dart`), reusable outside archives |
 | [`koni_tar`](koni_tar/)                    | TAR reader + writer (ustar, PAX, GNU extensions)                         |
-| [`koni_zip`](koni_zip/)                    | ZIP reader + writer (ZIP64; zipcrypto + WinZip AES decryption)           |
+| [`koni_zip`](koni_zip/)                    | ZIP reader + writer (ZIP64; zipcrypto + WinZip AES decrypt, WinZip AES-256 encrypt) |
 | [`koni_gzip`](koni_gzip/)                  | GZIP adapter: single-entry `.gz` + layered `.tar.gz`                     |
-| [`koni_sevenz`](koni_sevenz/)              | 7z reader + writer (LZMA2 default, kEncodedHeader; AES-256 decryption)   |
+| [`koni_sevenz`](koni_sevenz/)              | 7z reader + writer (LZMA2 default, kEncodedHeader; AES-256 decrypt + encrypt) |
 | [`koni_rar`](koni_rar/)                    | RAR4/RAR5 reader (clean-room; password-protected file data)              |
 | [`bench`](bench/)                          | Benchmark harness + committed results — workspace member, never published |
 

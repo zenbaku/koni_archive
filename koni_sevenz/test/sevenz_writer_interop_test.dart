@@ -267,9 +267,12 @@ void main() {
         null,
         Uint8List.fromList(utf8.encode('top secret ' * 300)),
       ),
+      // 4001 bytes (not a 16-multiple) so 7zz exercises a *padded* Copy
+      // folder — the coder with no end marker, where the AES output size must
+      // slice the padding off.
       'stored.bin': (
         ArchiveCompression.stored,
-        Uint8List.fromList(List.generate(4000, (i) => (i * 29 + 3) & 0xFF)),
+        Uint8List.fromList(List.generate(4001, (i) => (i * 29 + 3) & 0xFF)),
       ),
       'classic.bin': (
         ArchiveCompression.lzma,

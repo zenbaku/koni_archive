@@ -24,6 +24,8 @@ PPMd are detected with typed errors.
 
 Writing: LZMA2 folders by default (Copy per entry via
 `ArchiveCompression.stored`), compressed headers, with the ecosystem's own
-pure-Dart LZMA/LZMA2 encoder — interop-verified against 7zz.
+pure-Dart LZMA/LZMA2 encoder — interop-verified against 7zz. Pass
+`ArchiveWriteOptions.password` to encrypt the file data with AES-256-CBC
+(plaintext header; `-mhe` deferred), also verified against 7zz.
 
 See [doc/features.md](doc/features.md) and [doc/notes.md](doc/notes.md).

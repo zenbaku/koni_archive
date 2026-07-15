@@ -58,10 +58,21 @@ await writer.addBytes(ArchiveEntrySpec(path: 'page001.png'), pngBytes);
 await writer.close();
 ```
 
+ZIP and 7z writers can encrypt with AES-256 — pass a password at create
+(WinZip AE-2 for ZIP, AES-256-CBC for 7z):
+
+```dart
+final writer = await createArchiveFile(
+  'locked.cbz',
+  format: const ZipWriteFormat(),
+  options: const ArchiveWriteOptions(password: 'hunter2'),
+);
+```
+
 Every writer's output is interop-verified against its reference tool (7zz,
-Info-ZIP unzip, bsdtar) in CI-facing tests; 7z defaults to LZMA2 folders
-with compressed headers, and already-compressed content can opt into
-`ArchiveCompression.stored` per entry.
+Info-ZIP unzip, bsdtar; encrypted output against 7zz) in CI-facing tests; 7z
+defaults to LZMA2 folders with compressed headers, and already-compressed
+content can opt into `ArchiveCompression.stored` per entry.
 
 ## The virtual-filesystem model
 
@@ -123,7 +134,7 @@ filesystems for streaming consumption:
 | Hostile input | typed `ArchiveException` hierarchy, fuzzed in CI, path sanitization + escape flags | assorted exceptions |
 | Formats | open registry — third-party formats plug in | fixed set |
 | Web | dart2js **and** dart2wasm tested in CI | dart2js |
-| Writing | TAR, ZIP, 7z (pure-Dart LZMA/LZMA2 encoder), interop-verified | yes |
+| Writing | TAR, ZIP, 7z (pure-Dart LZMA/LZMA2 encoder), AES encryption, interop-verified | yes |
 
 If you are building a comic/ebook reader, file explorer, or anything that
 streams files out of archives, this is the library shaped for it.
@@ -146,11 +157,12 @@ decryption are complete. ZIP/CBZ (stored + deflate, ZIP64), TAR/CBT
 (ustar/PAX/GNU), GZIP (multi-member, layered `.tar.gz`), 7z/CB7
 (LZMA/LZMA2/BCJ/delta, solid-block cache), and RAR/CBR (clean-room RAR5 +
 RAR4) read; TAR, ZIP, and 7z write; password-protected ZIP, 7z, and RAR
-archives decrypt via `ArchiveReadOptions.password`. All of it is tested
-against reference tools, differential-tested against package:archive,
-fuzzed in CI, and verified on the VM, dart2js, and dart2wasm. What remains
-(write-side encryption, RAR `-hp` headers, multi-volume, …) is tracked in
-`ROADMAP.md` at the repository root.
+archives decrypt via `ArchiveReadOptions.password`, and ZIP (WinZip AES-256)
+and 7z (AES-256) can be *written* encrypted via `ArchiveWriteOptions.password`.
+All of it is tested against reference tools, differential-tested against
+package:archive, fuzzed in CI, and verified on the VM, dart2js, and
+dart2wasm. What remains (RAR `-hp` headers, multi-volume, ZIP strong
+encryption, …) is tracked in `ROADMAP.md` at the repository root.
 
 See `example/` for a CBZ page extractor demonstrating streaming +
 preloading.

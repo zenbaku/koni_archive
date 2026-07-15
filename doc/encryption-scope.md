@@ -1,10 +1,10 @@
-# Phase 3 — Encryption/password support (read side): scope
+# Phases 3 & 4 — Encryption/password support: scope
 
-Status: **in progress** — scoped 2026-07-15. First item of the deferred
-backlog (`ROADMAP.md`), promoted to a phase. Follows the standing
-constraints: pure Dart, zero runtime deps in shared packages, VM + dart2js +
-dart2wasm, typed errors, interop with reference tools is the definition of
-done.
+Status: **Phase 3 (read) complete** (0.5.0). **Phase 4 (write) complete** —
+see the "Phase 4" section at the end. First item of the deferred backlog
+(`ROADMAP.md`), promoted to phases. Follows the standing constraints: pure
+Dart, zero runtime deps in shared packages, VM + dart2js + dart2wasm, typed
+errors, interop with reference tools is the definition of done.
 
 ## What this phase is (and is not)
 
@@ -20,8 +20,8 @@ done.
 
 **Not** in this phase (deferred, typed errors where reachable):
 
-- **Write-side encryption** (ZIP AES, 7z AES). The writers simply do not
-  offer it yet; revisit after the read side proves the primitives.
+- **Write-side encryption** (ZIP AES, 7z AES). Deferred out of Phase 3 —
+  now done in **Phase 4** (see the section at the end of this doc).
 - **ZIP "strong encryption"** (SES, flag bit 6: DES/3DES/RC2/RC4 PKWARE
   scheme) — patent-encumbered legacy, vanishingly rare in the wild. Typed
   error naming it.
@@ -128,3 +128,73 @@ assumption. P3-3 generalizes `_decodeFolder` to walk the bind-pair chain
 with an explicit buffer per coder output (sizes all come from
 `folder.unpackSizes`, so the bomb caps are unchanged). This is a refactor of
 decode plumbing only — no header-model changes.
+
+---
+
+# Phase 4 — Encryption/password support (write side): scope
+
+Status: **complete** — scoped and landed 2026-07-15, lockstep with the
+0.5.0-series (git-only). Reuses the Phase 3 primitives verbatim (encryption
+is serialization + one encrypt step + a salt/IV source, not new crypto).
+
+## What this phase is (and is not)
+
+**Writing** password-protected archives, AES-256 only:
+
+| Format | Scheme | In scope |
+| ------ | ------ | -------- |
+| ZIP    | WinZip AES-256, AE-2 (method 99, HMAC-authenticated, CRC zeroed) | ✅ P4-1 |
+| 7z     | AES-256-CBC (coder `06f10701`), file data only | ✅ P4-2 |
+
+Triggered by `ArchiveWriteOptions.password` (whole-archive; not per-entry),
+mirroring how a reader supplies one password. Presence of a password enables
+encryption; AES-256 is the only strength emitted.
+
+**Not** in this phase (deferred, typed errors or plaintext-with-reject):
+
+- **ZIP traditional zipcrypto (write)** — deliberately skipped. It is weak
+  (a 96-bit stream cipher with a known-plaintext weakness) and nothing needs
+  to *author* it; we only *read* it for legacy archives. WinZip AES is the
+  one write scheme.
+- **ZIP AES-128/192 (write)** — only AES-256 is emitted. The read side still
+  decrypts all three strengths.
+- **7z encrypted headers (`-mhe`, write)** — the header stays plaintext, so
+  filenames and the AES coder parameters are visible; only the data is
+  encrypted. Symmetric with the RAR `-hp` read-side deferral.
+- **TAR** — no standard encryption exists; `TarWriteFormat.openWriter`
+  throws `UnsupportedCompressionException` on a non-null password rather than
+  silently writing plaintext.
+- Write-side RAR (permanently out of scope), key files, certificates.
+
+## How it maps onto the writers
+
+- **ZIP (P4-1)** — per file/symlink entry: a fresh random salt (16 bytes for
+  AES-256), PBKDF2-HMAC-SHA1/1000 → aesKey ‖ macKey ‖ 2-byte verifier;
+  compress, then AES-CTR (little-endian counter) encrypt the compressed
+  bytes, streaming HMAC-SHA1 over the ciphertext. Entry body =
+  `salt ‖ verifier ‖ ciphertext ‖ 10-byte MAC`; method 99 with the real
+  method in the 0x9901 extra; the recorded compressed size counts the whole
+  envelope. Directories carry no data and stay plaintext.
+- **7z (P4-2)** — each content folder becomes a two-coder chain
+  `compressor → AES-256-CBC` (one bind pair; the single packed stream feeds
+  AES, inferred). The compressed stream is zero-padded to a 16-byte block
+  boundary; the AES coder's declared output size stays the *unpadded*
+  compressed length, so the reader trims the padding before the compressor
+  runs (the only thing that keeps a padded Copy folder honest — Copy has no
+  end marker). Key derivation is the iterated-SHA-256 KDF with no salt (key
+  per archive) and a fresh 16-byte IV per folder (2^19 rounds, 7-Zip's
+  default). Empty files and directories have no folder and stay unencrypted.
+
+## Security posture (unchanged from Phase 3)
+
+Same primitives, same non-goals: not constant-time, no key zeroization, not
+an interactive-security foundation. The salt/IV source lives in the format
+packages (`Random.secure()` by default, injectable for deterministic tests),
+so `koni_codecs` stays zero-dependency and pure-algorithm.
+
+## Verification (interop is the definition of done)
+
+Self round-trip through our own reader on VM + dart2js + dart2wasm, and the
+reference tools decrypting our output byte-for-byte: **`7zz x -p`** for both
+formats (Info-ZIP `unzip` only does traditional zipcrypto, so `7zz` is the
+AES-capable tool for the ZIP check too), each rejecting a wrong password.
