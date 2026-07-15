@@ -175,6 +175,9 @@ Rar5FileHeader _parseFileHeader(
     modified: _dosTime(dosTime),
     unixMode: unixMode,
     isEncrypted: flags & _fhdPassword != 0,
+    // RAR4 uses a different (non-AES-256) encryption scheme handled in
+    // P3-5, not the RAR5 encryption record.
+    encryption: null,
     redirectTarget: null,
     hostOs: hostOs,
     splitAfter: flags & _fhdSplitAfter != 0,

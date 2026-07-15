@@ -115,7 +115,9 @@ void main() {
   });
 
   group('typed errors (§8/§9)', () {
-    test('encrypted entries throw at openRead; listing works', () async {
+    // Decryption with a password is covered in rar_encryption_test.dart;
+    // here we pin the no-password behavior.
+    test('encrypted entries throw at openRead without a password', () async {
       final reader = await openFixture('encrypted.rar');
       final entry = reader.entries.singleWhere((e) => e.isFile);
       expect(entry.isEncrypted, isTrue);
@@ -125,7 +127,8 @@ void main() {
       );
     });
 
-    test('encrypted headers fail at open, typed', () async {
+    test('encrypted headers (-hp) stay a typed error at open', () async {
+      // Header decryption is a documented deferral (doc/notes.md).
       await expectLater(
         openFixture('encrypted_headers.rar'),
         throwsA(isA<EncryptedArchiveException>()),

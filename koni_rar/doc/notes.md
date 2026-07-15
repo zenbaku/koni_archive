@@ -95,3 +95,34 @@ strong check (a wrong byte throws `ChecksumMismatchException`). What CI
 hand-built archive in `rar4_test.dart`) and the RAR4 container under fuzz
 (seeded into `fuzz_smoke_test.dart`). The method-29 decoder itself is not
 fuzzed (no fixture); the container is.
+## Encryption (P3-4)
+
+RAR5 **file** encryption (`rar -p`) is supported: AES-256-CBC, the
+iterated-HMAC-SHA256 KDF, the password-check value, and hash-key-tweaked
+CRCs — all in `rar_crypto.dart`, clean-room per `rar-provenance.md` and
+pinned byte-exact against `rar`-authored fixtures (store, compressed,
+solid). See `../../doc/encryption-scope.md`.
+
+**RAR5 header encryption (`rar -hp`) is a documented deferral** — it stays
+an `EncryptedArchiveException` at open. The layout was reverse-engineered
+during P3-4 (recorded here so a future implementer starts ahead), but the
+architecture change it needs (buffer the whole decrypted tail, remap file
+offsets into it) was judged out of scope against the flagship `-p` case,
+per the provenance policy's "when in doubt, typed error + document":
+
+- The `HEAD_CRYPT` block (type 4) carries version, flags, `lg2Count`,
+  16-byte salt, and (flag bit 0) an 8-byte password-check + 4-byte SHA-256
+  checksum — same shape as a file encryption record but **no IV**.
+- Immediately after the crypt header: a **16-byte IV in the clear**, then
+  the rest of the archive tail is one AES-256-CBC stream under the
+  header-salt key.
+- Decrypting that tail yields ordinary plaintext RAR5 header blocks (main,
+  file, …). The file headers **still contain their own type-0x01
+  encryption records** with per-file IVs, and the file data — which lives
+  inside the header-encrypted tail — is therefore **doubly encrypted**
+  (outer header-key layer, then inner per-file layer). Reading it means
+  serving both headers and data from the decrypted tail buffer, not from
+  the raw source.
+
+RAR4 encrypted headers remain deferred as well (P3-5 covers RAR4 file
+data only).

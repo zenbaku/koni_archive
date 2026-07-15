@@ -6,6 +6,7 @@ import 'rar4_container.dart';
 import 'rar4_decoder.dart';
 import 'rar5_container.dart';
 import 'rar5_decoder.dart';
+import 'rar_crypto.dart';
 
 /// Chunk size for slicing decoded output.
 const int _readChunkSize = 64 * 1024;
@@ -42,6 +43,10 @@ final class RarReader extends ArchiveReader {
   int _solidNextIndex = 0;
   bool _closed = false;
 
+  // Derived RAR5 keys, memoized by (salt, cost); the password is constant
+  // for a reader, so the expensive KDF runs once per distinct salt.
+  final Map<String, Rar5Keys> _rar5KeyCache = <String, Rar5Keys>{};
+
   /// Parses the container (RAR5 or RAR4, per [isRar4]). Headers are
   /// plaintext unless whole-archive encryption is used; O(entry count), no
   /// content decode (§4).
@@ -57,7 +62,8 @@ final class RarReader extends ArchiveReader {
             : await Rar5Toc.parse(source, 8);
     if (toc.headerEncrypted) {
       throw EncryptedArchiveException(
-        'the archive uses encrypted headers; not supported (§15)',
+        'the archive uses encrypted headers (rar -hp), which are not '
+        'supported (file encryption -p is; see doc/notes.md)',
         format: 'rar',
       );
     }
@@ -99,11 +105,21 @@ final class RarReader extends ArchiveReader {
     final header = _headers[index];
 
     if (header.isEncrypted) {
-      throw EncryptedArchiveException(
-        'entry is encrypted (-p); decryption is not supported (§15)',
-        format: 'rar',
-        entryPath: entry.path,
-      );
+      final enc = header.encryption;
+      if (enc == null || !enc.isAes256) {
+        throw EncryptedArchiveException(
+          'entry uses an unsupported RAR5 encryption method',
+          format: 'rar',
+          entryPath: entry.path,
+        );
+      }
+      if (_options.password == null) {
+        throw EncryptedArchiveException(
+          'entry is encrypted (-p); supply ArchiveReadOptions.password',
+          format: 'rar',
+          entryPath: entry.path,
+        );
+      }
     }
     if (header.splitAfter) {
       throw UnsupportedFeatureException(
@@ -158,7 +174,14 @@ final class RarReader extends ArchiveReader {
       );
     }
     if (_options.verifyChecksums && header.crc32 != null) {
-      final actual = Crc32.compute(decoded);
+      var actual = Crc32.compute(decoded);
+      // Encrypted RAR5 files store a hash-key-tweaked CRC (so the checksum
+      // reveals nothing about the plaintext); tweak the computed CRC the
+      // same way before comparing.
+      final enc = header.encryption;
+      if (enc != null && enc.usePswCheck) {
+        actual = _rar5Keys(enc, entry.path).tweakCrc(actual);
+      }
       if (actual != header.crc32) {
         throw ChecksumMismatchException(
           'CRC-32 mismatch: archive records '
@@ -198,10 +221,14 @@ final class RarReader extends ArchiveReader {
     final data = await _readData(header);
     if (header.method == 0) {
       // Stored: data is the content (solid store still just concatenates).
-      if (data.length != header.unpackedSize) {
+      // Encrypted data is padded to a 16-byte AES block, so allow a padded
+      // tail and slice it off; plaintext store must match exactly.
+      if (header.isEncrypted
+          ? data.length < header.unpackedSize
+          : data.length != header.unpackedSize) {
         throw const FormatException('stored RAR5 entry size mismatch');
       }
-      return data;
+      return Uint8List.sublistView(data, 0, header.unpackedSize);
     }
 
     if (!header.solid) {
@@ -267,8 +294,13 @@ final class RarReader extends ArchiveReader {
     for (var i = _solidNextIndex; i <= index; i++) {
       final h = _headers[i];
       if (h.method == 0 || h.isDirectory) {
-        // A stored or empty member inside a solid run: append raw.
-        final raw = await _readData(h);
+        // A stored or empty member inside a solid run: append raw. Encrypted
+        // data carries AES padding — append only the declared bytes.
+        final decrypted = await _readData(h);
+        final raw =
+            h.isEncrypted && decrypted.length > h.unpackedSize
+                ? Uint8List.sublistView(decrypted, 0, h.unpackedSize)
+                : decrypted;
         final start = decoder.writePtr;
         for (var j = 0; j < raw.length; j++) {
           decoder.output[(start + j) & mask] = raw[j];
@@ -324,7 +356,72 @@ final class RarReader extends ArchiveReader {
         offset: header.dataOffset,
       );
     }
-    return _source.read(header.dataOffset, header.dataSize);
+    final raw = await _source.read(header.dataOffset, header.dataSize);
+    if (!header.isEncrypted) return raw;
+    return _decryptData(header, raw);
+  }
+
+  /// AES-256-CBC-decrypts an encrypted entry's packed bytes. The ciphertext
+  /// is padded to a 16-byte boundary; the store/LZ layer above slices the
+  /// plaintext to the declared unpacked size.
+  Uint8List _decryptData(Rar5FileHeader header, Uint8List raw) {
+    final enc = header.encryption;
+    // Reachable without the openRead password check via a solid run whose
+    // members are encrypted; keep it a typed error, never a null crash.
+    if (enc == null || !enc.isAes256) {
+      throw EncryptedArchiveException(
+        'entry uses an unsupported RAR5 encryption method',
+        format: 'rar',
+        entryPath: header.name,
+      );
+    }
+    if (_options.password == null) {
+      throw EncryptedArchiveException(
+        'entry is encrypted (-p); supply ArchiveReadOptions.password',
+        format: 'rar',
+        entryPath: header.name,
+      );
+    }
+    if (header.dataSize % 16 != 0) {
+      throw CorruptArchiveException(
+        'encrypted data length ${header.dataSize} is not a multiple of 16',
+        format: 'rar',
+        entryPath: header.name,
+      );
+    }
+    final keys = _rar5Keys(enc, header.name);
+    if (enc.usePswCheck &&
+        rar5PswCheckIntact(enc.pswCheck!, enc.pswCheckCsum!) &&
+        !keys.passwordMatches(enc.pswCheck!)) {
+      throw InvalidPasswordException(
+        'password rejected by the RAR5 check value',
+        format: 'rar',
+        entryPath: header.name,
+      );
+    }
+    final out = Uint8List.fromList(raw);
+    keys.decrypt(out, enc.iv);
+    return out;
+  }
+
+  /// Derives (and memoizes) the RAR5 keys for an encryption record.
+  Rar5Keys _rar5Keys(Rar5EncryptionInfo enc, String entryPath) {
+    final cacheKey =
+        '${enc.lg2Count}:${enc.salt.map((b) => b.toRadixString(16)).join()}';
+    final cached = _rar5KeyCache[cacheKey];
+    if (cached != null) return cached;
+    final Rar5Keys keys;
+    try {
+      keys = Rar5Keys.derive(_options.password!, enc.salt, enc.lg2Count);
+    } on FormatException catch (e) {
+      throw CorruptArchiveException(
+        'RAR5 key derivation failed: ${e.message}',
+        format: 'rar',
+        entryPath: entryPath,
+      );
+    }
+    _rar5KeyCache[cacheKey] = keys;
+    return keys;
   }
 
   @override

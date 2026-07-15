@@ -9,6 +9,8 @@ import 'dart:typed_data';
 
 import 'package:koni_archive_core/koni_archive_core.dart';
 
+import 'rar_crypto.dart';
+
 /// The 8-byte RAR5 signature `Rar!\x1A\x07\x01\x00`.
 const List<int> rar5Signature = [
   0x52,
@@ -60,6 +62,7 @@ final class Rar5FileHeader {
     required this.modified,
     required this.unixMode,
     required this.isEncrypted,
+    required this.encryption,
     required this.redirectTarget,
     required this.hostOs,
     required this.splitAfter,
@@ -106,6 +109,10 @@ final class Rar5FileHeader {
 
   /// Whether the entry data is encrypted.
   final bool isEncrypted;
+
+  /// Parsed encryption record (salt, IV, KDF cost, password check), when
+  /// [isEncrypted]; null otherwise.
+  final Rar5EncryptionInfo? encryption;
 
   /// Symlink/hardlink target from a REDIR extra record, else null.
   final String? redirectTarget;
@@ -276,6 +283,7 @@ final class Rar5Toc {
 
     // Extra records: encryption, redirect (symlink) targets.
     var isEncrypted = false;
+    Rar5EncryptionInfo? encryption;
     String? redirectTarget;
     if (extraSize > 0 && extraStart >= reader.position) {
       final extra = ByteReader(Uint8List.sublistView(headerBytes, extraStart));
@@ -288,6 +296,7 @@ final class Rar5Toc {
         switch (recType) {
           case 0x01: // FILE encryption record
             isEncrypted = true;
+            encryption = _parseEncryption(extra, recStart + recSize);
           case 0x05: // REDIR: symlink / hardlink / junction target
             final redirType = readRarVarInt(extra);
             readRarVarInt(extra); // redirect flags
@@ -323,9 +332,39 @@ final class Rar5Toc {
       modified: modified,
       unixMode: unixMode,
       isEncrypted: isEncrypted,
+      encryption: encryption,
       redirectTarget: redirectTarget,
       hostOs: hostOs,
       splitAfter: splitAfter,
+    );
+  }
+
+  /// Parses a FILE encryption record body: version, flags, KDF cost, salt,
+  /// IV, and (when the flag is set) the password-check value + checksum.
+  /// [recordEnd] bounds the record; malformed layouts return null (the
+  /// entry stays flagged encrypted and reads throw a typed error).
+  static Rar5EncryptionInfo? _parseEncryption(ByteReader extra, int recordEnd) {
+    final version = readRarVarInt(extra);
+    final flags = readRarVarInt(extra);
+    if (extra.position + 1 + 16 + 16 > recordEnd) return null;
+    final lg2Count = extra.readUint8();
+    final salt = Uint8List.fromList(extra.readBytes(16));
+    final iv = Uint8List.fromList(extra.readBytes(16));
+    Uint8List? pswCheck;
+    Uint8List? pswCheckCsum;
+    if (flags & 0x01 != 0) {
+      if (extra.position + 8 + 4 > recordEnd) return null;
+      pswCheck = Uint8List.fromList(extra.readBytes(8));
+      pswCheckCsum = Uint8List.fromList(extra.readBytes(4));
+    }
+    return Rar5EncryptionInfo(
+      version: version,
+      flags: flags,
+      lg2Count: lg2Count,
+      salt: salt,
+      iv: iv,
+      pswCheck: pswCheck,
+      pswCheckCsum: pswCheckCsum,
     );
   }
 

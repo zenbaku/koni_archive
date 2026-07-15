@@ -107,7 +107,16 @@ final class RarFixtureSet implements FixtureSet {
       await rarUp('store.rar', ['-m0'], basicMembers);
       await rarUp('normal.rar', ['-m3'], basicMembers);
       await rarUp('best_solid.rar', ['-m5', '-s'], basicMembers);
+      // RAR5 file decryption (P3-4): store, compressed, and solid variants.
       await rarUp('encrypted.rar', ['-m0', '-psecret'], ['hello.txt']);
+      await rarUp('encrypted_compressed.rar', ['-m3', '-psecret'], basicMembers);
+      await rarUp('encrypted_solid.rar', [
+        '-m5',
+        '-s',
+        '-psecret',
+      ], basicMembers);
+      // Encrypted-header (-hp) archives: header decryption is a documented
+      // deferral (doc/notes.md), so this stays a typed-error fixture.
       await rarUp('encrypted_headers.rar', ['-m0', '-hpsecret'], ['hello.txt']);
       // RAR4 fixtures need rar 6.x (-ma4 was removed in rar 7) — an M10
       // prerequisite; v4 *detection* is covered synthetically in tests.

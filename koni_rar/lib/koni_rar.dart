@@ -6,8 +6,10 @@
 /// build a custom format registry.
 ///
 /// Current scope: RAR5 store and compressed (methods 1–5), solid and
-/// non-solid, with delta/x86/ARM filters. RAR4, multi-volume, and
-/// encrypted archives are detected with typed errors. See
+/// non-solid, with delta/x86/ARM filters, and RAR4 method-29. RAR5
+/// password-protected *files* (`rar -p`) decrypt via
+/// `ArchiveReadOptions.password` (AES-256, P3-4); encrypted headers
+/// (`-hp`), RAR4 encryption, and multi-volume stay typed errors. See
 /// `doc/rar-provenance.md` for the clean-room policy and `doc/references.md`
 /// for attributions.
 library;

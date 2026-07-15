@@ -8,6 +8,7 @@ resolution: workspace
 
 dependencies:
   koni_archive_core: ^0.4.0
+  koni_codecs: ^0.4.0
 
 dev_dependencies:
   lints: ^6.0.0

@@ -15,7 +15,7 @@ done.
 | ZIP    | Traditional PKWARE ("zipcrypto") | ✅ P3-2 |
 | ZIP    | WinZip AES (AE-1/AE-2, method 99, AES-128/192/256-CTR + HMAC-SHA1) | ✅ P3-2 |
 | 7z     | AES-256-CBC (coder `06f10701`), incl. encrypted headers (`-mhe`) | ✅ P3-3 |
-| RAR5   | AES-256-CBC, PBKDF2-HMAC-SHA256, incl. encrypted headers (`-hp`) and hash-key-tweaked checksums | ✅ P3-4 |
+| RAR5   | AES-256-CBC, PBKDF2-HMAC-SHA256 file data (`-p`), hash-key-tweaked checksums (store/compressed/solid) | ✅ P3-4 |
 | RAR4   | AES-128-CBC, iterated-SHA-1 KDF (salted file data) | ✅ P3-5 |
 
 **Not** in this phase (deferred, typed errors where reachable):
@@ -25,9 +25,12 @@ done.
 - **ZIP "strong encryption"** (SES, flag bit 6: DES/3DES/RC2/RC4 PKWARE
   scheme) — patent-encumbered legacy, vanishingly rare in the wild. Typed
   error naming it.
-- **RAR4 encrypted headers** (main-header flag 0x80: every header block
-  encrypted). Rare + RAR4 is legacy; file-data decryption covers real CBRs.
-  Typed error, same message as today.
+- **RAR encrypted headers** (`-hp`): RAR5 and RAR4 alike. The whole-archive
+  header lock is rarer than file encryption and needs the reader to buffer
+  and offset-remap a decrypted tail (RAR5's is even doubly-encrypted over
+  the data region). Deferred with a typed error; the RAR5 layout is
+  reverse-engineered and recorded in `koni_rar/doc/notes.md` for a future
+  implementer. File-data decryption covers real password-protected CBRs.
 - Key files, certificates, any non-password credential.
 
 ## Public API
@@ -111,7 +114,7 @@ P3-5). Still no unrar/GPL sources, ever.
 | P3-1 | Crypto primitives in koni_codecs | Published NIST/RFC vectors pass on VM + dart2js + dart2wasm |
 | P3-2 | ZIP: zipcrypto + WinZip AE, password API in core | Fixtures authored by `zip`/`7zz` decrypt byte-identical; wrong/missing password typed |
 | P3-3 | 7z: AES coder in the chain + encrypted headers | `7zz -p` / `-mhe` fixtures decrypt; solid folders + header case covered |
-| P3-4 | RAR5: file + header decryption, tweaked CRCs | `rar -p` / `-hp` fixtures decrypt (store, compressed, solid) |
+| P3-4 | RAR5: file decryption, tweaked CRCs (headers deferred) | `rar -p` fixtures decrypt (store, compressed, solid); `-hp` stays a typed error |
 | P3-5 | RAR4: salted file data | Round-trip against our own RAR4 builder **and** `unrar x` extracts what the builder authors (rar 7.x cannot author v4 — the builder is the fixture source, unrar is the local interop gate) |
 
 Release: lockstep **0.5.0** when P3-5 lands (git-only, same policy as 0.4.0).
