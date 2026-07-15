@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0 (2026-07-15)
+
+- Lockstep release with Phase 4 (write-side encryption for ZIP/7z); no
+  changes to koni_rar (RAR writing is permanently out of scope). First
+  release published to pub.dev.
+
 ## 0.5.0 (2026-07-15)
 
 - P3-4/P3-5: RAR file decryption via `ArchiveReadOptions.password`.

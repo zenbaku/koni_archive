@@ -6,8 +6,9 @@ and RAR (password-protected archives included), and writing of ZIP, TAR, and
 executables. Runs everywhere Dart runs: the VM, Flutter (all platforms), and
 the web via both dart2js and dart2wasm.
 
-> **Status: 0.5.0 — Phase 1 reading (M0–M10), Phase 2 writing (P2-1–P2-4b),
-> and Phase 3 read-side decryption (P3-1–P3-5) complete.** ZIP/CBZ (stored,
+> **Status: 0.6.0 (first pub.dev release) — Phase 1 reading (M0–M10),
+> Phase 2 writing (P2-1–P2-4b), Phase 3 read-side decryption (P3-1–P3-5),
+> and Phase 4 write-side encryption complete.** ZIP/CBZ (stored,
 > deflate, ZIP64), TAR/CBT (ustar/PAX/GNU), GZIP (multi-member, layered
 > `.tar.gz`), 7z/CB7 (LZMA/LZMA2/BCJ/delta, solid-block cache), and RAR/CBR
 > (clean-room RAR5 + RAR4) all read behind one format-agnostic API; TAR,

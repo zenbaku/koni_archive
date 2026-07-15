@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 (2026-07-15)
+
+- `TarWriteFormat.openWriter` now rejects a non-null
+  `ArchiveWriteOptions.password` with `UnsupportedCompressionException` — TAR
+  has no standard encryption, so a password can only mislead. Otherwise a
+  lockstep release with Phase 4 (write-side encryption for ZIP/7z).
+- First release published to pub.dev.
+
 ## 0.5.0 (2026-07-15)
 
 - Lockstep release with the Phase 3 (decryption) work; no changes to

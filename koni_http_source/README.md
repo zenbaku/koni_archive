@@ -1,7 +1,7 @@
 # koni_http_source
 
 HTTP-range `ByteSource` for the
-[koni_archive](https://github.com/koni-archive) ecosystem — read entries out
+[koni_archive](https://github.com/zenbaku/koni_archive) ecosystem — read entries out
 of a **remote** archive over HTTP `Range` requests, without downloading the
 whole file. A comic/ebook reader can fetch a single page from a remote
 CBZ/CB7 with a handful of requests. Pure Dart; runs on the VM, Flutter, and

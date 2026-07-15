@@ -1,6 +1,6 @@
 # koni_sevenz
 
-7z reader + writer for the [koni_archive](https://github.com/koni-archive)
+7z reader + writer for the [koni_archive](https://github.com/zenbaku/koni_archive)
 ecosystem, including CB7 comic archives — pure Dart, runs everywhere Dart
 runs including the web (dart2js and dart2wasm).
 

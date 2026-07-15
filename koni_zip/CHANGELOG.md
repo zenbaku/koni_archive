@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.0 (2026-07-15)
+
+- P4-1: ZIP write-side encryption. `ArchiveWriteOptions.password` encrypts
+  file/symlink entries with WinZip AES-256 (AE-2, method 99): per-entry
+  random salt, PBKDF2-HMAC-SHA1 keys, AES-CTR keystream, HMAC-SHA1 tag (the
+  CRC field is zeroed, as AE-2 requires); directories stay plaintext.
+  Interop: real 7-Zip (`7zz x -p`) decrypts our output byte-for-byte and
+  rejects a wrong password. Green on VM + dart2js + dart2wasm.
+- First release published to pub.dev.
+
 ## 0.5.0 (2026-07-15)
 
 - P3-2: ZIP decryption via `ArchiveReadOptions.password`. Traditional

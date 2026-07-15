@@ -1,8 +1,9 @@
 # Changelog
 
-## 0.5.0 (2026-07-15)
+## 0.6.0 (2026-07-15)
 
-- Initial release: `HttpRangeByteSource`, an HTTP-range `ByteSource` that
+- Initial release (joins the ecosystem at its 0.6.0 lockstep version):
+  `HttpRangeByteSource`, an HTTP-range `ByteSource` that
   reads entries out of a remote archive without downloading the whole file.
   - `open(Uri)` over `package:http` (or a caller-supplied `http.Client`);
     `withFetcher(...)` for a transport-agnostic fetcher (browser client,

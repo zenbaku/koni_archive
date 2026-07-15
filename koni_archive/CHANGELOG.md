@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.0 (2026-07-15)
+
+- Phase 4 (write-side encryption) flows through the facade:
+  `ArchiveWriteOptions.password` encrypts ZIP (WinZip AES-256) and 7z
+  (AES-256) output, and `encryptHeader` drives 7z `-mhe`. Every writer's
+  encrypted output is interop-verified against 7-Zip.
+- Remote archives: pair the facade with the new `koni_http_source` package
+  (`HttpRangeByteSource`) to read entries out of a remote archive over HTTP
+  Range requests, without downloading the whole file.
+- First release published to pub.dev.
+
 ## 0.5.0 (2026-07-15)
 
 - Phase 3 (decryption, read side): opening a password-protected archive now

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 (2026-07-15)
+
+- Phase 4 (write-side encryption): `ArchiveWriteOptions` gains `password`
+  (whole-archive AES-256 encryption, honored by the ZIP and 7z writers) and
+  `encryptHeader` (7z `-mhe`). Same encoding contract as the read side; no
+  changes to the reader model.
+- First release published to pub.dev.
+
 ## 0.5.0 (2026-07-15)
 
 - Phase 3 (decryption) API: `ArchiveReadOptions.password` for opening

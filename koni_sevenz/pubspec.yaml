@@ -1,14 +1,19 @@
 name: koni_sevenz
 description: >-
-  7z reader for the koni_archive ecosystem, including CB7 comic archives.
-version: 0.5.0
+  7z reader and writer (incl. AES-256) for the koni_archive ecosystem, including CB7 comic archives.
+version: 0.6.0
+repository: https://github.com/zenbaku/koni_archive
+topics:
+  - archive
+  - sevenz
+  - lzma
 environment:
   sdk: ^3.7.0
 resolution: workspace
 
 dependencies:
-  koni_archive_core: ^0.5.0
-  koni_codecs: ^0.5.0
+  koni_archive_core: ^0.6.0
+  koni_codecs: ^0.6.0
 
 dev_dependencies:
   lints: ^6.0.0

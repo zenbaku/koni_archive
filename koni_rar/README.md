@@ -1,7 +1,7 @@
 # koni_rar
 
 Clean-room RAR4/RAR5 reader for the
-[koni_archive](https://github.com/koni-archive) ecosystem, including CBR
+[koni_archive](https://github.com/zenbaku/koni_archive) ecosystem, including CBR
 comic archives — pure Dart, runs everywhere Dart runs including the web
 (dart2js and dart2wasm).
 

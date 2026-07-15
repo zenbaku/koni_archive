@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 (2026-07-15)
+
+- No code changes; the AES/CBC/CTR/SHA/HMAC/PBKDF2 primitives (`crypto.dart`)
+  are now used by the write side too (7z AES-256, ZIP WinZip AES). Docs
+  updated from "read" to "read and write"; the non-constant-time /
+  no-zeroization caveats are unchanged.
+- First release published to pub.dev.
+
 ## 0.5.0 (2026-07-15)
 
 - P3-1: cryptographic primitives for the Phase 3 decryption work, in the

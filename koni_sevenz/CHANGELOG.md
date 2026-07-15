@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.0 (2026-07-15)
+
+- P4-2: 7z write-side encryption. `ArchiveWriteOptions.password` encrypts
+  each content folder as a `compressor → AES-256-CBC` chain (iterated-SHA-256
+  KDF, per-folder IV); `ArchiveWriteOptions.encryptHeader` additionally
+  encrypts the header (`-mhe`), hiding entry names and requiring the password
+  at open. Interop: real 7-Zip (`7zz x -p`, `7zz l -p`) reads both
+  byte-for-byte. Green on VM + dart2js + dart2wasm.
+- The reader now reports `entry.isEncrypted` (folder-carries-an-AES-coder),
+  matching the ZIP reader.
+- First release published to pub.dev.
+
 ## 0.5.0 (2026-07-15)
 
 - P3-3: 7z AES-256 decryption via `ArchiveReadOptions.password`. The AES

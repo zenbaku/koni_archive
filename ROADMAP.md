@@ -58,8 +58,10 @@ the codec infrastructure from M4's standalone-codec pattern.
 * **0.5.0** at P3-5 — reading password-protected archives across all
   formats (ZIP zipcrypto/AES, 7z AES, RAR5/RAR4 file encryption). **Phase 3
   complete (2026-07-15).** Git-only.
-* **Phase 4** (write-side encryption: ZIP WinZip AES, 7z AES-256) landed
-  lockstep in the 0.5.0-series (git-only). **Complete (2026-07-15).**
+* **0.6.0** — write-side encryption (Phase 4: ZIP WinZip AES-256, 7z AES-256
+  + `-mhe`), the 7z-reader `isEncrypted` fix, and the new `koni_http_source`
+  package (remote reads over HTTP Range). **First release published to
+  pub.dev (2026-07-15).**
 * All packages stay 0.x with lockstep minor bumps until the API stabilizes.
 
 ---

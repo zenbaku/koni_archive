@@ -1,14 +1,19 @@
 name: koni_zip
 description: >-
-  ZIP reader for the koni_archive ecosystem, including CBZ comic archives.
-version: 0.5.0
+  ZIP reader and writer (incl. WinZip AES) for the koni_archive ecosystem, including CBZ comic archives.
+version: 0.6.0
+repository: https://github.com/zenbaku/koni_archive
+topics:
+  - archive
+  - zip
+  - compression
 environment:
   sdk: ^3.7.0
 resolution: workspace
 
 dependencies:
-  koni_archive_core: ^0.5.0
-  koni_codecs: ^0.5.0
+  koni_archive_core: ^0.6.0
+  koni_codecs: ^0.6.0
 
 dev_dependencies:
   archive: ^4.0.0

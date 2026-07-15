@@ -1,7 +1,7 @@
 # koni_tar
 
 TAR reader + writer (ustar, PAX, GNU extensions) for the
-[koni_archive](https://github.com/koni-archive) ecosystem — pure Dart, runs
+[koni_archive](https://github.com/zenbaku/koni_archive) ecosystem — pure Dart, runs
 everywhere Dart runs including the web (dart2js and dart2wasm).
 
 Most applications should depend on the `koni_archive` facade, which
