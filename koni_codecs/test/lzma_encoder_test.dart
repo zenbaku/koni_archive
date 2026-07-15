@@ -184,6 +184,72 @@ void main() {
       expect(_decodeOurs(s2, encoder.propsByte, second.length), second);
     });
 
+    test('repetitive text produces real compression', () {
+      final payload =
+          Uint8List.fromList(('a page of prose, repeated often enough. ' * 2000).codeUnits);
+      final encoder = LzmaEncoder();
+      final stream = encoder.encode(payload);
+      expect(_decodeOurs(stream, encoder.propsByte, payload.length), payload);
+      expect(
+        stream.length,
+        lessThan(payload.length ~/ 20),
+        reason: 'greedy matching must compress repeats, not just literals',
+      );
+    });
+
+    test('long identical runs use max-length matches', () {
+      final payload = Uint8List(500000); // zeros: dist-1 matches, len 273
+      final encoder = LzmaEncoder();
+      final stream = encoder.encode(payload);
+      expect(_decodeOurs(stream, encoder.propsByte, payload.length), payload);
+      expect(stream.length, lessThan(2000));
+    });
+
+    test('match runs exactly to the end of the buffer', () {
+      final payload = Uint8List.fromList(
+        [...('abcdefgh' * 2).codeUnits, ...('XYZW1234' * 40).codeUnits],
+      );
+      final encoder = LzmaEncoder();
+      final stream = encoder.encode(payload);
+      expect(_decodeOurs(stream, encoder.propsByte, payload.length), payload);
+    });
+
+    test('pseudo-text round-trips at every size around block edges', () {
+      final random = Random(99);
+      const words = ['koni', 'archive', 'seven', 'zip', 'lzma', 'range'];
+      for (final size in [1, 2, 3, 4, 5, 15, 16, 17, 273, 274, 65536]) {
+        final b = BytesBuilder(copy: false);
+        while (b.length < size) {
+          b.add(words[random.nextInt(words.length)].codeUnits);
+          b.addByte(0x20);
+        }
+        final payload = Uint8List.sublistView(b.takeBytes(), 0, size);
+        final encoder = LzmaEncoder();
+        final stream = encoder.encode(payload);
+        expect(
+          _decodeOurs(stream, encoder.propsByte, payload.length),
+          payload,
+          reason: 'size $size',
+        );
+      }
+    });
+
+    test('distances are capped by dictSize', () {
+      // The same block twice, 8000 filler bytes apart, with a 4 KiB
+      // dictionary: the second occurrence must NOT match the first.
+      final random = Random(5);
+      final block = Uint8List.fromList(
+        List.generate(600, (_) => random.nextInt(256)),
+      );
+      final filler = Uint8List.fromList(
+        List.generate(8000, (_) => random.nextInt(256)),
+      );
+      final payload = Uint8List.fromList([...block, ...filler, ...block]);
+      final encoder = LzmaEncoder(dictSize: 4096);
+      final stream = encoder.encode(payload);
+      expect(_decodeOurs(stream, encoder.propsByte, payload.length), payload);
+    });
+
     test('invalid properties are rejected', () {
       expect(() => LzmaEncoder(lc: 9), throwsArgumentError);
       expect(() => LzmaEncoder(lp: 5), throwsArgumentError);

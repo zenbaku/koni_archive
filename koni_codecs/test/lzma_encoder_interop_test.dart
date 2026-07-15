@@ -74,6 +74,30 @@ void main() {
     });
   }
 
+  test('liblzma enforces our declared dictionary size', () async {
+    // liblzma rejects any match distance beyond the header's dict size, so
+    // this fails loudly if the finder's distance cap leaks: repeats sit
+    // 8000 bytes apart while the declared dictionary is 4096.
+    if (python == null) {
+      markTestSkipped('no `python3` on PATH; liblzma interop skipped');
+      return;
+    }
+    final random = Random(5);
+    final block = Uint8List.fromList(
+      List.generate(600, (_) => random.nextInt(256)),
+    );
+    final filler = Uint8List.fromList(
+      List.generate(8000, (_) => random.nextInt(256)),
+    );
+    final payload = Uint8List.fromList([...block, ...filler, ...block]);
+    final encoder = LzmaEncoder(dictSize: 4096);
+    final stream = encoder.encode(payload);
+    expect(
+      await liblzmaDecode(_aloneFrame(encoder, payload.length, stream)),
+      payload,
+    );
+  });
+
   test('liblzma decodes non-default properties (lc=0 lp=2 pb=1)', () async {
     if (python == null) {
       markTestSkipped('no `python3` on PATH; liblzma interop skipped');

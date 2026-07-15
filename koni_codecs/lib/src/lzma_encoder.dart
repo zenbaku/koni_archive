@@ -129,12 +129,14 @@ final class RangeEncoder {
 ///
 /// Buffer-based like the decoder, whose output buffer doubles as the match
 /// window: here the caller provides the entire input up front and it doubles
-/// as the dictionary. One-shot: `LzmaEncoder().encode(data)`.
+/// as the dictionary. One-shot: `LzmaEncoder().encode(data)`. Memory: the
+/// hash-chain match finder keeps one 32-bit slot per input byte.
 ///
 /// The probability-model layout and context computation are identical to the
 /// decoder's; the two stay in lockstep by construction. Any literal/match
-/// token choice therefore decodes correctly — parsing quality (this
-/// milestone: literals only; match finding lands next) affects only ratio,
+/// token choice therefore decodes correctly — parsing quality (greedy
+/// hash-chain matching, the deflate approach rebuilt for LZMA's window;
+/// 7zz's optimal-price parser is a deferred ratio lever) affects only ratio,
 /// never validity.
 ///
 /// The produced stream has no end marker: archive containers record exact
@@ -231,24 +233,181 @@ final class LzmaEncoder {
   /// Encodes all of [data] as one raw LZMA stream (one range-coded unit,
   /// exactly what a 7z LZMA1 folder holds).
   Uint8List encode(Uint8List data) {
-    _data = data;
+    _bindData(data);
     _resetState();
     _rc.reset();
     _encodeRange(0, data.length);
     _rc.flush();
     Uint8List? out;
     _rc.drain((chunk) => out = chunk);
-    _data = Uint8List(0);
+    _bindData(_emptyData);
     return out ?? Uint8List(0);
   }
 
-  // ---- token loop (this milestone: every byte is a literal) ----
+  // ---- match finder: hash chains over the whole buffer ----
+  //
+  // The deflate finder's idea (head table + prev links), rebuilt for LZMA:
+  // 4-byte hash, distances capped by dictSize instead of 32 KiB, matches up
+  // to 273 bytes. Hash mixing uses only arithmetic that is exact and
+  // identical on the VM, dart2js, and dart2wasm (no products above 2^53, no
+  // bitwise ops on values at or above 2^32), so the compressed output is
+  // byte-identical on every platform.
+
+  static const int _minMatch = 4; // chain matches; reps go shorter
+  static const int _maxMatch = 273;
+  static const int _maxChain = 48; // search depth (ratio vs speed)
+  static const int _niceLen = 64; // stop searching once this long
+  static const int _hashBits = 17;
+
+  static final Uint8List _emptyData = Uint8List(0);
+  static final Int32List _emptyChain = Int32List(0);
+
+  final Int32List _head = Int32List(1 << _hashBits);
+  Int32List _prev = _emptyChain;
+  int _dataEnd = 0;
+
+  // Best match found by _findMatch (wire distance = _matchDist - 1).
+  int _matchLen = 0;
+  int _matchDist = 0;
+
+  void _bindData(Uint8List data) {
+    _data = data;
+    _dataEnd = data.length;
+    _head.fillRange(0, _head.length, -1);
+    _prev = data.isEmpty ? _emptyChain : Int32List(data.length);
+  }
+
+  int _hash4(int i) {
+    final d = _data;
+    final x = d[i] + (d[i + 1] << 8) + (d[i + 2] << 16) + d[i + 3] * 0x1000000;
+    final lo = x & 0xFFFF;
+    final hi = x >>> 16;
+    // lo * 40503 < 2^32 and the sum < 2^33; the final mask only keeps low
+    // bits, which agree across platforms.
+    return (lo * 40503 + hi * 27469) & ((1 << _hashBits) - 1);
+  }
+
+  /// Longest match ending the chain walk early at [_niceLen]; candidates
+  /// arrive nearest-first, so the first hit at any length is also the
+  /// shortest distance for that length. Inserts [pos] into the chain.
+  /// Returns true when a match of at least [_minMatch] was found.
+  bool _findMatch(int pos) {
+    _matchLen = 0;
+    if (pos + _minMatch > _dataEnd) {
+      return false; // too close to the end even to hash
+    }
+    final maxLen =
+        _dataEnd - pos < _maxMatch ? _dataEnd - pos : _maxMatch;
+    final h = _hash4(pos);
+    var candidate = _head[h];
+    _prev[pos] = candidate;
+    _head[h] = pos;
+
+    final minPos = pos - dictSize > 0 ? pos - dictSize : 0;
+    var bestLen = _minMatch - 1; // only lengths >= _minMatch can win
+    var bestDist = 0;
+    var chain = _maxChain;
+    final data = _data;
+    while (candidate >= minPos && chain-- > 0) {
+      // Quick reject: a longer match must improve on byte [bestLen].
+      if (data[candidate + bestLen] == data[pos + bestLen]) {
+        var len = 0;
+        while (len < maxLen && data[candidate + len] == data[pos + len]) {
+          len++;
+        }
+        if (len > bestLen) {
+          bestLen = len;
+          bestDist = pos - candidate;
+          if (len >= _niceLen || len == maxLen) break;
+        }
+      }
+      candidate = _prev[candidate];
+    }
+    if (bestLen < _minMatch) return false;
+    _matchLen = bestLen;
+    _matchDist = bestDist;
+    return true;
+  }
+
+  /// Inserts positions `[from, to)` into the hash chains (bytes covered by
+  /// an emitted match still become future match candidates).
+  void _insertRange(int from, int to) {
+    final last = _dataEnd - _minMatch;
+    final end = to < last + 1 ? to : last + 1;
+    for (var i = from; i < end; i++) {
+      final h = _hash4(i);
+      _prev[i] = _head[h];
+      _head[h] = i;
+    }
+  }
+
+  // ---- token loop: greedy longest-match ----
 
   void _encodeRange(int from, int to) {
-    for (var pos = from; pos < to; pos++) {
+    var pos = from;
+    while (pos < to) {
       final posState = pos & _pbMask;
-      _rc.encodeBit(_isMatch, (_state << 4) + posState, 0);
-      _encodeLiteral(pos);
+      if (_findMatch(pos)) {
+        final len = _matchLen;
+        _encodeMatch(posState, len, _matchDist - 1);
+        _insertRange(pos + 1, pos + len);
+        pos += len;
+      } else {
+        _rc.encodeBit(_isMatch, (_state << 4) + posState, 0);
+        _encodeLiteral(pos);
+        pos++;
+      }
+    }
+  }
+
+  /// Encodes a simple match (new distance): the decoder's simple-match
+  /// branch in reverse. [dist] is the wire distance (real distance - 1).
+  void _encodeMatch(int posState, int len, int dist) {
+    _rc.encodeBit(_isMatch, (_state << 4) + posState, 1);
+    _rc.encodeBit(_isRep, _state, 0);
+    _rep0 = dist;
+    _encodeLength(_lenProbs, len, posState);
+
+    final lenState = len - 2 > 3 ? 3 : len - 2;
+    final slot = _slotFor(dist);
+    _rc.encodeTree(_posSlot, lenState << 6, 6, slot);
+    if (slot >= 4) {
+      final numDirect = (slot >> 1) - 1;
+      final base = (2 | (slot & 1)) << numDirect;
+      final footer = dist - base;
+      if (slot < 14) {
+        _rc.encodeTreeReverse(_specPos, base - slot, numDirect, footer);
+      } else {
+        _rc.encodeDirectBits(footer >> 4, numDirect - 4);
+        _rc.encodeTreeReverse(_align, 0, 4, footer & 15);
+      }
+    }
+    _state = _state < 7 ? 7 : 10;
+  }
+
+  /// The position slot whose range contains [dist] (inverse of the
+  /// decoder's slot-to-base expansion).
+  static int _slotFor(int dist) {
+    if (dist < 4) return dist;
+    final n = dist.bitLength - 1; // floor(log2)
+    return (n << 1) | ((dist >> (n - 1)) & 1);
+  }
+
+  /// Encodes a length (2–273) through a length coder's probability block —
+  /// the decoder's `_length` in reverse.
+  void _encodeLength(Uint16List probs, int len, int posState) {
+    final v = len - 2;
+    if (v < 8) {
+      _rc.encodeBit(probs, 0, 0);
+      _rc.encodeTree(probs, 2 + (posState << 3), 3, v);
+    } else if (v < 16) {
+      _rc.encodeBit(probs, 0, 1);
+      _rc.encodeBit(probs, 1, 0);
+      _rc.encodeTree(probs, 2 + 128 + (posState << 3), 3, v - 8);
+    } else {
+      _rc.encodeBit(probs, 0, 1);
+      _rc.encodeBit(probs, 1, 1);
+      _rc.encodeTree(probs, 2 + 256, 8, v - 16);
     }
   }
 
