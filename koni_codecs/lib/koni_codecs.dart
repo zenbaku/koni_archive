@@ -7,6 +7,9 @@
 /// More codecs land milestone by milestone (LZMA at M8, …). On malformed
 /// input, everything in this package throws [FormatException] — the archive
 /// layer translates that into its typed exception hierarchy.
+///
+/// Cryptographic primitives (AES, SHA, HMAC, PBKDF2 — Phase 3) live in the
+/// separate `package:koni_codecs/crypto.dart` entrypoint.
 library;
 
 export 'src/bit_reader.dart';
