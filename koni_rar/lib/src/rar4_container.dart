@@ -33,6 +33,7 @@ const int _fhdPassword = 0x0004;
 const int _fhdSolid = 0x0010;
 const int _fhdLarge = 0x0100;
 const int _fhdUnicode = 0x0200;
+const int _fhdSalt = 0x0400;
 const int _fileIsDirectory = 0xE0;
 const int _mhdPassword = 0x0080;
 const int _dictionaryMax = 0x400000;
@@ -147,6 +148,12 @@ Rar5FileHeader _parseFileHeader(
   final isUnicode = flags & _fhdUnicode != 0;
   final name = _decodeName(nameBytes, isUnicode);
 
+  // The 8-byte encryption salt follows the name when the SALT flag is set.
+  Uint8List? rar4Salt;
+  if (flags & _fhdSalt != 0) {
+    rar4Salt = Uint8List.fromList(r.readBytes(8));
+  }
+
   final isDirectory = (flags & _fileIsDirectory) == _fileIsDirectory;
   // Dictionary size from flag bits 5-7 (unless directory); the LZ window is
   // a power of two ≥ unpacked size, capped at 4 MiB — the reader allocates
@@ -175,9 +182,10 @@ Rar5FileHeader _parseFileHeader(
     modified: _dosTime(dosTime),
     unixMode: unixMode,
     isEncrypted: flags & _fhdPassword != 0,
-    // RAR4 uses a different (non-AES-256) encryption scheme handled in
-    // P3-5, not the RAR5 encryption record.
+    // RAR4 uses its own SHA-1-KDF + AES-128 scheme (rar_crypto.dart), keyed
+    // by the header salt below — not the RAR5 encryption record.
     encryption: null,
+    rar4Salt: rar4Salt,
     redirectTarget: null,
     hostOs: hostOs,
     splitAfter: flags & _fhdSplitAfter != 0,

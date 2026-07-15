@@ -63,6 +63,7 @@ final class Rar5FileHeader {
     required this.unixMode,
     required this.isEncrypted,
     required this.encryption,
+    required this.rar4Salt,
     required this.redirectTarget,
     required this.hostOs,
     required this.splitAfter,
@@ -110,9 +111,13 @@ final class Rar5FileHeader {
   /// Whether the entry data is encrypted.
   final bool isEncrypted;
 
-  /// Parsed encryption record (salt, IV, KDF cost, password check), when
-  /// [isEncrypted]; null otherwise.
+  /// Parsed RAR5 encryption record (salt, IV, KDF cost, password check),
+  /// when [isEncrypted] on a RAR5 entry; null otherwise.
   final Rar5EncryptionInfo? encryption;
+
+  /// 8-byte RAR4 encryption salt (from the file header's SALT flag), when
+  /// this is an encrypted RAR4 entry; null otherwise.
+  final Uint8List? rar4Salt;
 
   /// Symlink/hardlink target from a REDIR extra record, else null.
   final String? redirectTarget;
@@ -333,6 +338,7 @@ final class Rar5Toc {
       unixMode: unixMode,
       isEncrypted: isEncrypted,
       encryption: encryption,
+      rar4Salt: null, // RAR5 carries salt in the encryption record above.
       redirectTarget: redirectTarget,
       hostOs: hostOs,
       splitAfter: splitAfter,

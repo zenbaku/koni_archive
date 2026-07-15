@@ -36,6 +36,10 @@ ArchiveEntry file(ArchiveReader reader, String path) =>
 final helloBytes = utf8.encode('hello, rar!\n');
 final unicodeBytes = utf8.encode('unicode page\n');
 final dataBytes = List.generate(100000, (i) => ((i * 7) ^ (i >> 3)) & 0xFF);
+final loremBytes = utf8.encode(
+  'The quick brown fox jumps over the lazy dog. ' * 60,
+);
+final notesBytes = utf8.encode('koni archive phase 3 encryption. ' * 40);
 
 void main() {
   group('file decryption', () {
@@ -65,6 +69,50 @@ void main() {
       expect(
         await collect(reader, file(reader, 'nested/deep/data.bin')),
         dataBytes,
+      );
+    });
+  });
+
+  group('RAR4 file decryption (AES-128, SHA-1 KDF)', () {
+    // Fixtures authored with rar 6.24 (rar 7.x cannot create v4); the KDF
+    // and AES-128 path are verified byte-exact against them.
+    test('stored entries (rar -ma4 -m0 -p)', () async {
+      final reader = await open('enc_rar4_store.rar', password: 'secret');
+      expect(reader.entries.first.compression, ArchiveCompression.stored);
+      expect(await collect(reader, file(reader, 'hello.txt')), helloBytes);
+      expect(await collect(reader, file(reader, 'lorem.txt')), loremBytes);
+      expect(
+        await collect(reader, file(reader, 'nested/notes.txt')),
+        notesBytes,
+      );
+    });
+
+    test('compressed entries (rar -ma4 -m3 -p), CRCs verified', () async {
+      final reader = await open('enc_rar4.rar', password: 'secret');
+      expect(await collect(reader, file(reader, 'hello.txt')), helloBytes);
+      expect(await collect(reader, file(reader, 'lorem.txt')), loremBytes);
+      expect(
+        await collect(reader, file(reader, 'nested/notes.txt')),
+        notesBytes,
+      );
+    });
+
+    test(
+      'wrong password fails the plaintext CRC (RAR4 has no check value)',
+      () async {
+        final reader = await open('enc_rar4_store.rar', password: 'wrong');
+        await expectLater(
+          collect(reader, file(reader, 'hello.txt')),
+          throwsA(isA<ChecksumMismatchException>()),
+        );
+      },
+    );
+
+    test('no password throws a typed error', () async {
+      final reader = await open('enc_rar4_store.rar');
+      expect(
+        () => reader.openRead(file(reader, 'hello.txt')),
+        throwsA(isA<EncryptedArchiveException>()),
       );
     });
   });

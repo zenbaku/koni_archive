@@ -16,7 +16,7 @@ done.
 | ZIP    | WinZip AES (AE-1/AE-2, method 99, AES-128/192/256-CTR + HMAC-SHA1) | ✅ P3-2 |
 | 7z     | AES-256-CBC (coder `06f10701`), incl. encrypted headers (`-mhe`) | ✅ P3-3 |
 | RAR5   | AES-256-CBC, PBKDF2-HMAC-SHA256 file data (`-p`), hash-key-tweaked checksums (store/compressed/solid) | ✅ P3-4 |
-| RAR4   | AES-128-CBC, iterated-SHA-1 KDF (salted file data) | ✅ P3-5 |
+| RAR4   | AES-128-CBC, iterated-SHA-1 KDF (salted file data, store + compressed) | ✅ P3-5 |
 
 **Not** in this phase (deferred, typed errors where reachable):
 

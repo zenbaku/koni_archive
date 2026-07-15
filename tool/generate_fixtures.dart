@@ -118,8 +118,10 @@ final class RarFixtureSet implements FixtureSet {
       // Encrypted-header (-hp) archives: header decryption is a documented
       // deferral (doc/notes.md), so this stays a typed-error fixture.
       await rarUp('encrypted_headers.rar', ['-m0', '-hpsecret'], ['hello.txt']);
-      // RAR4 fixtures need rar 6.x (-ma4 was removed in rar 7) — an M10
-      // prerequisite; v4 *detection* is covered synthetically in tests.
+      // NOTE: the encrypted RAR4 fixtures (enc_rar4*.rar, P3-5) are NOT
+      // generated here — rar 7.x removed -ma4 and cannot author v4. They
+      // were authored once with rar 6.24 and committed as static fixtures
+      // (see koni_rar/doc/notes.md). v4 *detection* is covered synthetically.
       await rarUp('synthetic_comic.cbr', ['-m3'], ['comic']);
     } finally {
       staging.deleteSync(recursive: true);

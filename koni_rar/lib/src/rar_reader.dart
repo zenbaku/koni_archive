@@ -43,9 +43,10 @@ final class RarReader extends ArchiveReader {
   int _solidNextIndex = 0;
   bool _closed = false;
 
-  // Derived RAR5 keys, memoized by (salt, cost); the password is constant
-  // for a reader, so the expensive KDF runs once per distinct salt.
+  // Derived keys, memoized by salt; the password is constant for a reader,
+  // so the expensive KDF runs once per distinct salt.
   final Map<String, Rar5Keys> _rar5KeyCache = <String, Rar5Keys>{};
+  final Map<String, Rar4Keys> _rar4KeyCache = <String, Rar4Keys>{};
 
   /// Parses the container (RAR5 or RAR4, per [isRar4]). Headers are
   /// plaintext unless whole-archive encryption is used; O(entry count), no
@@ -105,10 +106,9 @@ final class RarReader extends ArchiveReader {
     final header = _headers[index];
 
     if (header.isEncrypted) {
-      final enc = header.encryption;
-      if (enc == null || !enc.isAes256) {
+      if (!_encryptionSupported(header)) {
         throw EncryptedArchiveException(
-          'entry uses an unsupported RAR5 encryption method',
+          'entry uses an unsupported encryption method',
           format: 'rar',
           entryPath: entry.path,
         );
@@ -361,16 +361,23 @@ final class RarReader extends ArchiveReader {
     return _decryptData(header, raw);
   }
 
-  /// AES-256-CBC-decrypts an encrypted entry's packed bytes. The ciphertext
-  /// is padded to a 16-byte boundary; the store/LZ layer above slices the
-  /// plaintext to the declared unpacked size.
+  /// Whether we can decrypt [header]: RAR5 needs an AES-256 record, RAR4
+  /// needs the header salt.
+  bool _encryptionSupported(Rar5FileHeader header) => switch (header.version) {
+    50 => header.encryption?.isAes256 ?? false,
+    29 => header.rar4Salt != null,
+    _ => false,
+  };
+
+  /// AES-CBC-decrypts an encrypted entry's packed bytes. The ciphertext is
+  /// padded to a 16-byte boundary; the store/LZ layer above slices the
+  /// plaintext to the declared unpacked size. Reachable without the
+  /// openRead check via an encrypted member inside a solid run, so it
+  /// re-validates and stays a typed error, never a null crash.
   Uint8List _decryptData(Rar5FileHeader header, Uint8List raw) {
-    final enc = header.encryption;
-    // Reachable without the openRead password check via a solid run whose
-    // members are encrypted; keep it a typed error, never a null crash.
-    if (enc == null || !enc.isAes256) {
+    if (!_encryptionSupported(header)) {
       throw EncryptedArchiveException(
-        'entry uses an unsupported RAR5 encryption method',
+        'entry uses an unsupported encryption method',
         format: 'rar',
         entryPath: header.name,
       );
@@ -389,6 +396,13 @@ final class RarReader extends ArchiveReader {
         entryPath: header.name,
       );
     }
+    return header.version == 29
+        ? _decryptRar4(header, raw)
+        : _decryptRar5(header, raw);
+  }
+
+  Uint8List _decryptRar5(Rar5FileHeader header, Uint8List raw) {
+    final enc = header.encryption!;
     final keys = _rar5Keys(enc, header.name);
     if (enc.usePswCheck &&
         rar5PswCheckIntact(enc.pswCheck!, enc.pswCheckCsum!) &&
@@ -401,6 +415,15 @@ final class RarReader extends ArchiveReader {
     }
     final out = Uint8List.fromList(raw);
     keys.decrypt(out, enc.iv);
+    return out;
+  }
+
+  Uint8List _decryptRar4(Rar5FileHeader header, Uint8List raw) {
+    // RAR4 has no password-check value; a wrong password surfaces later as
+    // a CRC-32 mismatch on the (plaintext) checksum.
+    final keys = _rar4Keys(header.rar4Salt!);
+    final out = Uint8List.fromList(raw);
+    keys.decrypt(out);
     return out;
   }
 
@@ -422,6 +445,15 @@ final class RarReader extends ArchiveReader {
     }
     _rar5KeyCache[cacheKey] = keys;
     return keys;
+  }
+
+  /// Derives (and memoizes) the RAR4 keys for a header salt.
+  Rar4Keys _rar4Keys(Uint8List salt) {
+    final cacheKey = salt.map((b) => b.toRadixString(16)).join();
+    return _rar4KeyCache[cacheKey] ??= Rar4Keys.derive(
+      _options.password!,
+      salt,
+    );
   }
 
   @override

@@ -124,5 +124,21 @@ per the provenance policy's "when in doubt, typed error + document":
   serving both headers and data from the decrypted tail buffer, not from
   the raw source.
 
-RAR4 encrypted headers remain deferred as well (P3-5 covers RAR4 file
-data only).
+**RAR4 file** encryption (`rar -ma4 -p`, P3-5) IS supported: AES-128-CBC
+with the bespoke RAR3 SHA-1 KDF (`0x40000` rounds absorbing
+`passwordUtf16le ‖ salt ‖ counter24le`, one IV byte harvested from a
+clone-finalize every `0x4000` rounds, the AES key being the final digest's
+first 16 bytes with each 4-byte word byte-reversed), keyed by the 8-byte
+salt in the file header (SALT flag `0x400`). RAR4 stores the **plaintext**
+CRC (no hash-key tweak) and carries no password-check value, so a wrong
+password surfaces as a CRC mismatch (stored) or corrupt data (compressed).
+Verified byte-exact against genuine encrypted v4 archives.
+
+**Fixture provenance:** the committed `enc_rar4*.rar` fixtures were
+authored with **rar 6.24** (`tool/generate_fixtures.dart` runs rar 7.x,
+which cannot create v4 — same constraint as the method-29 decoder's
+missing fixture). They are committed static files; CI needs only the
+committed bytes.
+
+RAR4 encrypted **headers** remain deferred (typed error), same as RAR5
+`-hp`.

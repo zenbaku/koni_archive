@@ -170,3 +170,67 @@ bool rar5PswCheckIntact(Uint8List pswCheck, Uint8List pswCheckCsum) {
   }
   return true;
 }
+
+/// Derived RAR4 (v29 / "RAR3") AES-128 key and IV.
+///
+/// The RAR3 KDF is a bespoke SHA-1 construction — not PBKDF2 — verified
+/// byte-exact against `rar`-authored encrypted v4 fixtures. RAR4 stores the
+/// **plaintext** CRC (no hash-key tweak) and carries no password-check
+/// value, so a wrong password surfaces only as a CRC mismatch.
+final class Rar4Keys {
+  Rar4Keys._(this.aesKey, this.iv);
+
+  /// 16-byte AES-128 key.
+  final Uint8List aesKey;
+
+  /// 16-byte CBC IV.
+  final Uint8List iv;
+
+  /// Derives the key and IV from [password] (UTF-16LE) and the 8-byte
+  /// [salt] carried in the file header.
+  ///
+  /// Runs a SHA-1 chain of `0x40000` rounds, each absorbing
+  /// `passwordUtf16le ‖ salt ‖ counter24le`; one IV byte is harvested from
+  /// a clone-and-finalize every `0x4000` rounds, and the AES key is the
+  /// final digest's first 16 bytes with each 4-byte word byte-reversed.
+  factory Rar4Keys.derive(String password, Uint8List salt) {
+    final raw = <int>[];
+    for (final unit in password.codeUnits) {
+      raw
+        ..add(unit & 0xFF)
+        ..add((unit >> 8) & 0xFF); // UTF-16LE
+    }
+    raw.addAll(salt);
+    final rawBytes = Uint8List.fromList(raw);
+
+    const rounds = 0x40000;
+    const ivStep = rounds ~/ 16; // 0x4000
+    final iv = Uint8List(16);
+    final counter = Uint8List(3);
+    final sha = Sha1();
+    for (var i = 0; i < rounds; i++) {
+      sha.add(rawBytes);
+      counter[0] = i & 0xFF;
+      counter[1] = (i >> 8) & 0xFF;
+      counter[2] = (i >> 16) & 0xFF;
+      sha.add(counter);
+      if (i % ivStep == 0) {
+        // Intermediate digest of the running state → one IV byte (its last).
+        iv[i ~/ ivStep] = sha.copy().finish()[19];
+      }
+    }
+    final digest = sha.finish();
+    final aesKey = Uint8List(16);
+    for (var word = 0; word < 4; word++) {
+      for (var b = 0; b < 4; b++) {
+        aesKey[word * 4 + b] = digest[word * 4 + (3 - b)];
+      }
+    }
+    return Rar4Keys._(aesKey, iv);
+  }
+
+  /// AES-128-CBC-decrypts [data] (a multiple of 16 bytes) in place.
+  void decrypt(Uint8List data) {
+    AesCbcDecryptor(Aes(aesKey), iv).decryptInPlace(data);
+  }
+}

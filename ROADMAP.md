@@ -83,7 +83,7 @@ permanently out of scope.
 | P3-2 | ZIP decryption       | zipcrypto + WinZip AE-1/AE-2; `password` read option + `InvalidPasswordException` in core | ⬜     |
 | P3-3 | 7z decryption        | AES-256 coder in the folder chain (buffer-per-coder refactor) + encrypted headers | ⬜     |
 | P3-4 | RAR5 decryption      | File-data decryption (`-p`), PBKDF2 keys, check value, tweaked CRCs; `-hp` headers deferred (typed error, layout documented) | ⬜     |
-| P3-5 | RAR4 decryption      | Salted file data (iterated-SHA-1 KDF, AES-128); encrypted headers stay deferred | ⬜     |
+| P3-5 | RAR4 decryption      | Salted file data (iterated-SHA-1 KDF, AES-128), store + compressed; fixtures via rar 6.24; encrypted headers stay deferred | ⬜     |
 
 Release point: **0.5.0** at P3-5 (lockstep, git-only). Write-side encryption
 and ZIP strong-encryption (SES) stay deferred — see the scope doc.
