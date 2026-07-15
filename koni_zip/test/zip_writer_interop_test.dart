@@ -153,10 +153,96 @@ void main() {
       dir.deleteSync(recursive: true);
     }
   });
+
+  // WinZip AES (AE-2) is the real proof of the encrypted layout: the salt,
+  // verifier, CTR keystream, and HMAC tag must be exactly what a standard
+  // extractor expects. Info-ZIP `unzip` only does traditional zipcrypto, so
+  // the AES check uses `7zz`, which supports WinZip AES; skipped if absent.
+  test('7zz decrypts our AES-256 archive byte-for-byte', () async {
+    final sevenZip = _find('7zz', ['--help']);
+    if (sevenZip == null) {
+      markTestSkipped('no `7zz` on PATH; AES interop check skipped');
+      return;
+    }
+    const password = 'corr3ct h0rse';
+    final expected = <String, Uint8List>{
+      'secret.txt': Uint8List.fromList(utf8.encode('top secret\n')),
+      'dir/notes.txt': Uint8List.fromList(utf8.encode('classified ' * 300)),
+      'raw.bin': Uint8List.fromList(
+        List.generate(4000, (i) => (i * 29 + 3) & 0xFF),
+      ),
+    };
+    final sink = BytesBuilderSink();
+    final writer = const ZipWriteFormat().openWriter(
+      sink,
+      const ArchiveWriteOptions(password: password),
+    );
+    await writer.addBytes(
+      ArchiveEntrySpec(path: 'secret.txt'),
+      expected['secret.txt']!,
+    );
+    await writer.addBytes(
+      ArchiveEntrySpec(path: 'dir/notes.txt'),
+      expected['dir/notes.txt']!,
+    );
+    await writer.addBytes(
+      ArchiveEntrySpec(path: 'raw.bin', compression: ArchiveCompression.stored),
+      expected['raw.bin']!,
+    );
+    await writer.close();
+    await sink.close();
+    final archive = sink.takeBytes();
+
+    final dir = Directory.systemTemp.createTempSync('koni_zip_aes');
+    try {
+      final path = '${dir.path}/enc.zip';
+      File(path).writeAsBytesSync(archive);
+
+      // A wrong password must be rejected (proves the verifier/HMAC bind to
+      // the key), then the right one extracts byte-for-byte.
+      final wrong = await Process.run(
+        sevenZip,
+        ['t', '-p-nope-', path],
+        stdoutEncoding: latin1,
+        stderrEncoding: latin1,
+      );
+      expect(
+        wrong.exitCode,
+        isNot(0),
+        reason: '7zz accepted a wrong password: ${wrong.stdout}',
+      );
+
+      final out = Directory('${dir.path}/x')..createSync();
+      final result = await Process.run(
+        sevenZip,
+        ['x', '-y', '-p$password', '-o${out.path}', path],
+        stdoutEncoding: latin1,
+        stderrEncoding: latin1,
+      );
+      expect(
+        result.exitCode,
+        0,
+        reason: '7zz x failed: ${result.stdout}\n${result.stderr}',
+      );
+      for (final MapEntry(key: p, value: content) in expected.entries) {
+        final file = File('${out.path}/$p');
+        expect(file.existsSync(), isTrue, reason: 'missing $p');
+        expect(file.readAsBytesSync(), content, reason: 'content of $p');
+      }
+    } finally {
+      dir.deleteSync(recursive: true);
+    }
+  });
 }
 
 String? _find(String name, List<String> probeArgs) {
-  for (final candidate in ['/usr/bin/$name', '/bin/$name', name]) {
+  for (final candidate in [
+    '/opt/homebrew/bin/$name',
+    '/usr/local/bin/$name',
+    '/usr/bin/$name',
+    '/bin/$name',
+    name,
+  ]) {
     try {
       Process.runSync(candidate, probeArgs);
       return candidate;

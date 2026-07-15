@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:koni_archive_core/koni_archive_core.dart';
 import 'package:koni_codecs/koni_codecs.dart';
+
+import 'zip_crypto.dart';
 
 /// Writer for ZIP archives (and CBZ comics). Created via
 /// `ZipWriteFormat.openWriter`.
@@ -12,17 +15,44 @@ import 'package:koni_codecs/koni_codecs.dart';
 /// central directory (written at [close]) carries the authoritative values.
 /// Stored and deflate (default) methods; ZIP64 structures are emitted when
 /// a size, offset, or the entry count exceeds the 32-bit / 16-bit limits.
+///
+/// When [ArchiveWriteOptions.password] is set, file and symlink entries are
+/// encrypted with **WinZip AES-256 (AE-2)** — method 99 with the real
+/// method in the 0x9901 extra, a per-entry salt, PBKDF2-HMAC-SHA1 keys, and
+/// an HMAC-SHA1 authentication tag (so the CRC field is zeroed, as AE-2
+/// requires). Directory entries carry no data and stay unencrypted.
 final class ZipWriter extends ArchiveWriter {
-  /// Creates a writer appending to [_sink].
-  ZipWriter(this.format, this._sink, this._options);
+  /// Creates a writer appending to [_sink]. [randomBytes] overrides the
+  /// salt source (a cryptographic RNG by default); tests inject a
+  /// deterministic generator to pin the ciphertext.
+  ZipWriter(
+    this.format,
+    this._sink,
+    this._options, {
+    Uint8List Function(int length)? randomBytes,
+  }) : _randomBytes = randomBytes ?? _secureRandomBytes;
 
   @override
   final ArchiveWriteFormat format;
 
   final ByteSink _sink;
   final ArchiveWriteOptions _options;
+  final Uint8List Function(int length) _randomBytes;
   final List<_CentralRecord> _central = [];
   bool _closed = false;
+
+  /// AES strength for encrypted entries: 3 = AES-256 (salt 16, key 32).
+  static const int _aesStrength = 3;
+
+  static final Random _secureRng = Random.secure();
+
+  static Uint8List _secureRandomBytes(int length) {
+    final out = Uint8List(length);
+    for (var i = 0; i < length; i++) {
+      out[i] = _secureRng.nextInt(256);
+    }
+    return out;
+  }
 
   static const int _localSig = 0x04034B50;
   static const int _centralSig = 0x02014B50;
@@ -107,40 +137,90 @@ final class ZipWriter extends ArchiveWriter {
     required bool isSymlink,
     bool isDirectory = false,
   }) async {
+    // Encrypt entries that carry data (files, symlinks); directories don't.
+    final encrypt = _options.password != null && !isDirectory;
+    WinZipAesParams? aesParams;
+    WinZipAesEncryptor? enc;
+    if (encrypt) {
+      aesParams = WinZipAesParams.ae2(strength: _aesStrength, method: method);
+      enc = WinZipAesEncryptor.derive(
+        passwordBytes: _passwordBytes(),
+        params: aesParams,
+        salt: _randomBytes(aesParams.saltLength),
+      );
+    }
+    final overhead = aesParams?.overhead ?? 0;
+    final aesExtra = aesParams == null ? null : _aesExtraField(aesParams);
+
     final nameBytes = Uint8List.fromList(_utf8(path));
     final localOffset = _sink.length;
     // ZIP64 is needed when the uncompressed size or this entry's offset
-    // exceeds 32 bits. (Compressed size can only grow slightly beyond a
-    // 4 GiB uncompressed size, already covered.)
-    final zip64 = size > _u32Max || localOffset > _u32Max;
+    // exceeds 32 bits. Compressed size can only grow slightly beyond a 4 GiB
+    // uncompressed size (deflate) plus the AES envelope, so size + overhead
+    // is a safe proxy for deciding it up front.
+    final zip64 = size + overhead > _u32Max || localOffset > _u32Max;
     final (dosTime, dosDate) = _dosDateTime(spec.modified);
+    // Encrypted entries advertise method 99; the real method rides in the
+    // 0x9901 extra. AES needs extract version 51.
+    final headerMethod = encrypt ? 99 : method;
+    final versionNeeded = encrypt ? 51 : (zip64 ? 45 : 20);
+    final zip64Extra =
+        zip64
+            ? (_ByteWriter()
+                  ..u16(0x0001)
+                  ..u16(16)
+                  ..u64(
+                    0,
+                  ) // uncompressed size placeholder (descriptor is truth)
+                  ..u64(0)) // compressed size placeholder
+                .take()
+            : null;
+    final extraLen = (aesExtra?.length ?? 0) + (zip64Extra?.length ?? 0);
 
     // Local file header (sizes deferred to the data descriptor via bit 3).
     final local =
         _ByteWriter()
           ..u32(_localSig)
-          ..u16(zip64 ? 45 : 20) // version needed
-          ..u16(0x0808) // flags: bit 3 (data descriptor) + bit 11 (UTF-8)
-          ..u16(method)
+          ..u16(versionNeeded)
+          // flags: bit 3 (data descriptor) + bit 11 (UTF-8), + bit 0 when
+          // encrypted.
+          ..u16(encrypt ? 0x0809 : 0x0808)
+          ..u16(headerMethod)
           ..u16(dosTime)
           ..u16(dosDate)
-          ..u32(0) // crc — in the descriptor
+          ..u32(0) // crc — in the descriptor (and zeroed for AE-2)
           ..u32(zip64 ? _u32Max : 0) // compressed size
           ..u32(zip64 ? _u32Max : 0) // uncompressed size
           ..u16(nameBytes.length)
-          ..u16(zip64 ? 20 : 0) // extra length
+          ..u16(extraLen)
           ..bytes(nameBytes);
-    if (zip64) {
-      local
-        ..u16(0x0001)
-        ..u16(16)
-        ..u64(0) // uncompressed size placeholder (descriptor is truth)
-        ..u64(0); // compressed size placeholder
-    }
+    if (aesExtra != null) local.bytes(aesExtra);
+    if (zip64Extra != null) local.bytes(zip64Extra);
     await _sink.add(local.take());
 
-    // Stream the content: CRC over the uncompressed bytes, count the
-    // compressed bytes actually written.
+    // AES envelope preamble: salt then the 2-byte password verifier.
+    if (enc != null) {
+      await _sink.add(enc.salt);
+      await _sink.add(enc.verifier);
+    }
+
+    // Writes compressed output, encrypting it in a fresh buffer when the
+    // entry is protected (never mutating the caller's or the deflater's
+    // buffers, and keeping the CTR/HMAC in emission order).
+    Future<void> emit(Uint8List chunk) async {
+      if (chunk.isEmpty) return;
+      if (enc != null) {
+        final owned = Uint8List.fromList(chunk);
+        enc.process(owned);
+        await _sink.add(owned);
+      } else {
+        await _sink.add(chunk);
+      }
+    }
+
+    // Stream the content: CRC over the uncompressed plaintext, count the
+    // compressed bytes (= ciphertext length; the AES overhead is added
+    // separately to the recorded size).
     final crc = Crc32();
     var uncompressed = 0;
     var compressed = 0;
@@ -157,9 +237,9 @@ final class ZipWriter extends ArchiveWriter {
           );
         }
         crc.add(chunk);
-        await _sink.add(chunk);
+        compressed += chunk.length;
+        await emit(chunk);
       }
-      compressed = uncompressed;
     } else {
       final pending = <Uint8List>[];
       final deflater = RawDeflater(
@@ -181,13 +261,13 @@ final class ZipWriter extends ArchiveWriter {
         crc.add(chunk);
         deflater.add(chunk);
         for (final out in pending) {
-          await _sink.add(out);
+          await emit(out);
         }
         pending.clear();
       }
       deflater.finish();
       for (final out in pending) {
-        await _sink.add(out);
+        await emit(out);
       }
     }
     if (uncompressed != size) {
@@ -198,18 +278,28 @@ final class ZipWriter extends ArchiveWriter {
       );
     }
 
+    // AES envelope trailer: the 10-byte HMAC-SHA1 authentication tag.
+    if (enc != null) {
+      await _sink.add(enc.finishMac());
+    }
+
+    // The recorded compressed size counts the whole AES envelope (salt +
+    // verifier + ciphertext + MAC); AE-2 stores a zero CRC.
+    final recordedCompressed = compressed + overhead;
+    final recordedCrc = encrypt ? 0 : crc.value;
+
     // Data descriptor (8-byte sizes when ZIP64).
     final descriptor =
         _ByteWriter()
           ..u32(_descriptorSig)
-          ..u32(crc.value);
+          ..u32(recordedCrc);
     if (zip64) {
       descriptor
-        ..u64(compressed)
+        ..u64(recordedCompressed)
         ..u64(uncompressed);
     } else {
       descriptor
-        ..u32(compressed)
+        ..u32(recordedCompressed)
         ..u32(uncompressed);
     }
     await _sink.add(descriptor.take());
@@ -217,9 +307,9 @@ final class ZipWriter extends ArchiveWriter {
     _central.add(
       _CentralRecord(
         nameBytes: nameBytes,
-        method: method,
-        crc: crc.value,
-        compressedSize: compressed,
+        method: headerMethod,
+        crc: recordedCrc,
+        compressedSize: recordedCompressed,
         uncompressedSize: uncompressed,
         localOffset: localOffset,
         dosTime: dosTime,
@@ -230,6 +320,7 @@ final class ZipWriter extends ArchiveWriter {
           isSymlink: isSymlink,
         ),
         zip64: zip64,
+        aesExtra: aesExtra,
       ),
     );
 
@@ -242,15 +333,33 @@ final class ZipWriter extends ArchiveWriter {
               ? ArchiveEntryType.directory
               : ArchiveEntryType.file,
       uncompressedSize: uncompressed,
-      compressedSize: compressed,
+      compressedSize: recordedCompressed,
       compression:
           method == 0 ? ArchiveCompression.stored : ArchiveCompression.deflate,
+      isEncrypted: encrypt,
       crc32: crc.value,
       modified: spec.modified,
       posixMode: spec.posixMode,
       linkTarget: isSymlink ? spec.linkTarget : null,
     );
   }
+
+  /// The 0x9901 WinZip AES extra field (11 bytes): header id, 7-byte data
+  /// size, AE vendor version, the "AE" vendor id, the strength byte, and the
+  /// real compression method — identical bytes for the local and central
+  /// records (see `WinZipAesParams.fromExtra`, the read-side inverse).
+  static Uint8List _aesExtraField(WinZipAesParams p) =>
+      (_ByteWriter()
+            ..u16(0x9901)
+            ..u16(7)
+            ..u16(p.vendorVersion)
+            ..bytes(const [0x41, 0x45]) // "AE"
+            ..bytes([p.strength])
+            ..u16(p.method))
+          .take();
+
+  Uint8List _passwordBytes() =>
+      Uint8List.fromList(utf8.encode(_options.password!));
 
   @override
   Future<void> close() async {
@@ -305,6 +414,7 @@ final class ZipWriter extends ArchiveWriter {
   }
 
   Uint8List _centralRecord(_CentralRecord r) {
+    final encrypted = r.aesExtra != null;
     final needsZip64 =
         r.zip64 ||
         r.uncompressedSize > _u32Max ||
@@ -322,14 +432,22 @@ final class ZipWriter extends ArchiveWriter {
         ..u16(payload.length)
         ..bytes(payload);
     }
+    if (r.aesExtra != null) extra.bytes(r.aesExtra!);
     final extraBytes = extra.take();
 
+    final versionNeeded =
+        encrypted
+            ? 51
+            : needsZip64
+            ? 45
+            : 20;
     final w =
         _ByteWriter()
           ..u32(_centralSig)
-          ..u16(needsZip64 ? (3 << 8) | 45 : (3 << 8) | 20) // made by (unix)
-          ..u16(needsZip64 ? 45 : 20) // version needed
-          ..u16(0x0808) // flags: data descriptor + UTF-8
+          ..u16((3 << 8) | versionNeeded) // made by (unix)
+          ..u16(versionNeeded) // version needed
+          // flags: data descriptor + UTF-8, + bit 0 when encrypted.
+          ..u16(encrypted ? 0x0809 : 0x0808)
           ..u16(r.method)
           ..u16(r.dosTime)
           ..u16(r.dosDate)
@@ -408,6 +526,7 @@ final class _CentralRecord {
     required this.dosDate,
     required this.externalAttributes,
     required this.zip64,
+    this.aesExtra,
   });
 
   final Uint8List nameBytes;
@@ -420,6 +539,9 @@ final class _CentralRecord {
   final int dosDate;
   final int externalAttributes;
   final bool zip64;
+
+  /// The 0x9901 extra bytes for an encrypted entry, or null when plaintext.
+  final Uint8List? aesExtra;
 }
 
 /// Little-endian byte assembler for ZIP structures.
