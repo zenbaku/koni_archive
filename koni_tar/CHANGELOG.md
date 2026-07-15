@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0 (2026-07-15)
+
+- P2-2: TAR writing — `TarWriter` / `TarWriteFormat`. Emits ustar, with a
+  PAX (`x`) extended header when a path, link target, or size exceeds the
+  ustar fields (11-octal-digit size ≈ 8 GiB); streaming input, all entry
+  types the reader represents (files, dirs, symlinks, hardlinks, fifos,
+  devices), `validateWritePath` path safety. Field encodings are the exact
+  inverse of the reader's. Interop DoD: bsdtar lists and extracts our
+  output byte-for-byte.
+
 ## 0.3.0 (2026-07-15)
 
 - Lockstep release; no changes since 0.2.0.

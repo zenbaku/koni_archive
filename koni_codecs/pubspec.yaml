@@ -1,7 +1,7 @@
 name: koni_codecs
 description: >-
   Pure Dart compression codecs (deflate, LZMA, …) as synchronous chunked converters, usable standalone or inside the koni_archive ecosystem.
-version: 0.3.0
+version: 0.4.0
 environment:
   sdk: ^3.7.0
 resolution: workspace

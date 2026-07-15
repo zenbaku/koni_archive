@@ -12,8 +12,8 @@ from the `KONI_ARCHIVE_CORPUS_DIR` environment variable, decodes each archive
 with koni_archive, and checks the result against the manifest of the same
 name. It skips (marked, not silently) when the corpus is absent.
 
-No manifests are committed yet — they land per format milestone, once the
-runner can decode that format.
+Manifests land per format milestone, once the runner can decode that format
+(all five formats are covered as of M10).
 
 ## Schema (v1)
 

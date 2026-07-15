@@ -1,10 +1,11 @@
 # koni_archive
 
-Format-agnostic archive reading for pure Dart — one streaming-first API over
-ZIP/CBZ, TAR/CBT, and GZIP today, with 7z/CB7 and RAR/CBR on the roadmap.
-No native code, no FFI, no external executables. Runs everywhere Dart runs:
-the VM, Flutter (all platforms), and the web via **both dart2js and
-dart2wasm**.
+Format-agnostic archive reading and writing for pure Dart — one
+streaming-first API that reads ZIP/CBZ, TAR/CBT, GZIP (incl. `.tar.gz`),
+7z/CB7, and RAR/CBR, and writes ZIP, TAR, and 7z (7z with a pure-Dart
+LZMA/LZMA2 encoder). No native code, no FFI, no external executables. Runs
+everywhere Dart runs: the VM, Flutter (all platforms), and the web via
+**both dart2js and dart2wasm**.
 
 ## Quick start
 
@@ -35,6 +36,22 @@ import 'package:koni_archive/web.dart';
 
 final archive = await openArchiveBlob(fileInput.files!.item(0)!);
 ```
+
+Writing mirrors reading — pick a format, add entries, close:
+
+```dart
+final writer = await createArchiveFile(
+  'volume01.cb7',
+  format: const SevenZWriteFormat(), // or ZipWriteFormat, TarWriteFormat
+);
+await writer.addBytes(ArchiveEntrySpec(path: 'page001.png'), pngBytes);
+await writer.close();
+```
+
+Every writer's output is interop-verified against its reference tool (7zz,
+Info-ZIP unzip, bsdtar) in CI-facing tests; 7z defaults to LZMA2 folders
+with compressed headers, and already-compressed content can opt into
+`ArchiveCompression.stored` per entry.
 
 ## The virtual-filesystem model
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0-dev (unreleased)
+## 0.4.0 (2026-07-15)
 
 - P2-1: write API — `ByteSink` (+ `BytesBuilderSink`, `FileByteSink` in
   io.dart), `ArchiveEntrySpec`, `ArchiveWriter` / `ArchiveWriteFormat`

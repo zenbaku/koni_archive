@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0-dev (unreleased)
+## 0.4.0 (2026-07-15)
 
 - P2-4b: 7z writing is now format-faithful — **LZMA2 is the default
   coder** (was deflate), with LZMA (v1) also selectable per entry or

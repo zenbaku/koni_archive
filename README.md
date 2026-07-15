@@ -1,17 +1,22 @@
 # koni_archive
 
 Pure Dart archive ecosystem — streaming-first reading of ZIP, TAR, GZIP, 7z,
-and RAR behind one format-agnostic API. No native code, no FFI, no external
-executables. Runs everywhere Dart runs: the VM, Flutter (all platforms), and
-the web via both dart2js and dart2wasm.
+and RAR, and writing of ZIP, TAR, and 7z, behind one format-agnostic API. No
+native code, no FFI, no external executables. Runs everywhere Dart runs: the
+VM, Flutter (all platforms), and the web via both dart2js and dart2wasm.
 
-> **Status: 0.3.0 — Phase 1 complete (M0–M10).** ZIP/CBZ (stored, deflate,
-> ZIP64), TAR/CBT (ustar/PAX/GNU), GZIP (multi-member, layered `.tar.gz`),
-> 7z/CB7 (LZMA/LZMA2/BCJ/delta, solid-block cache), and RAR/CBR (clean-room
-> RAR5 + RAR4) all read behind one format-agnostic API — on the VM and the
-> web (dart2js **and** dart2wasm), fuzzed in CI and conformance-checked
-> byte-for-byte against a real-world manga corpus. Progress:
-> [ROADMAP.md](ROADMAP.md); requirements: [PROMPT_V1.md](PROMPT_V1.md).
+> **Status: 0.4.0 — Phase 1 reading complete (M0–M10); Phase 2 writing
+> landed (P2-1–P2-4b).** ZIP/CBZ (stored, deflate, ZIP64), TAR/CBT
+> (ustar/PAX/GNU), GZIP (multi-member, layered `.tar.gz`), 7z/CB7
+> (LZMA/LZMA2/BCJ/delta, solid-block cache), and RAR/CBR (clean-room RAR5 +
+> RAR4) all read behind one format-agnostic API; TAR, ZIP, and 7z also
+> write — 7z with our own LZMA/LZMA2 encoder (LZMA2 default, compressed
+> headers). Every writer is interop-verified against its reference tool
+> (bsdtar, unzip, 7zz; the LZMA codecs additionally against liblzma) — on
+> the VM and the web (dart2js **and** dart2wasm), fuzzed in CI and
+> conformance-checked byte-for-byte against a real-world manga corpus.
+> Progress: [ROADMAP.md](ROADMAP.md); requirements:
+> [PROMPT_V1.md](PROMPT_V1.md).
 
 ## Packages
 
@@ -19,11 +24,11 @@ the web via both dart2js and dart2wasm.
 | ------------------------------------------ | ----------------------------------------------------------------------- |
 | [`koni_archive`](koni_archive/)            | Facade: `Archive.open()`, registers all built-in formats, re-exports    |
 | [`koni_archive_core`](koni_archive_core/)  | `ByteSource`, entry model, exceptions, detection registry, checksums    |
-| [`koni_codecs`](koni_codecs/)              | Compression codecs (deflate, LZMA, …), reusable outside archives        |
-| [`koni_tar`](koni_tar/)                    | TAR reader (ustar, PAX, GNU extensions)                                  |
-| [`koni_zip`](koni_zip/)                    | ZIP reader                                                               |
+| [`koni_codecs`](koni_codecs/)              | Compression codecs (deflate, LZMA/LZMA2 — decode *and* encode), reusable outside archives |
+| [`koni_tar`](koni_tar/)                    | TAR reader + writer (ustar, PAX, GNU extensions)                         |
+| [`koni_zip`](koni_zip/)                    | ZIP reader + writer (ZIP64)                                              |
 | [`koni_gzip`](koni_gzip/)                  | GZIP adapter: single-entry `.gz` + layered `.tar.gz`                     |
-| [`koni_sevenz`](koni_sevenz/)              | 7z reader                                                                |
+| [`koni_sevenz`](koni_sevenz/)              | 7z reader + writer (LZMA2 default, kEncodedHeader)                       |
 | [`koni_rar`](koni_rar/)                    | RAR4/RAR5 reader (clean-room)                                            |
 | [`bench`](bench/)                          | Benchmark harness + committed results — workspace member, never published |
 

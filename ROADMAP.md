@@ -52,7 +52,10 @@ the codec infrastructure from M4's standalone-codec pattern.
 * **0.1.0** at M5 — facade, core, codecs, tar, zip, gzip (CBZ/CBT support).
 * **0.2.0** at M8 — sevenz (CB7 support).
 * **0.3.0** at M10 — rar (CBR support). **Phase 1 complete (2026-07-15).**
-* All packages stay 0.x with lockstep minor bumps until Phase 2 stabilizes the API.
+* **0.4.0** at P2-4b — writing: TAR, ZIP, and 7z with the pure-Dart
+  LZMA/LZMA2 encoder (CBT/CBZ/CB7 authoring). **Phase 2 write milestones
+  complete (2026-07-15).** Git-only, not published to pub.dev.
+* All packages stay 0.x with lockstep minor bumps until the API stabilizes.
 
 ---
 

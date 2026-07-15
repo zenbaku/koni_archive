@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.4.0 (2026-07-15)
+
+- P2-4b: format-faithful 7z writing — **LZMA2 (coder `21`) is the default
+  folder coder**, with LZMA (`03 01 01`) also selectable, powered by the
+  new koni_codecs encoders. The header itself is LZMA-compressed
+  (kEncodedHeader) whenever that is smaller than plain. Dictionary sized
+  to the entry (4 KiB–8 MiB). LZMA entries buffer their uncompressed
+  bytes while encoding (the buffer is the match window); Copy/Deflate
+  entries still stream. Interop DoD: `7zz t`/`7zz x` validate and extract
+  every coder byte-for-byte, incl. >2 MiB multi-chunk LZMA2 with
+  uncompressed-chunk fallbacks and encoded headers; the LZMA codecs are
+  additionally liblzma-verified in koni_codecs.
+- P2-4a: the 7z write container — `SevenZWriter` / `SevenZWriteFormat`:
+  signature + start header (next-header CRC), PackInfo, UnpackInfo with
+  per-folder CRC-32, FilesInfo (UTF-16LE names, FILETIME mtimes, unix
+  modes, dirs, empty files, symlinks), Copy and Deflate coders, one folder
+  per non-empty file (non-solid). Buffers packed streams until `close()`
+  (the leading signature header references the trailing header — inherent
+  to the format, documented). Solid folders remain deferred.
+
 ## 0.3.0 (2026-07-15)
 
 - Lockstep release; no changes since 0.2.0.

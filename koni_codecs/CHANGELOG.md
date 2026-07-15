@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0-dev (unreleased)
+## 0.4.0 (2026-07-15)
 
 - P2-4b: LZMA/LZMA2 compression — `LzmaEncoder`, `Lzma2Encoder`, and the
   carry-aware `RangeEncoder`, the encode direction of the M8 decoders

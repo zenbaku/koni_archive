@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0 (2026-07-15)
+
+- P2-3: ZIP writing — `ZipWriter` / `ZipWriteFormat`. Stored + deflate
+  (default, via koni_codecs `RawDeflater`), streaming append-only output
+  (data descriptors, no seek-back), ZIP64 structures when a size, offset,
+  or entry count overflows the 32-bit/16-bit fields, directories,
+  symlinks, `validateWritePath` path safety. Interop DoD: Info-ZIP `unzip`
+  validates and extracts our output byte-for-byte (incl. a 70k-entry
+  ZIP64 archive).
+
 ## 0.3.0 (2026-07-15)
 
 - Lockstep release; no changes since 0.2.0.
