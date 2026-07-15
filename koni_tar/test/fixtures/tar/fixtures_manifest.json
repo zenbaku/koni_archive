@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "set": "tar",
+  "tools": {
+    "tar": "bsdtar 3.5.3 - libarchive 3.7.4 zlib/1.2.12 liblzma/5.4.3 bz2lib/1.0.8"
+  },
+  "files": [
+    "basic_ustar.tar",
+    "duplicate.tar",
+    "empty.tar",
+    "long_paths_gnu.tar",
+    "long_paths_pax.tar",
+    "special_types.tar",
+    "synthetic_comic.cbt",
+    "v7.tar"
+  ]
+}

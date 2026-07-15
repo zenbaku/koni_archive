@@ -1,0 +1,35 @@
+# koni_zip — feature matrix
+
+## Supported
+
+| Feature | Notes |
+| --- | --- |
+| Stored entries (method 0) | streamed in 64 KiB chunks, bounded memory |
+| Deflate entries (method 8) | via koni_codecs (M5); decoded-size and bomb guards (§7) |
+| ZIP64 (M7) | EOCD64 record + locator (prefix-tolerant), per-entry 0x0001 extras; values beyond 2^53 − 1 → typed error |
+| Caller-supplied name decoder (M7) | `ArchiveReadOptions.entryNameDecoder` for unflagged names (Shift-JIS mojibake etc.) |
+| AE-x encrypted entries (M7) | inner method surfaced from the 0x9901 extra; strong-encryption flag (bit 6) detected |
+| Data descriptors with or without `PK\x07\x08` | central directory values are authoritative |
+| CRC-32 verification | on by default, errors the stream at its end; `verifyChecksums: false` opt-out (§7) |
+| EOCD scan | comments up to 64 KiB, trailing-junk tolerance |
+| Prefixed / SFX archives | offset delta recovered from the EOCD |
+| Data-descriptor archives (flag bit 3) | central directory values are authoritative |
+| Filename encodings | UTF-8 flag honored; strict-UTF-8-then-CP437 fallback |
+| Timestamps | DOS (2 s, wall-time-as-UTC) + `UT` extra field (unix, 1 s) |
+| Unix modes / symlink typing | from external attributes (host 3) |
+| Implicit directories | synthesized by the facade VFS view (§4) |
+| Duplicate paths | all exposed, index order; `entry()` is last-wins |
+| `.cbz` comic archives | stored + deflated CBZs work end-to-end |
+
+## Detected → typed error
+
+| Feature | Error |
+| --- | --- |
+| Methods other than stored/deflate (bzip2, lzma, ppmd, zstd, …) | `UnsupportedCompressionException` naming method + id, at `openRead` |
+| Encrypted entries (bit 0, bit 6, AE-x method 99) | `EncryptedArchiveException` at `openRead`; listing works |
+| Multi-volume (spanned, incl. ZIP64 disk fields) | `UnsupportedFeatureException` (§15 non-goal) |
+
+## Spec references
+
+- PKWARE APPNOTE.TXT (ZIP file format specification)
+- Info-ZIP zip(1)/unzip(1) observed behavior as reference tools (§13.3)

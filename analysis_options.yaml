@@ -1,0 +1,32 @@
+# Shared analysis options for every package in the koni_archive workspace.
+# The analyzer resolves the nearest analysis_options.yaml walking up from each
+# file, so workspace members inherit this file without per-package copies.
+#
+# Policy (PROMPT_V1.md §11/§12): package:lints/recommended is the floor, all
+# public API must be documented, and CI treats every diagnostic as fatal.
+
+include: package:lints/recommended.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    - always_declare_return_types
+    - avoid_dynamic_calls
+    - avoid_slow_async_io
+    - avoid_unused_constructor_parameters
+    - cancel_subscriptions
+    - directives_ordering
+    - only_throw_errors
+    - prefer_asserts_with_message
+    - prefer_final_locals
+    - prefer_single_quotes
+    - public_member_api_docs
+    - test_types_in_equals
+    - throw_in_finally
+    - unawaited_futures
+    - unnecessary_statements

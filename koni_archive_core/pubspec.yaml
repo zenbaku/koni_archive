@@ -1,0 +1,16 @@
+name: koni_archive_core
+description: >-
+  Core abstractions for the koni_archive ecosystem — byte sources, entry model, typed exceptions, checksums, and the format-detection registry.
+version: 0.1.0
+environment:
+  sdk: ^3.7.0
+resolution: workspace
+
+# Policy (§2): zero runtime package dependencies, with one sanctioned
+# exception — the opt-in web glue (lib/web.dart) may use package:web.
+dependencies:
+  web: ^1.1.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.26.0

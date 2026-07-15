@@ -1,0 +1,14 @@
+/// Pure Dart compression codecs as synchronous chunked converters, usable
+/// standalone with no archive knowledge (§6.4).
+///
+/// Available codecs: [InflateDecoder] (raw DEFLATE, RFC 1951) and
+/// [GzipDecoder] (gzip framing incl. multi-member, RFC 1952), plus the
+/// resumable engines ([RawInflater], [RawGzipDecoder]) for framing layers.
+/// More codecs land milestone by milestone (LZMA at M8, …). On malformed
+/// input, everything in this package throws [FormatException] — the archive
+/// layer translates that into its typed exception hierarchy.
+library;
+
+export 'src/bit_reader.dart';
+export 'src/gzip.dart';
+export 'src/inflate.dart';

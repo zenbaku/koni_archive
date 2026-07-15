@@ -1,0 +1,13 @@
+# Dart
+.dart_tool/
+build/
+doc/api/
+pubspec.lock
+
+# macOS
+.DS_Store
+
+# Owner-provided real-world corpus: contents are copyrighted and must never
+# be committed (PROMPT_V1.md §11). Only the generated manifests under
+# koni_archive/test/conformance/manifests/ are committed.
+corpus/

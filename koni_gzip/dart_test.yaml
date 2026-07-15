@@ -1,0 +1,3 @@
+tags:
+  fuzz:
+    timeout: 5m

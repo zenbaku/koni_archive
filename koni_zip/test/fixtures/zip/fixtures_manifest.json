@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "set": "zip",
+  "tools": {
+    "zip": "This is Zip 3.0 (July 5th 2008), by Info-ZIP, with modifications by Apple Inc."
+  },
+  "files": [
+    "comment.zip",
+    "deflated.zip",
+    "empty.zip",
+    "encrypted.zip",
+    "prefixed.zip",
+    "stored_basic.zip",
+    "synthetic_comic.cbz",
+    "synthetic_comic_deflated.cbz",
+    "zip64.zip"
+  ]
+}

@@ -1,0 +1,1143 @@
+{
+ "schema": 1,
+ "archive": {
+  "fileName": "Higurashi part 1 - Onikakushi-hen c01-03.zip",
+  "sizeBytes": 43057102,
+  "sha256": "ad8881ad8372be888cbe0f03ee3b843fd881baa1a7fc8a9b8ca73197e931ef68",
+  "format": "zip"
+ },
+ "tool": {
+  "name": "cpython-zipfile",
+  "version": "3.10.19"
+ },
+ "entries": [
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_credits.png",
+   "sizeBytes": 102753,
+   "crc32": "2c3e7cd4",
+   "sha256": "8561eb28c9f1599035a2c5b1845c2f61bb89e568535fc3775969f3c27043e6ab"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p000.jpg",
+   "sizeBytes": 316997,
+   "crc32": "ff86895e",
+   "sha256": "ad0693733afabdfd63c38718e3280a6b476a4b16548cb61c755f2bba2a9a7908"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p001.jpg",
+   "sizeBytes": 388517,
+   "crc32": "6ae45230",
+   "sha256": "15f18bdd592213ff83693ece0ce93bbbc3b86a7a908e3fbfae20797439b5d5e8"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p002.jpg",
+   "sizeBytes": 110227,
+   "crc32": "84f832cf",
+   "sha256": "180eeb5b2ddaf6419978716193c0bb81fbb1897782613dfa3f1d21d21f0ea077"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p003.jpg",
+   "sizeBytes": 348832,
+   "crc32": "2635972b",
+   "sha256": "629c18a974459f5c40f4aed331b81ecf77ed1fc95782d236ef3bd6ef5606a171"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p004-005.jpg",
+   "sizeBytes": 825733,
+   "crc32": "a5a7c570",
+   "sha256": "a653d5b956655fba7153b499f8c5275d35fb1d7df190d1975eb1d0fb710fdabc"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p006.jpg",
+   "sizeBytes": 248339,
+   "crc32": "d95f30a1",
+   "sha256": "3347202e3145a36707c13d8c154842d1eefba6f877d260c51af93f74d687f887"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p007.jpg",
+   "sizeBytes": 277948,
+   "crc32": "1fdce8c5",
+   "sha256": "fa188d846964308d1df982c7e8126d26a3376db639cdb067882999e82a3def12"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p008.png",
+   "sizeBytes": 48468,
+   "crc32": "7566905a",
+   "sha256": "9cf16f7953702a1fbd25a7a930bf3b1ca67364b352f831e40e3ec8b496d37cf1"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p009.png",
+   "sizeBytes": 184550,
+   "crc32": "f63dedf2",
+   "sha256": "a527aaa9b295306670db58ce223700eb972c5bc1de6d3ae61e1ea9547c928c99"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p010.png",
+   "sizeBytes": 248878,
+   "crc32": "852e19a7",
+   "sha256": "b6c13b72a4aaf3066cf4bdd59ba67a21e3a6d1791a7396983001996edfedd9c4"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p011.png",
+   "sizeBytes": 234940,
+   "crc32": "5c9e9e21",
+   "sha256": "791c504087ac8798f463f7682914d25650c0322885c1623b64279bf5e9ae9906"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p012.png",
+   "sizeBytes": 190146,
+   "crc32": "157212ca",
+   "sha256": "c94a28b6a26064f7505ca50d1c9bc5564722a5f231b663bcc8d50dd71f5bbcc2"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p013.png",
+   "sizeBytes": 205138,
+   "crc32": "f3e218a7",
+   "sha256": "a698e57d6886db8ddf6044870882630551794ae8cadf7c38e00897151759e5f0"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p014.png",
+   "sizeBytes": 182083,
+   "crc32": "d0c6ad94",
+   "sha256": "d29b6e63740b217310f5680a8d3b8703e303f7992345396b194f239607e7d3ee"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p015.png",
+   "sizeBytes": 228909,
+   "crc32": "e3608c0f",
+   "sha256": "88a4791fea426e7ed85fe6339bf1f4c0d525a9b244a85bff20bd510a047be847"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p016.png",
+   "sizeBytes": 285116,
+   "crc32": "e70e6de5",
+   "sha256": "a4409eca980912d59bf7de7872123f3c36e98be7578c61567b8ec92f156577f9"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p017.png",
+   "sizeBytes": 203502,
+   "crc32": "2b992a19",
+   "sha256": "49062e12ea6b23595ddae476490cf4ee15fa875e80fefb3bd630338c4f521eb8"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p018.png",
+   "sizeBytes": 184607,
+   "crc32": "ac79d6c6",
+   "sha256": "1f4d5565a538a462e565186b9f4c8aa684707bf03c9772ee177d15b52dea87fc"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p019.png",
+   "sizeBytes": 201872,
+   "crc32": "8492ed33",
+   "sha256": "5939251f2c40132580bedc4b9c6e9db2f7554e4a7b710ebc8a588f0b1d8b3858"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p020.png",
+   "sizeBytes": 202165,
+   "crc32": "b0f69f6b",
+   "sha256": "f40ddde94600849fcc3b60aff01f6075bfe0981cfe8c874e0a943cd81242b19f"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p021.png",
+   "sizeBytes": 223653,
+   "crc32": "c1182648",
+   "sha256": "3c3d997f50bc3a5be4bc3b521d989f9992fbadfc70f6d3536320af4b14379473"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p022.png",
+   "sizeBytes": 232544,
+   "crc32": "7c4dad09",
+   "sha256": "8da2efd940e3bdb17636de93a142f26b87e357bd17352b1d8c5a909fe02e5b12"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p023.png",
+   "sizeBytes": 206858,
+   "crc32": "9d4ee7dc",
+   "sha256": "aa35164572eb4c63b7a21a2b7192fa35667dd7031aae15afa332c1f7b9c3f65a"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p024.png",
+   "sizeBytes": 193218,
+   "crc32": "106b06af",
+   "sha256": "78f7fc7214d93081a79d9119d46697d8e123c13251df8fc0974e020af64a695c"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p025.png",
+   "sizeBytes": 208775,
+   "crc32": "782fac44",
+   "sha256": "f295ad98eb6c770bb5ce4b333b5acb30749b5bd58aee38fe5b2bba8bb3ac0e5b"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p026.png",
+   "sizeBytes": 249438,
+   "crc32": "1ab6f136",
+   "sha256": "4dc90d3ede030ef5856c01d98723531e395b18717ac101e6db4d2f741da52b44"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p027.png",
+   "sizeBytes": 243929,
+   "crc32": "79c634f2",
+   "sha256": "9e025bb062afba4f399aa62ba99a6d00403a154f6c606ef3d22347b6b536ef0d"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p028.png",
+   "sizeBytes": 213647,
+   "crc32": "c77a5709",
+   "sha256": "40b3e73061e15beae2bc3bb44baa979b64bb8b9c689343849e8db68336675b5d"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p029.png",
+   "sizeBytes": 197013,
+   "crc32": "65fa2242",
+   "sha256": "2dbf522f0ded187283df05f0c76a10328bbe3a230855a3584b6bc36733fdd717"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p030.png",
+   "sizeBytes": 216315,
+   "crc32": "93bed328",
+   "sha256": "35e4a01626c7bdc12719cc6c73a4bf9105e6212612ded0165be0bcab2dab257d"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p031.png",
+   "sizeBytes": 200179,
+   "crc32": "81b46ad8",
+   "sha256": "96431db56dd28b9540fa26f4902f45a7a664fdb0fcb15d6ff083cf25f9c37c21"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p032.png",
+   "sizeBytes": 274893,
+   "crc32": "c6609c16",
+   "sha256": "05395566b7700b3713d8740df83b9ecde5bfd68bf24948cab26fa1b29d25b29b"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p033.png",
+   "sizeBytes": 256787,
+   "crc32": "32a40924",
+   "sha256": "295eaa14ccc23742e5e2948010f92d476786c37bfed6bb72d49837974eeea7c1"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p034.png",
+   "sizeBytes": 247835,
+   "crc32": "ac95f70a",
+   "sha256": "ccea9a9381eefb655e386adcfc41ce5a0e5309b9dc5dde83dbf0953188ebb28b"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p035.png",
+   "sizeBytes": 214100,
+   "crc32": "645c79ea",
+   "sha256": "f6b1ba7db8f40527b78fedc3cad6cd1365ef8c730aab9b5c97cb1b437477545d"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p036.png",
+   "sizeBytes": 239949,
+   "crc32": "52c30ce5",
+   "sha256": "e0a36699c6805c1de2bd36ae9c90b94a25eb01fae379001874b8ddb51f5eccb1"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p037.png",
+   "sizeBytes": 255218,
+   "crc32": "5cbc49b7",
+   "sha256": "c6e9b26493b49e66d6a8d2e56e5157c76da312db526d76f68e543a980d69ade5"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p038.png",
+   "sizeBytes": 195490,
+   "crc32": "229651ee",
+   "sha256": "46b94b6233dc583f4119aeab593b21c71e69990b201e31b69b7d50da4efb2d71"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p039.png",
+   "sizeBytes": 225953,
+   "crc32": "7c25d6b6",
+   "sha256": "e400985d386503a4e72b5a73e5728f6097acd9286bddf6687c3c055db391cd4d"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p040.png",
+   "sizeBytes": 238433,
+   "crc32": "dfd402b6",
+   "sha256": "941b059cc9bb5a7a4ddd8eb7e9013144190c2351e48c1bd022257fcd8c814870"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p041.png",
+   "sizeBytes": 229297,
+   "crc32": "727439f8",
+   "sha256": "e890659435d4ea95b12077c01ec9923c0f85a544ed365bd4c24739bb6a463fd9"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p042.png",
+   "sizeBytes": 218923,
+   "crc32": "cfdc43d4",
+   "sha256": "e69960aa5ac21da8291792a345060cf961085d220608d93a73a9beef7fcd2219"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p043.png",
+   "sizeBytes": 193351,
+   "crc32": "eb8c6c12",
+   "sha256": "8706bdd17515ac1c5dcffc2908b61cc8d00308ef69108720c58fc389ddbf9ba4"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p044.png",
+   "sizeBytes": 196439,
+   "crc32": "aa84dd12",
+   "sha256": "2ec0110eab65fa82fe5d9ca9fe786b671eaa2db53da22834b7a6c127921236a2"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p045.png",
+   "sizeBytes": 236817,
+   "crc32": "8115ab04",
+   "sha256": "52a0769f3e889e8f584bf325e0c0160526b0c9da24cb2039f5073797e9e56030"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p046.png",
+   "sizeBytes": 242679,
+   "crc32": "9311fefe",
+   "sha256": "a8dbe5a3410233df282055afe815417c690fcd6bfbe21a4d9a7387c7c1c77741"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p047.png",
+   "sizeBytes": 230647,
+   "crc32": "cab43f59",
+   "sha256": "66674b2ff8960b1fd2f1bdf85d14f95c872cc4ce5fd5319f82546f2e628aeb7f"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p048.png",
+   "sizeBytes": 227700,
+   "crc32": "5d15ef03",
+   "sha256": "1b53928307113bfb1718799c9dbdfe608b82b71f319fe27054d41251d165bfce"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p049.png",
+   "sizeBytes": 241045,
+   "crc32": "19321118",
+   "sha256": "3a05a4138866bbfd5183caa4edf91dc789aed357431665a2dcb7d6c528c86d0c"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p050.png",
+   "sizeBytes": 217451,
+   "crc32": "ab1ccc27",
+   "sha256": "4a9708dd053a7b6e1c861678d1c85793512501130219fde85f7cc9bfb0bb0203"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p051.png",
+   "sizeBytes": 166891,
+   "crc32": "9e72d8d6",
+   "sha256": "6c435a9ee63cfc288e76771909b601cdfbd218b0949e8abd5802ee86f537ba0a"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p052.png",
+   "sizeBytes": 231703,
+   "crc32": "397c0a6c",
+   "sha256": "16fab4fb9a50c2d1891f8c9206197f804925208c91cc8d5d83fd27b63cf80f8e"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p053.png",
+   "sizeBytes": 254483,
+   "crc32": "da5731b5",
+   "sha256": "7c30f8ee5cc0a9434c0d47d9f56b8836a3da393f3fb89e33a09add0002f14121"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p054.png",
+   "sizeBytes": 264583,
+   "crc32": "93b22341",
+   "sha256": "f26240b4b0c7acd1910263beff9b7a050609498515881ae5627f352330b4ade1"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p055.png",
+   "sizeBytes": 282061,
+   "crc32": "26e4faa7",
+   "sha256": "a13c03f04681d05a1b933e5717f77601c5d51c299b8e686d4feb4b0d6242f16a"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p056-057.png",
+   "sizeBytes": 568506,
+   "crc32": "0eea4eb5",
+   "sha256": "6fb7df79dbbad0f28950cbdd4444ec08308090e13455d3fb6e0cbf2b368c10b9"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p058.png",
+   "sizeBytes": 136173,
+   "crc32": "d24f9005",
+   "sha256": "ec7f81894e359e860b8b38287c2320653bfbe5c89659db6797f1db4aff75b8d2"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p059.png",
+   "sizeBytes": 286867,
+   "crc32": "cc092ce1",
+   "sha256": "f9b073f326080f414c63b6258ebd4eb6afce31eaef3d4b32690df94c42add9ce"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p060.png",
+   "sizeBytes": 231471,
+   "crc32": "c9266604",
+   "sha256": "1d2fb7fcb928e5083e786f357dcb9e6e2e2540c94c2b7ba483cdb27eb89d0689"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p061.png",
+   "sizeBytes": 269972,
+   "crc32": "a255ea54",
+   "sha256": "2c2e2d60e332856a384040757f63260e0609daa66c1a6c216686f550a4fb8e7b"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p062.png",
+   "sizeBytes": 268345,
+   "crc32": "ba46629e",
+   "sha256": "77a85858df3f5eb348683bd67e880618b740abe1ad86bffa966527db5ec6850f"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c01/Onikakushi_v01_c01_p063.png",
+   "sizeBytes": 156029,
+   "crc32": "5dcf8695",
+   "sha256": "29e96ae0c7a1e51c6d5956a2c9f255ec991c6ad6a2d573d9966ad515567b064a"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/credits.png",
+   "sizeBytes": 147992,
+   "crc32": "d18235d1",
+   "sha256": "f41780868132982c1fa5119891f3fd9f148705c176814b3672703e6d85896084"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_cover.jpg",
+   "sizeBytes": 858368,
+   "crc32": "dde22df6",
+   "sha256": "caf36f2cdea913109463929ef8b049c806e4466da5122d112ef7c0325e94d357"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p067.png",
+   "sizeBytes": 240176,
+   "crc32": "b4e04d0e",
+   "sha256": "500c1af3b33d3c603af78d457b7c95b7a74d9acfbefdea8a063c01816c3cee69"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p068.png",
+   "sizeBytes": 184587,
+   "crc32": "658d160d",
+   "sha256": "2e391748c024904ce42ea9f3265d5e58b43f49363d8b9da830088dd695669f01"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p069.png",
+   "sizeBytes": 205978,
+   "crc32": "327874b2",
+   "sha256": "79623288226b6d89033dc45314b283da3961f50c0cc076d80c3a278986707d5d"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p070.png",
+   "sizeBytes": 210308,
+   "crc32": "120bf383",
+   "sha256": "8d031ce3ba18c2b02430f10c299a58142aca55b7f87c0731baf076a383738564"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p071.png",
+   "sizeBytes": 210764,
+   "crc32": "7056818d",
+   "sha256": "21ea0a9f7a08baad7a71c8a8c0f7187bdcebdba0efc7964665139cfb9ca54171"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p072.png",
+   "sizeBytes": 236305,
+   "crc32": "4ef535c3",
+   "sha256": "234c30a80a54bf57dfa1731a2752f55e6e52ba03df1b38c369ff8cc09ea84f47"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p073.png",
+   "sizeBytes": 239026,
+   "crc32": "1a967526",
+   "sha256": "ed0e3ab3b29c3e6abd9970f7038a02135342d59078d3aa1c27ce20dff8f8af15"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p074.png",
+   "sizeBytes": 204823,
+   "crc32": "bd9c3753",
+   "sha256": "7a300db16cf1861fd62190dd3d00f22c12c30d859c64272f5111ce66277135de"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p075.png",
+   "sizeBytes": 213114,
+   "crc32": "c4cd9ce3",
+   "sha256": "5d9af4e877ce00b090cf69b1879de9d2db1a237dd1d10d93e91e7fbe945af144"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p076.png",
+   "sizeBytes": 192971,
+   "crc32": "9053a09d",
+   "sha256": "c373fe7b78138c2b9e2f037b17b6530148398365cc8aa70c0c46bf2de0c77460"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p077.png",
+   "sizeBytes": 233135,
+   "crc32": "b65afb37",
+   "sha256": "3d9e4bcd47eea6c49516e3f55ee44970bc976ca7f97fa772e52e04c0badbfb41"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p078.png",
+   "sizeBytes": 195148,
+   "crc32": "5056a7c1",
+   "sha256": "233cd5cc9693deeca1a916c5e1d8a7d0fad150cece0ec88a61f09c6595bd54ec"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p079.png",
+   "sizeBytes": 244449,
+   "crc32": "65f7899a",
+   "sha256": "2da4832b4fffca35380f3c335cf2d8c063aa74f69aa2df6a4d78c2b5230413a8"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p080.png",
+   "sizeBytes": 238136,
+   "crc32": "99e98ee5",
+   "sha256": "820b70bc76f32ac9d48864474118ea3c5650dcacd3fbfd3909b66c6f506d96a8"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p081.png",
+   "sizeBytes": 222665,
+   "crc32": "a5c54307",
+   "sha256": "9a681519ee5d57a5a10cca9d7e91f6372e7912f5c2d3cc9ebb117f1302057804"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p082.png",
+   "sizeBytes": 215743,
+   "crc32": "42c93b87",
+   "sha256": "6a8b755b8efb029f12fe52bbb74abb80c8ea29ccb0a609559c00b81afe2711ab"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p083.png",
+   "sizeBytes": 216340,
+   "crc32": "abfc15c5",
+   "sha256": "1805ae2b2b5a731fdbcc89bd4650fcc90ea86bcc75fc41752f3aa19bbf2846c2"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p084.png",
+   "sizeBytes": 210281,
+   "crc32": "67ebac96",
+   "sha256": "e26175cb51136e539097796399bc71c6a54ff31bb404fb63933ba217f13b3560"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p085.png",
+   "sizeBytes": 217477,
+   "crc32": "4c9ef63e",
+   "sha256": "3489b1942c8cb358b33bce042a4003f68d821c663420835033762ab6411d7c02"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p086.png",
+   "sizeBytes": 218073,
+   "crc32": "644e6038",
+   "sha256": "ecd3c5a22141876d5fc5b4b31d1136480ffd752a8a339281348e801e351a8936"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p087.png",
+   "sizeBytes": 209099,
+   "crc32": "638ea8be",
+   "sha256": "e6b788e1a997dd3e59b15b04a6c9898e8a07f76da2641d7e3ac107475d21ffd9"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p088.png",
+   "sizeBytes": 202173,
+   "crc32": "d8c65f23",
+   "sha256": "6cb2bf22f3f4a7260c0f898874f18036c8dd8e3f37af0857b4d7067d2d15edf2"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p089.png",
+   "sizeBytes": 208075,
+   "crc32": "3641d561",
+   "sha256": "7e27e982d431393bbd59a48adcd7c738775ce86d3efa3171383943d4e0155643"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p090.png",
+   "sizeBytes": 219232,
+   "crc32": "67e7b8b6",
+   "sha256": "f7ec5da999c34c292ff194d0a03e2674c3302f250fa7ccdf708ca4b74a5a44c6"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p091.png",
+   "sizeBytes": 231773,
+   "crc32": "d97bb209",
+   "sha256": "1e97441d22b4f77df55845c737983641555b4e25be5fb2c8e94655505c159de3"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p092.png",
+   "sizeBytes": 219216,
+   "crc32": "0bfff573",
+   "sha256": "589b0a6f98ac281b02f413977299b75c54f1f60d3a7a73736c9ff2760d76de33"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p093.png",
+   "sizeBytes": 202202,
+   "crc32": "09b05536",
+   "sha256": "19f4f9dc56bd2feeb3627e750229135e6bfa1804a14c437cd23abbb5585d1135"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p094.png",
+   "sizeBytes": 214432,
+   "crc32": "c630104a",
+   "sha256": "0af8545f9e977684e1bbd9b9a1b3ac3d1ba98bc308889dba4fcc37dd8414266c"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p095.png",
+   "sizeBytes": 216962,
+   "crc32": "cb44ecec",
+   "sha256": "baf7a4492c644908da87b0daa4ef9adaf47a057a6a784743b6979fade37ea319"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p096.png",
+   "sizeBytes": 219049,
+   "crc32": "257d4931",
+   "sha256": "f9c09aec968068ecfff14e6fadd3b9337b8c4335785c361615d9f2d0fdb4fe58"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p097.png",
+   "sizeBytes": 236749,
+   "crc32": "c07fa35a",
+   "sha256": "0f901e7d62ac8f6651aa4704b112b9f13504d2845ab556cdd5ad59380f481d2d"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p098.png",
+   "sizeBytes": 245156,
+   "crc32": "2b54c79b",
+   "sha256": "65baa0991fdd963234b9475a99bc5371c7dcda03ecf93be1787d74efb2d1eb15"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p099.png",
+   "sizeBytes": 209128,
+   "crc32": "aad2f450",
+   "sha256": "62b892f1c36fd0c0d6d445bd42af8b24649f97905debf97607181125406ffbf1"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p100.png",
+   "sizeBytes": 185967,
+   "crc32": "7a9d297f",
+   "sha256": "3344c1ffb4587bd676f9057fab4143a5c0e5b4cf7145b24f4c869abb22955bee"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p101.png",
+   "sizeBytes": 252685,
+   "crc32": "8de3dfe5",
+   "sha256": "31b593d6aa81721891dc8505a5321aba4b9622b5f8c456cba91fdfc310b4ca26"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p102.png",
+   "sizeBytes": 274559,
+   "crc32": "52e54208",
+   "sha256": "ca6e7786ff81f26ed60d4cae43440b147147f3f30c2ea9508b7932cd6bc0233f"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p103.png",
+   "sizeBytes": 252441,
+   "crc32": "d3a2239a",
+   "sha256": "50171aaf8993b5a83acd7edc3c9280901c04519a7f58e34c4a1e1883022f1599"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p104.png",
+   "sizeBytes": 254878,
+   "crc32": "f6fc9d62",
+   "sha256": "357277cf7d13ef7a055f811a7a2a3f17f212e879cb0499623da683f634f42d67"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p105.png",
+   "sizeBytes": 195435,
+   "crc32": "92b35239",
+   "sha256": "2e4e492e1473408a36a3eccbdf625a91364016c69eec6c31ca116a7a8e8659ee"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p106.png",
+   "sizeBytes": 195807,
+   "crc32": "9b9fc95d",
+   "sha256": "0a4eff51ad8073374a7df485a1cdc3d2c1cd1c8595533eb5e2ed5f3e8b496329"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p107.png",
+   "sizeBytes": 211449,
+   "crc32": "9bb2dc9b",
+   "sha256": "4efefabff7f6b65d80cc8437b55865d654ecc96483d9f853f2d21cdd0d10ffa5"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p108.png",
+   "sizeBytes": 196252,
+   "crc32": "2380aa73",
+   "sha256": "a0fc9511a2854c7ac0bc5bf01bc9a04145b8a7ec5f461b491686a3374799ddd0"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p109.png",
+   "sizeBytes": 185312,
+   "crc32": "88b25d2b",
+   "sha256": "47ded471f721c1ca98320a3cad5d0ed0b07c01fd57bdd671ec17babe9044bd0b"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p110-111.png",
+   "sizeBytes": 527479,
+   "crc32": "5d3a9e9e",
+   "sha256": "d7ea64c4249791165737996065f99ec61e6e35af43f4cd0ca2b5b56104176a19"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p112.png",
+   "sizeBytes": 221414,
+   "crc32": "00d5033a",
+   "sha256": "397815142e467d999d2be10f330376c6c03ec4d7da4b3f83560714824510d4b9"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p113.png",
+   "sizeBytes": 218852,
+   "crc32": "b1a9be6a",
+   "sha256": "2ef618d7214cae2a365e3e455e1db76b2c3f4813d582a13c366f72ed60275669"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p114.png",
+   "sizeBytes": 205015,
+   "crc32": "16657f34",
+   "sha256": "6edab6279721d3dbc083ccf8a534e0e9013ea6f2ca6b44cb170e2e790e2819e9"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p115.png",
+   "sizeBytes": 202543,
+   "crc32": "ed3a5336",
+   "sha256": "f03dba79e6c85ea594ddab4b2ec10c2b3ca8e7ba01001fd86eaf07061bb86b19"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p116.png",
+   "sizeBytes": 155198,
+   "crc32": "51a6eccb",
+   "sha256": "51cff5c46edd1f678a49483f2d6eb391230e93d171dbbc6101387af6c9584087"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p117.png",
+   "sizeBytes": 219415,
+   "crc32": "ff112167",
+   "sha256": "1f61e4be3afe919013bf2c88c58d43226137d1eeb6c74c0f1bb6c14e99564f0c"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p118.png",
+   "sizeBytes": 205625,
+   "crc32": "de002a1b",
+   "sha256": "70363e2d82047bc1499ab6e58736a927f2ea95a04bd5e1581d379d1f3eff9876"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p119.png",
+   "sizeBytes": 148843,
+   "crc32": "9f58c596",
+   "sha256": "29debb99c943c860a9e76abe36c57bec922af6279f4f1bd3b804a034d135b482"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p120.png",
+   "sizeBytes": 171719,
+   "crc32": "3484d163",
+   "sha256": "11ce839d0d3f45082250983190dd6472fe86ddacfdbec30a97282f5671f88f4d"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p121.png",
+   "sizeBytes": 201374,
+   "crc32": "c9bdc7ad",
+   "sha256": "f98e8467a1ea9957c5720e563baeff057b85dd83163cd95ee13817d6736f49b5"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p122.png",
+   "sizeBytes": 242276,
+   "crc32": "f308d485",
+   "sha256": "6bd03501b584942e2797a336d5c7137bb00a3d18f9255794d2c27b66ea461bc0"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p123.png",
+   "sizeBytes": 186258,
+   "crc32": "c4f00573",
+   "sha256": "6c6c22cb7ba1b7e655ab465031f19ab524b69f3ce6ef51926573760bf7b4ad04"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p124.png",
+   "sizeBytes": 163579,
+   "crc32": "2ed7843f",
+   "sha256": "dfdf3775e41982e4c1a205f9a74f7976cc0851071c78af8916a2ea77c0e56688"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p125.png",
+   "sizeBytes": 181726,
+   "crc32": "413f16bd",
+   "sha256": "d04a26f901c7a0e611eaec1a9982c37d8e32c50a03cc52e9ef7a8be546d9d141"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p126.png",
+   "sizeBytes": 223086,
+   "crc32": "6cc2aa48",
+   "sha256": "67975515ea42d4bf8577d26d6effab9646b2101458e5209b639f61aec3207ca1"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p127.png",
+   "sizeBytes": 253115,
+   "crc32": "3b620f28",
+   "sha256": "5d179a0dbc01b49267fcff07b5bf88a23b232aabd9a10ad9fbf777fd3594e93b"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p128.png",
+   "sizeBytes": 257316,
+   "crc32": "2a5facf1",
+   "sha256": "779243611493048f1674c1fb9e431b5a8f81a33113f738a8babe32f49ab3ae05"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c02/Onikakushi_v01_c02_p129.png",
+   "sizeBytes": 239036,
+   "crc32": "d9d13b16",
+   "sha256": "26926c616282131023bb1332e9a0668df895f8898b942570ed78b84b49ddb969"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/credits.png",
+   "sizeBytes": 146338,
+   "crc32": "f37e5768",
+   "sha256": "fdf6e42e00054d4883bb7c21a304a955555663b4ca395f147804ea603a1f807a"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p135.png",
+   "sizeBytes": 283443,
+   "crc32": "c6688923",
+   "sha256": "1be9bfd419b3b04b93f8be6af3efeea672dbacaabb32271c9aa72b6ab3f4ff39"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p136.png",
+   "sizeBytes": 192851,
+   "crc32": "ef8640b4",
+   "sha256": "8adfa103ae61b255749a07b4d708e28f2df4a5310f744a2c2eef67974cd533dd"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p137.png",
+   "sizeBytes": 190384,
+   "crc32": "c0efbdac",
+   "sha256": "bb07dafa00a9617b0a858eed31f6844a54cc313617871f0742ab629dcdfdadbc"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p138.png",
+   "sizeBytes": 178442,
+   "crc32": "1026d87d",
+   "sha256": "5b85c9a548e6e90a16514bc6f09b5df588699ff03e6175e3511888dc3fa4213a"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p139.png",
+   "sizeBytes": 175274,
+   "crc32": "c845c4bd",
+   "sha256": "789e69892b595bfeed8ac9fc6ecaa9ca9cb3e078e8eb08f734f899dd527d7ed8"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p140.png",
+   "sizeBytes": 149187,
+   "crc32": "429c1986",
+   "sha256": "ceb7798ee07ff24d8a2474dedecd6fdc0e09554028c79f339777112dde219cc9"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p141.png",
+   "sizeBytes": 189739,
+   "crc32": "32972482",
+   "sha256": "05ee78287ee8b0032976473e09620204ffcb0c8095f421684c5a2900a0233116"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p142.png",
+   "sizeBytes": 197893,
+   "crc32": "a02234a6",
+   "sha256": "f1a37da5ff7226690a739b2bf8f6715194bda4af6a658a966f347e94319295e1"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p143.png",
+   "sizeBytes": 218025,
+   "crc32": "da890a30",
+   "sha256": "98c32ba355a3eda55286bfb69a8073f6c5ec74c24ec06079f9a0f4e5437a215c"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p144.png",
+   "sizeBytes": 163454,
+   "crc32": "e778ea80",
+   "sha256": "859c4655502901b327836f45d5ec3ca77cc4ee722429ff9b4a90dc292a7d5b4a"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p145.png",
+   "sizeBytes": 201371,
+   "crc32": "b67c7c95",
+   "sha256": "de39cfc194453f86b4f992c46299cb928f1e3df5a2061662024a5c74feb9bea8"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p146.png",
+   "sizeBytes": 173597,
+   "crc32": "69ff6768",
+   "sha256": "a7e7f7fad0a05eb06e5bebbe0e5c00d5db0493221cabbfc239d09439d69aabeb"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p147.png",
+   "sizeBytes": 216836,
+   "crc32": "d10aff4c",
+   "sha256": "5cc070f60c6a5cb8200f8e1df0b304fd18380530f70bfc8ec68b9f9c45a0ed2a"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p148.png",
+   "sizeBytes": 230757,
+   "crc32": "7b571161",
+   "sha256": "ea2011914c16e9d2717fb7166d56811821fb90883eb5119628af583a9e7cc3ca"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p149.png",
+   "sizeBytes": 261274,
+   "crc32": "0f3195b7",
+   "sha256": "594e00fc1900321728add9e109aa5e50f6383bb50f843963e724c051f78010f8"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p150.png",
+   "sizeBytes": 226421,
+   "crc32": "1aad43d1",
+   "sha256": "56e7de54e0ef1a6960440f5c7c519daa46010b3052249b6b4a341e14e063e462"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p151.png",
+   "sizeBytes": 224995,
+   "crc32": "ea5d66f1",
+   "sha256": "4decdfe07331a2be1c0c9b08c0897a5c017059a504f7c2dd562c35a581fc4aa8"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p152.png",
+   "sizeBytes": 203827,
+   "crc32": "33949c95",
+   "sha256": "1a48a622a56236ebf91b2040c9e210d2a92d196da354c78a22511573327bf815"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p153.png",
+   "sizeBytes": 195568,
+   "crc32": "c5e24f34",
+   "sha256": "03b79a429f79bc8c042d060fc3a8f624dc87ad0ce19b575e7a31573fdec2e8ed"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p154.png",
+   "sizeBytes": 189083,
+   "crc32": "94002228",
+   "sha256": "42aef8223dd57b33ded85a9a409b9e3f09e8a1cf9c41dd5efcea812e032d352e"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p155.png",
+   "sizeBytes": 197503,
+   "crc32": "afbe4aa4",
+   "sha256": "97084ebe3349eb46d440111dd75469d2384c9d4b3e86923ef7548b993c468f98"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p156.png",
+   "sizeBytes": 217021,
+   "crc32": "022475c2",
+   "sha256": "dd0d02bd685c466621d3f22db7d84d96b11c7255b24b06cb1d6bd34c18b3143f"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p157.png",
+   "sizeBytes": 203470,
+   "crc32": "88c41929",
+   "sha256": "76f28fc6b8f8096615e9cd0b8c1f60a475555d5829328da21342cca1c416274d"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p158-159.png",
+   "sizeBytes": 385833,
+   "crc32": "947e8ba0",
+   "sha256": "ccbb97a7806ca9d9738aa9618f516648345c4666a46c7b3cda4c81af43191fdb"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p160.png",
+   "sizeBytes": 186419,
+   "crc32": "b0eeeba3",
+   "sha256": "6669ed6b8e8b01a175e848213d2dfbd654829d1f47252d1aa0d2b75d568c8cee"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p161.png",
+   "sizeBytes": 222093,
+   "crc32": "3981c958",
+   "sha256": "b85d6455d8a714a87dce1bb99725df7db6bb44f5920e907712e0afa172404c11"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p162.png",
+   "sizeBytes": 246708,
+   "crc32": "d6459dd9",
+   "sha256": "49b38cc854b2a9f7e36d8232c4f30eacc70d2cc931043159063ea99307d9bbd9"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p163.jpg",
+   "sizeBytes": 210722,
+   "crc32": "bf215904",
+   "sha256": "18e5cce0772a2d6eb28655507101b2bce6b158f799e50bdcf4ff1083317f07e0"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p164-165.jpg",
+   "sizeBytes": 415050,
+   "crc32": "49a7656c",
+   "sha256": "ff91706eaec2acd7e579c2a2a1885310f03497b68c565f44c579386e13fc6da2"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p166.jpg",
+   "sizeBytes": 312285,
+   "crc32": "94fbc311",
+   "sha256": "36a2c41b86d18cc41123c7355d1ba4c50b81ea24dc0006e74268eeaaade9423a"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p167.png",
+   "sizeBytes": 254070,
+   "crc32": "9a0c5434",
+   "sha256": "88bb77247b0548f6580a37105ae4c2ad99557a074027db3bf36c44fbeeff8e16"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p168.png",
+   "sizeBytes": 208972,
+   "crc32": "c8334534",
+   "sha256": "23ea678637025e64963b12cb657a6ceee1b825a148a0ef01d4fa46668c268ed1"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p169.png",
+   "sizeBytes": 257214,
+   "crc32": "407b63b4",
+   "sha256": "17d2005cc3ba51585f04f436cbeafbde731352292b864fe3cf6ada1f2db13959"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p170.png",
+   "sizeBytes": 247552,
+   "crc32": "48937942",
+   "sha256": "7b4c36ed1fce22f0f825c6ccf0dac0f774ef6a7b698ee762bb0086a9d573758d"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p171.png",
+   "sizeBytes": 204770,
+   "crc32": "5c898658",
+   "sha256": "8ea83a126fd1e77f948fc73a25cfea06621da3aaa6a2d52a1e2822e80d824c1b"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p172.png",
+   "sizeBytes": 198066,
+   "crc32": "538fac08",
+   "sha256": "eb5bc514c7690ec67d77a5dcee83cacde6fafcf312706a636b876c5a6e383338"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p173.png",
+   "sizeBytes": 221787,
+   "crc32": "681de0bc",
+   "sha256": "91dadbb2594477d8a576f295961839b1730c75ac79b2ea8de93e5d1a890950f8"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p174.png",
+   "sizeBytes": 247651,
+   "crc32": "062f9e95",
+   "sha256": "a3b2f1ca2f00d8028012b3979a5399c34dfe5144f778af64193d45781e2ebd93"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p175.png",
+   "sizeBytes": 186992,
+   "crc32": "a1d3a23d",
+   "sha256": "4cd27d82df0d65cd344b50411589c29f97ebcaf974e10eb0dc12204170201bbe"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p176.png",
+   "sizeBytes": 239495,
+   "crc32": "46778776",
+   "sha256": "e32034f903881b0738e6abea599ff13234f2ee36e72e77f1a95222bee1f6550b"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p177.png",
+   "sizeBytes": 207441,
+   "crc32": "a526c839",
+   "sha256": "8effd1abce4aea1a7fb51d3be8251065a5b8c08905bab0acb6ae8be8fb19721c"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p178.png",
+   "sizeBytes": 241898,
+   "crc32": "cd9d51f4",
+   "sha256": "8246c63b7dae57b6965c1faf969d3b2373a9e67015f4c987000b63db992dd8b4"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p179.png",
+   "sizeBytes": 250851,
+   "crc32": "cd3c3a01",
+   "sha256": "5317d9c79f885b9c1ee8a92e69e1ae21a50e8e43e3dcc9ed464c60d8e7663038"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p180.png",
+   "sizeBytes": 202152,
+   "crc32": "bd6786d0",
+   "sha256": "a0522abee393ea5761fe61f8d4f0a4116043c320ea524579ef00afe5cd7cbb81"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p181.png",
+   "sizeBytes": 232663,
+   "crc32": "b321de88",
+   "sha256": "f924def574777f013c69124b4da7c95623b03a8ed69fbef6fd93dfeb02383386"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p182.png",
+   "sizeBytes": 221442,
+   "crc32": "bdaf775f",
+   "sha256": "c7022f40ed304b1b8d3225b9e6a64a528602ed52ca159e9473832ed11c6fa533"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p183.png",
+   "sizeBytes": 171305,
+   "crc32": "10437a92",
+   "sha256": "a447359697061e7bf65b37333dcb36479575a4b5655b4a65bffc4d90b263f1c2"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p184.png",
+   "sizeBytes": 180704,
+   "crc32": "c5751478",
+   "sha256": "884f614629fc4443cb62dc2ab609113701f3115003e33571420b22c3fce29df5"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p185.png",
+   "sizeBytes": 249594,
+   "crc32": "aac9e754",
+   "sha256": "2147dcac95b9f619b02af15132481769e40b44051837b85658db61ba77cf9e8f"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p186-187.png",
+   "sizeBytes": 583603,
+   "crc32": "924ffae1",
+   "sha256": "b79515c3609927299356861d8b161ef6e855863caa47b92b1d85ef05332a3f52"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p188.png",
+   "sizeBytes": 164168,
+   "crc32": "a9e379ae",
+   "sha256": "e74fefc445200345e369dda9f464b0c9f8394279249399734b9b047f6c7e5735"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p189.png",
+   "sizeBytes": 212783,
+   "crc32": "a8a0ec6a",
+   "sha256": "0df1c9abfec1df944d585a460ea1fda86bf42a3206b4ccc51435423c924b71b5"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p190.png",
+   "sizeBytes": 216352,
+   "crc32": "a8a17ae6",
+   "sha256": "e3ebced92652fca1c310228ebeba388479e61436f5f2def5caba4ce4c09d36a5"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p191.png",
+   "sizeBytes": 227922,
+   "crc32": "7e4dcbb7",
+   "sha256": "f0bda8d7b45c8a4548d63cb7b594b6eb61ba3cbc8c5cf79cf8cee73f5fd2245c"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p192.png",
+   "sizeBytes": 258819,
+   "crc32": "b5337083",
+   "sha256": "16045d53b54955788708c5bfc2ea30ca1b616c883038ad73db3a55169a30fbc9"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p193.png",
+   "sizeBytes": 229073,
+   "crc32": "a00bfb4b",
+   "sha256": "d9195f77fbb2eccbec3e1c3feef1ecfe50e53be8a35ec369986b6c9ff322ffe4"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p194.png",
+   "sizeBytes": 184036,
+   "crc32": "ad2a265d",
+   "sha256": "b844151e2c3ca5939c84db758d528e02f113b49b9f749c3bd009f583dc7b85d1"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p195.png",
+   "sizeBytes": 195210,
+   "crc32": "14797c0b",
+   "sha256": "14a0238a4a0ba1bec1ae75f10d8636328457eab2b6da37bab97fc15ad29524af"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p196-197.png",
+   "sizeBytes": 225207,
+   "crc32": "be73d59d",
+   "sha256": "42dae1e91d37c8b54f3436cc1fdc8fff783b0e8a6f3f45410bd6ea7fe9c3ca0b"
+  },
+  {
+   "path": "Higurashi_no_Naku_Koro_ni_-_Onikakushi_v01_c03/Onikakushi_v01_c03_p198.png",
+   "sizeBytes": 61157,
+   "crc32": "bc729103",
+   "sha256": "8ad3deb1e9a875c6e91e43e59863c6d2f73649400e4fd57404c9d8c2546fc58e"
+  }
+ ]
+}

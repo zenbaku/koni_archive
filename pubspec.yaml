@@ -1,0 +1,20 @@
+name: koni_archive_workspace
+description: Workspace root for the koni_archive monorepo. Never published.
+publish_to: none
+
+environment:
+  sdk: ^3.7.0
+
+workspace:
+  - koni_archive
+  - koni_archive_core
+  - koni_codecs
+  - koni_tar
+  - koni_zip
+  - koni_gzip
+  - koni_sevenz
+  - koni_rar
+  - bench
+
+dev_dependencies:
+  lints: ^6.0.0

@@ -1,0 +1,417 @@
+{
+ "schema": 1,
+ "archive": {
+  "fileName": "Sweetness and Lightning The Cookbook.cbz",
+  "sizeBytes": 42482719,
+  "sha256": "8c4ee7e264d32148709da292eaa23dd89bd26bebdc32968eb6b79a31825f0c7f",
+  "format": "zip"
+ },
+ "tool": {
+  "name": "cpython-zipfile",
+  "version": "3.10.19"
+ },
+ "entries": [
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c001 (v001) - p000 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 620833,
+   "crc32": "c37d3547",
+   "sha256": "ef75783a70a54b6f0f58206c4989ce6b554027e7c336115f29426dd56658aec6"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c001 (v01) - p043 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 417019,
+   "crc32": "e7627d20",
+   "sha256": "7eee5af7c988be190717b8ffc4ed7581b9210561dd0faf8dcde7a294bddd8a11"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c002 (v01) - p077 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 442700,
+   "crc32": "8afca614",
+   "sha256": "75fc30b13389cfd462f618b07d49eec5d7298ae32a1b2ba7c111b1ad687aa7b9"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c003 (v01) - p111 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 546344,
+   "crc32": "6f4800d4",
+   "sha256": "45dee9f72cfff423c217ac9697942752212f5772ff42f0119702d142905940b4"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c004 (v01) - p145 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 437173,
+   "crc32": "ef8e0cb8",
+   "sha256": "f607917c5feb33c97b3826290c83de68f7ef7043b2feb22ae860e26e6de875e3"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c005 (v01) - p179 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 521401,
+   "crc32": "9e82a2dc",
+   "sha256": "ec5ac59aec9cc8eac8a2f4309894fec34b967f4d37de2f150f704d9fa9d9e131"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c006 (v02) - p035 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 517100,
+   "crc32": "892731eb",
+   "sha256": "c6b28173a025c9a12eb75d26c726486d66e83db7bead6f80f5aeaa3ab0ba62d8"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c007 (v02) - p069 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 587366,
+   "crc32": "2cc76e1d",
+   "sha256": "9913d3fedf0cb1d2874540a69032f28c3fd9c5d68cd287683914e8858809aa63"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c008 (v02) - p103 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 484974,
+   "crc32": "a760e912",
+   "sha256": "582834ad9a111370ffb09889f160c9dad25d459b585764c888ed04a4da80c2a3"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c009 (v02) - p139 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 657750,
+   "crc32": "60c0b2f7",
+   "sha256": "5cdd5b97bed912d4d5c40ac02da24ce4942b6b842957ef841ea1bbb3fde506da"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c010 (v02) - p177 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 447494,
+   "crc32": "35e5e413",
+   "sha256": "73080eca08b8f2aff2fc37d98843e3afae02c9f9f1fd8faa08d14ee04b110f8d"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c011 (v03) - p035 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 656492,
+   "crc32": "96be3681",
+   "sha256": "6e540f17c5d18d7767a3f6abacfd94bcea5cc85637e6c90e4a81e2d81e39878e"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c012 (v03) - p069 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 586440,
+   "crc32": "3c8722b9",
+   "sha256": "36ca7af8fd8850a139c0907eaf310487e7e62bf3f9ecb451e6b5b156b046b1cc"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c013 (v03) - p103 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 713926,
+   "crc32": "bb08d868",
+   "sha256": "eceeadd3bd11e0a7171345938a42099b182930803553c122e3815b6cace21497"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c013 (v03) - p104 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 1096228,
+   "crc32": "6412caa7",
+   "sha256": "070c65a191130ab1279ee6190bdba9537e56202220f555d35af81126035e53cf"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c014 (v03) - p137 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 713819,
+   "crc32": "1ef03f1c",
+   "sha256": "03b2e77b8b61c3c424ed994d68622d3d9ff55401713a95b9feb294a4be4e90eb"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c015 (v03) - p173 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 531038,
+   "crc32": "2ed1988c",
+   "sha256": "093f3b177dfbf02ea2e108b95dbb6708d64e855dfcf3af0f3e736aab0f06d22e"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c016 (v04) - p035 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 595965,
+   "crc32": "6db496f2",
+   "sha256": "ebe22efb94520b4b6005cedc9510823be5d511c94d6cdbc53b3107fa3aba32f4"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c017 (v04) - p071 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 854135,
+   "crc32": "04b37cee",
+   "sha256": "8f5cb54decf65efbd93d8ab7f76fff13d55a881c8c23e75bf356611a7bbb0888"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c018 (v04) - p105 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 557893,
+   "crc32": "19640e1e",
+   "sha256": "a4730915f052a93f71b6c7fad10b425fab4423556e8a57f4f9a8c2ecc624b110"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c019 (v04) - p139 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 737742,
+   "crc32": "4c68b5cd",
+   "sha256": "730a7498a5ef38dbb9b8dae27b436b3d42bed4c7c806685d6f52d84eb842268b"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c020 (v04) - p173 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 807941,
+   "crc32": "07b58386",
+   "sha256": "25684cb0f2ac3e90878dbde4c989dd4b22912b08054fb3412f5b5b880cc8b18e"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c021 (v05) - p037 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 969730,
+   "crc32": "5b92f112",
+   "sha256": "a0badcd0e14fc3c4856a94b821bca2515adad63aa600e9ae0384132bde3a5090"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c022 (v05) - p071 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 684463,
+   "crc32": "85080b08",
+   "sha256": "e3ec142f52f1a374e6fa43db6ff7bc9b12dd328db4284ad8bb719c13cd742906"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c023 (v05) - p105 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 795474,
+   "crc32": "514be8f6",
+   "sha256": "9bbd22fd8c9d5f89fc2731c848a1bee7e1a6fa365c2e8ae13af0273190ba5a95"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c024 (v05) - p139 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 483362,
+   "crc32": "b5592a5b",
+   "sha256": "ade5505b02f87b750dbc1a25519db03e00d947c51da89fbc0f912f9885b69871"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c025 (v05) - p173 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 700234,
+   "crc32": "abeab7ef",
+   "sha256": "44a132ba481a3835dd009191efaaef6cfc86449f95bc9d97ff9f2498cd9c49de"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c026 (v06) - p039 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 631921,
+   "crc32": "5df30663",
+   "sha256": "becef0b554728f137435f80e9e135f130dce605a5ba1a702146558c7bdc9ffa7"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c027 (v06) - p075 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 936587,
+   "crc32": "60d9e8d5",
+   "sha256": "375f5c2b94c28c4abf47ee3a00896e665103d43fba9406c47779796b77d453a9"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c028 (v06) - p109 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 1002306,
+   "crc32": "2c035ea2",
+   "sha256": "46ea1425054b9be6e0984a39d3f17f4fe02a2b8caddadfbaef842394a1a1d3de"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c029 (v06) - p143 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 602820,
+   "crc32": "6498fa02",
+   "sha256": "f872594f9c37a16a3064b5dc6a189e30dc0efffb7953e4482b0a2590e687590a"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c030 (v06) - p177 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 934935,
+   "crc32": "d3819698",
+   "sha256": "225d09d9412acf24eafe1ea51ce27e29f8972290d97344b294815093f079be7a"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c031 (v07) - p035 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 1091753,
+   "crc32": "51dc203c",
+   "sha256": "4ee31b03ae85d01e2a70787ea7f9487dd0c02aac9185b20fa8f00dd5bb6edbd2"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c032 (v07) - p073 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 704768,
+   "crc32": "2a7c3793",
+   "sha256": "8e0a1b2ad6b912f4f0f4269303ddafe5aee6abf5c4e727ec4d7fc2bfacdb746b"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c033 (v07) - p107 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 732663,
+   "crc32": "c6965a73",
+   "sha256": "36ecb6652800153396f77be7aee46971e7014e00acb4b667e8fb8d644692a3f0"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c034 (v07) - p143 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 993015,
+   "crc32": "49624fff",
+   "sha256": "4619a8b5b00eb2634698c052142015c4cb7e49cdd4ef4ae9ac16e2b5466ab52d"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c034x2 (v07) - p177 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 532807,
+   "crc32": "c41021fb",
+   "sha256": "1afe7be3e35254d881701e983b26e3dbdbe12ed3bc8475c35142e2d19fc9a4f2"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c035 (v08) - p035 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 849161,
+   "crc32": "a1cf32ba",
+   "sha256": "3f3744c0f3112d781c17f682913ef02d8981b21b5a8b8090b324530f2e17f305"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c036 (v08) - p069 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 997732,
+   "crc32": "ddf5c863",
+   "sha256": "ebde260ab8e2f9f735f9fb64433439fa3b3fc89c559fff8d690f32ee4fb52166"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c037 (v08) - p103 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 835287,
+   "crc32": "9c844294",
+   "sha256": "037cd845854f24be5f5f9e7e6684ac391fc00e48e76a444ec9a28103167266d2"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c038 (v08) - p137 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 868978,
+   "crc32": "495fd487",
+   "sha256": "ff6857058a5684227a28b6a37455df2ecb22d823d460a292d61949e8fe7676b4"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c039 (v08) - p171 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 881277,
+   "crc32": "9df0f055",
+   "sha256": "28284db825e428c8111478bffaa4a3247101f6b213888096a27a0662ffcf94b7"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c040 (v09) - p035 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 533358,
+   "crc32": "762b0541",
+   "sha256": "54e3f1b4582b8cbe4f0e7b63b8739f8ae082ebfc2708438097792c3906ea9de2"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c041 (v09) - p069 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 686098,
+   "crc32": "ed4dbdef",
+   "sha256": "b727daa0f04c7fe31aecf2a91fe6d347d48eaf948f6820c4d561ae70d8633cdc"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c042 (v09) - p103 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 1019973,
+   "crc32": "f25ffbdd",
+   "sha256": "a9aae183aa61f5c588565330ddd785245e80da9620d535a4dc7c568e72f85eb2"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c043 (v09) - p137 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 561226,
+   "crc32": "aa98067d",
+   "sha256": "f72a54e3fe45fc83c20395e8af4f67b84d0ea434206ed41bf55853104eb880bd"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c044 (v09) - p171 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 706581,
+   "crc32": "f7fe80c7",
+   "sha256": "377dec4df44904d858ddbff7930a969add28ebe6383c487d1f03fe5e768a7ea1"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c045 (v10) - p037 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 714875,
+   "crc32": "5dd82246",
+   "sha256": "1436c96a260d6acefcd05234a5766d68506b0a3dcee5b70760916eca2da7c527"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c045 (v10) - p038 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 677833,
+   "crc32": "7f313818",
+   "sha256": "b7ec95188962a4246c76fe92452d2d4001c7c8044bce2d65fc6246105f8ca5a8"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c046 (v10) - p071 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 727433,
+   "crc32": "d9189c0d",
+   "sha256": "c426b4d90fc1d1eee4c4a1b428ebf04ccd715ab856b53f02241a6163b026185b"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c047 (v10) - p105 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 557525,
+   "crc32": "62680ea2",
+   "sha256": "f094f5c6223a2813ed2841879d42487d5cfcc816fb11721770fed34e46768355"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c048 (v10) - p139 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 788302,
+   "crc32": "33a08080",
+   "sha256": "35786a6d5f8de850fce20dfffd39c29a419f4517f556f1f4ce9ad403bf150766"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v10) - p173 [Digital-HD] [danke-Empire].jpg",
+   "sizeBytes": 1084589,
+   "crc32": "8476bbcf",
+   "sha256": "34136a94244ea3516b46a424eeb3c1834f88c13dca4b9308d5d5727d9322a2c5"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v11) (10).jpeg",
+   "sizeBytes": 669404,
+   "crc32": "ceb83f1f",
+   "sha256": "424c4097b56c871e2278596f6db5e0443a5df35df06e9edf27344b56539b4f4f"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v11) (12).jpeg",
+   "sizeBytes": 315128,
+   "crc32": "55747f21",
+   "sha256": "a97b14a00fed6531233adc28a88008da39da5e5ea767524361643820e69245ef"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v11) (13).jpeg",
+   "sizeBytes": 611388,
+   "crc32": "8ba6e343",
+   "sha256": "3f8754cb18ca6d61c91ef8c87f50b8946de2e17c5bb940486cddb120becd8226"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v11) (14).jpeg",
+   "sizeBytes": 420748,
+   "crc32": "01aa3dce",
+   "sha256": "aecde86700db8f6ecd94ed641e4ff4e80af6db750e29e1833323d1e1c2af529c"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v11) (15).jpeg",
+   "sizeBytes": 263216,
+   "crc32": "ff838e69",
+   "sha256": "c5cc329c59cfe0fcf4b2636e8a11b7212d245c4fafb63531adcf4093eceebf04"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v11) (16).jpeg",
+   "sizeBytes": 395204,
+   "crc32": "c5a392a2",
+   "sha256": "6bf7db17cd4eda2a9696c2c17f6d189552031ddbe40c32275659daa173a8747a"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v11) (17).jpeg",
+   "sizeBytes": 624984,
+   "crc32": "95c8dd4b",
+   "sha256": "373292dbfcb476ad50bafa1d86d58f8e5d434c9b87969165b20a9aeef36b98c3"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v11) (2).jpeg",
+   "sizeBytes": 325884,
+   "crc32": "5ee49b82",
+   "sha256": "5c7cc584546685a08413d547841bc77f816fc1ea6cf11f0644fb0d9baeca4d20"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v11) (3).jpeg",
+   "sizeBytes": 230260,
+   "crc32": "486ccd00",
+   "sha256": "79d4edd10865c023a674a8bcf42bb575af079f93a1591ef27f03abdac3ef2876"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v11) (4).jpeg",
+   "sizeBytes": 416976,
+   "crc32": "fad392db",
+   "sha256": "44124772de024b03d8042986e03be0801f3067577e3d2eed0bef24671bd55f41"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v11) (5).jpeg",
+   "sizeBytes": 637064,
+   "crc32": "96738bd4",
+   "sha256": "39538e4940e5359f0fbcd8de9810e619cfad941158127908a0e9cd2b4c7af532"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v11) (6).jpeg",
+   "sizeBytes": 369280,
+   "crc32": "123b9589",
+   "sha256": "89df8d93735ba81dcb22069c2ef22af7e62fe302f400a226ac8d0e512709b6fa"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v11) (7).jpeg",
+   "sizeBytes": 376016,
+   "crc32": "60871c64",
+   "sha256": "d53ea8f899007018d66d51a932059207393bf891ae6eab20d7fbca3194ce6d6f"
+  },
+  {
+   "path": "Sweetness and Lightning The Cookbook/Sweetness and Lightning - c049 (v11) (9).jpeg",
+   "sizeBytes": 387000,
+   "crc32": "dc6375ea",
+   "sha256": "6e8a5e2f87511f7abf1f64d386894fa818734a68658343b7a0651be32565b5b6"
+  }
+ ]
+}

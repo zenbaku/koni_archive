@@ -1,0 +1,19 @@
+name: koni_archive_bench
+description: >-
+  Benchmark harness and committed results for the koni_archive ecosystem.
+  Workspace member, never published.
+publish_to: none
+version: 0.1.0-dev
+environment:
+  sdk: ^3.7.0
+resolution: workspace
+
+dependencies:
+  archive: ^4.0.0
+  koni_archive_core: ^0.1.0
+  koni_codecs: ^0.1.0
+  koni_tar: ^0.1.0
+  koni_zip: ^0.1.0
+
+dev_dependencies:
+  lints: ^6.0.0

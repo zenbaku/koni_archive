@@ -1,0 +1,1461 @@
+{
+ "schema": 1,
+ "archive": {
+  "fileName": "Vagabond, v01 [2002] [Viz].cbz",
+  "sizeBytes": 59221572,
+  "sha256": "1f6e9b19c1f24642dccc20ed82b85996771533f3549ccc6eaf4fe7f15d9617f9",
+  "format": "zip"
+ },
+ "tool": {
+  "name": "cpython-zipfile",
+  "version": "3.10.19"
+ },
+ "entries": [
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/0000.jpg",
+   "sizeBytes": 192550,
+   "crc32": "151aba74",
+   "sha256": "47d1241db12387b46bf1eceda3b7a5868f957798da5afea50ba787b241e8014e"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/0001.jpg",
+   "sizeBytes": 27225,
+   "crc32": "aa8973bc",
+   "sha256": "24d042df1c0d69ca0e39540aff31386dde94d5bbcaea7f58f997f343b772d1dc"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 000.jpg",
+   "sizeBytes": 177295,
+   "crc32": "a81d55ee",
+   "sha256": "c43f82ccb487c0376ff10a90528c53dae755715ae586a006536621d3928be4db"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 001.jpg",
+   "sizeBytes": 226520,
+   "crc32": "30aa1ced",
+   "sha256": "8b90b14935fd7ce3b2e343bb8a2018dbf9bb17f975028f330e40d35773f6bc40"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 002-003.jpg",
+   "sizeBytes": 426693,
+   "crc32": "9a7a1f5d",
+   "sha256": "ea3f05bdb2dfe5e9324e9e21e9202cc836cdb6f51ec334f7fa374c33ed8aec21"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 004-005.jpg",
+   "sizeBytes": 338508,
+   "crc32": "f73bbe43",
+   "sha256": "25616d85a599b6eb88a1f1bb72fd743c4e7b18485953f5a9ca3af0b5f6dc1708"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 006.jpg",
+   "sizeBytes": 286959,
+   "crc32": "4fa3683d",
+   "sha256": "dad32b8cda561db74c4bd2224929f87c0b47c3ee102d968d4aa4bc4426121e9c"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 007.jpg",
+   "sizeBytes": 171835,
+   "crc32": "b447789b",
+   "sha256": "0a8af79042f2df07166c6908975a60887d8811399cd2ee807a5f62ab090c1833"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 008.jpg",
+   "sizeBytes": 181563,
+   "crc32": "f528b6d2",
+   "sha256": "c8660a2718d143bef2242604c9f1bb4ea0c92ea84f65341a383fbf2fc20234e8"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 009.jpg",
+   "sizeBytes": 225138,
+   "crc32": "8f188f8b",
+   "sha256": "a5ffa6697a235589405ca8ede29d39a9b5ca4b208ba3bf6576e8e357a3608148"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 010.jpg",
+   "sizeBytes": 206278,
+   "crc32": "0bed44c2",
+   "sha256": "081626304dd42e88208e854de1c444c1f209c04204dff5cc94e9d0aafc4f8103"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 011.jpg",
+   "sizeBytes": 240723,
+   "crc32": "253461f6",
+   "sha256": "db24e626ba2483adf3865919fc867c0ddd5e3cdaffe8fdd77d76b5d57567341b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 012.jpg",
+   "sizeBytes": 278694,
+   "crc32": "4933c181",
+   "sha256": "3d0b0f29608694654a2dd699e0a326fb0653b71808263245252c459c2d67f4f0"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 013.jpg",
+   "sizeBytes": 192694,
+   "crc32": "952ab94c",
+   "sha256": "8aa3096b444919761ae4b41de491c42d302a6944c5011e1260fca977cd1a495b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 014.jpg",
+   "sizeBytes": 261996,
+   "crc32": "e2ef640d",
+   "sha256": "31a699c707668246a5ec578a1b87fb3dcf17b69247216c2b832f3e6eae6fcd19"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 015.jpg",
+   "sizeBytes": 196006,
+   "crc32": "4b743764",
+   "sha256": "20c334e38a1b13930a28c746313ddb3bdaf2bfd4f2c4009b78552b31935b6c8f"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 016.jpg",
+   "sizeBytes": 266077,
+   "crc32": "8a5a2781",
+   "sha256": "aea217f019943b2b24829ff0f39c3b52d62cf8b543423d38ca4562f9f3e72bfc"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 017.jpg",
+   "sizeBytes": 237721,
+   "crc32": "3feb461e",
+   "sha256": "e5604ce6915b60d24430c30b86391dd56e1b4ba92e42bb6a93b5d2f293e45bf2"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 018.jpg",
+   "sizeBytes": 280139,
+   "crc32": "bd0bb3e5",
+   "sha256": "b243433e25f0e74fdacebb22284efb117516a162c09ee1f9dad779bd09ae6610"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 019.jpg",
+   "sizeBytes": 228695,
+   "crc32": "9ecdfcf5",
+   "sha256": "755c4ba373405974f6bd36736d3cf9b0f08b433dcb378477db6596d2479024db"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 020.jpg",
+   "sizeBytes": 289106,
+   "crc32": "ca6dfea1",
+   "sha256": "64818004e7d913e09d3e06d5e76c97247380b443ac4ba469e2df143f40bf2dc5"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 021.jpg",
+   "sizeBytes": 241537,
+   "crc32": "d6385a1e",
+   "sha256": "9f9675c65d729722af6764a455853dbdb872748633789d0282fb1ba5a858d798"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 022.jpg",
+   "sizeBytes": 199730,
+   "crc32": "3d0fba23",
+   "sha256": "8c43aea5090c331c745c4ad3270480cbaa9aa771784cd27866cb287341652323"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 023.jpg",
+   "sizeBytes": 278609,
+   "crc32": "a16d03d6",
+   "sha256": "b36e9fb73ac5c25fc619dd6473b29c621c3260d32324b09da09240a127de5915"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 024.jpg",
+   "sizeBytes": 281386,
+   "crc32": "72d56e76",
+   "sha256": "d70acb366109a07fef5bdb4c3ea1f131b23d00d51eadd057423c698c9d65b28d"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 025.jpg",
+   "sizeBytes": 382961,
+   "crc32": "11060e42",
+   "sha256": "5d37643728c7fa6f88abc73c6dafa9bb959023ec4e72e76b32b390259ab6b849"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 026.jpg",
+   "sizeBytes": 281734,
+   "crc32": "62322c7c",
+   "sha256": "a1073aba183213f96f77620053c1ae5f83734fd699bd74ae6ab612d4b93caa9f"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 027.jpg",
+   "sizeBytes": 210812,
+   "crc32": "c00899dc",
+   "sha256": "018658eaa08d784f606236e9f260914cacf80280ac7bd46eb4ddeb34f3cccd0b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 028.jpg",
+   "sizeBytes": 216613,
+   "crc32": "4d7d545b",
+   "sha256": "c13bd63a1e129470b08ae1470767695a128f7147ccbe6feabe35bdf0d46a2bee"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 029.jpg",
+   "sizeBytes": 296658,
+   "crc32": "70a28176",
+   "sha256": "5a22b91419e524fdab18370501d49574f46c143c60df6cd5ecd5bcdb59e46076"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 030.jpg",
+   "sizeBytes": 308470,
+   "crc32": "3293f4d7",
+   "sha256": "164f60587797572f97951aac0c27f520d9584b53ddaffa11912148c4d02a26e5"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 031.jpg",
+   "sizeBytes": 243958,
+   "crc32": "ec2363b4",
+   "sha256": "9c198c3f69bf13661a8a668ee54060cab153773f83a55ea277b07944718b3fb1"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 032.jpg",
+   "sizeBytes": 253522,
+   "crc32": "531dbcc0",
+   "sha256": "99ad89c98c5d252ed2849e3cf31b451139f597d3864492f4d8f49895bde56c11"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 033.jpg",
+   "sizeBytes": 172471,
+   "crc32": "a854bd9a",
+   "sha256": "b110c84219f1c51551770065bfa11780c8beb0afae7e775dc7c09d0a6941af59"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 034.jpg",
+   "sizeBytes": 335212,
+   "crc32": "5725cc59",
+   "sha256": "6483b71055e181d953cf84158dca9d6f972fb09ba8fbe64a3511c226a0f4edfb"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 035.jpg",
+   "sizeBytes": 242415,
+   "crc32": "ce77df1b",
+   "sha256": "c09a23964927b2b8f6ede3689c3ed7a86971e50215638b893d489d2097c4e666"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 036.jpg",
+   "sizeBytes": 187893,
+   "crc32": "177bd84c",
+   "sha256": "046e8bb628f7e614013b8927c3c5988778a924416569024ef676345b7a51df6e"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 037.jpg",
+   "sizeBytes": 229995,
+   "crc32": "73564df0",
+   "sha256": "889cb4497be846e2cb4c89fb5e5279a479c446c74b3f89d343bd4bc5b530cc12"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 038.jpg",
+   "sizeBytes": 208874,
+   "crc32": "36216ed0",
+   "sha256": "019915fd1ada52412d47350e2e5b4f316721110e241844758b0c3e3bc8784542"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 039.jpg",
+   "sizeBytes": 287835,
+   "crc32": "3def492c",
+   "sha256": "70205f03db4a29266c4c0466367a7ecc8d12b25246abde54c15f1fc268761a7f"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 040.jpg",
+   "sizeBytes": 228563,
+   "crc32": "e07c71fa",
+   "sha256": "1d1432f6f8b30266ad7388641250d3e444170f1f30f24e84a96bb127d65aff48"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 041.jpg",
+   "sizeBytes": 253985,
+   "crc32": "4f0384a2",
+   "sha256": "ffa53046e45f7d86112a43e973f4a20bb8716d1e66ba06505c7056a9bbbebd38"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 042.jpg",
+   "sizeBytes": 190009,
+   "crc32": "b575b923",
+   "sha256": "eb5251196aee6fcac1ddf8d1cf890a8d6e518b14ef1a198effdc27fa606fafdf"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 043.jpg",
+   "sizeBytes": 89417,
+   "crc32": "46b40a4d",
+   "sha256": "1008680e41e91ffe321b8766803d7b12beff9c29147844283d688cf1c9e0371b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 044.jpg",
+   "sizeBytes": 117022,
+   "crc32": "3b23ecc8",
+   "sha256": "b2d5f85b05d9584152cca8f7c3c75003c04806d28cd9d9143da6885144432cd9"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 045.jpg",
+   "sizeBytes": 194110,
+   "crc32": "f2e43ca1",
+   "sha256": "1c3feab0ba3b0c03cab299a3dfaf9fca0da306881fa77a63832261eeabc80395"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 046.jpg",
+   "sizeBytes": 229966,
+   "crc32": "1ed65c33",
+   "sha256": "e546e929e19a4946077bf4a38c81e073ff6d9a43017c5bbf3f0652951abb3a3c"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 047.jpg",
+   "sizeBytes": 185185,
+   "crc32": "686ea699",
+   "sha256": "ab96c952482a9f377caada138e68791936d0df7a4e0c053db1c45259c029147d"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 048.jpg",
+   "sizeBytes": 192693,
+   "crc32": "4a6059ae",
+   "sha256": "6973d7c2980338ac241d795218aa4a531316971ebdab30933245c2b6e939ca7b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 049.jpg",
+   "sizeBytes": 224830,
+   "crc32": "0d8b85fe",
+   "sha256": "413a3923d5c6d14d5a176e7fd08aa9b6cfb4219f69a3093898c70cf90eb74033"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 050.jpg",
+   "sizeBytes": 207655,
+   "crc32": "8c3ea145",
+   "sha256": "5b347b89d24af66a6051702cca253989a6d038f886b814a9a17f6131f4f86af0"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 051.jpg",
+   "sizeBytes": 255347,
+   "crc32": "72a03bdc",
+   "sha256": "2c08433a26ab9bfcc14e249d04985853a90c9862f58b334f5c4eb93f0a10e149"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 052.jpg",
+   "sizeBytes": 252919,
+   "crc32": "cb2f5570",
+   "sha256": "a1736ac764e8bdff64bafb47a67ebc4d6d1177c4923b4c92271d8b77cca3ba05"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 053.jpg",
+   "sizeBytes": 213202,
+   "crc32": "c0363eda",
+   "sha256": "0c7ca56e96cf9f1d502b20daebad62bf23e9c1244d60852d1a404e4a8afd2942"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 054.jpg",
+   "sizeBytes": 278056,
+   "crc32": "815844a0",
+   "sha256": "5fcfea853facb2a46d2538509e0b2af72eca44c7a4f86b3141eac60ae0c28bb1"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 055.jpg",
+   "sizeBytes": 231519,
+   "crc32": "e99f6645",
+   "sha256": "2de029d7ec60e6cb687bfafcdf8793576a9f1b955d78e33361304295d9f4604b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 056.jpg",
+   "sizeBytes": 233182,
+   "crc32": "51e57ab4",
+   "sha256": "d5cf9a6765514fd0b80dbd8fcf702c1cbcd3b2c178e03f79f6777f84c36055fb"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 057.jpg",
+   "sizeBytes": 260965,
+   "crc32": "16b8277a",
+   "sha256": "0c46058aa86f10543f313828c2d99429e22ca5e7e68f73322b6848ac93abcee1"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 058.jpg",
+   "sizeBytes": 281043,
+   "crc32": "596b68e4",
+   "sha256": "f59ff85a7edf7878525f52014c4e93103103e0455c8723a9bb370a263ceb4508"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 059.jpg",
+   "sizeBytes": 241467,
+   "crc32": "34420707",
+   "sha256": "1172ebb988fed5e8d48b39fdbba5e483818953a119e97eadf2e2a5dfb8df674d"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 060.jpg",
+   "sizeBytes": 196037,
+   "crc32": "059eae32",
+   "sha256": "50334339c520c1dbd949b4460ddf0d0276d2bffacf9aa5098e6b0c2a11376f9b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 061.jpg",
+   "sizeBytes": 218646,
+   "crc32": "42f90c90",
+   "sha256": "c5b17836dc1b3cf2c18c407e3d1cdeb64e0a83a9344bf41bb0300ed77b0f0144"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 062.jpg",
+   "sizeBytes": 279429,
+   "crc32": "6651f4e9",
+   "sha256": "0d7ea579a56799394f0edf2c37ed5afd4a4418697e8a3356017680e4b15d53c4"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 063.jpg",
+   "sizeBytes": 234470,
+   "crc32": "35aa9b05",
+   "sha256": "482b78cfc9bd7f26df783e65c4a020c60f396b65cee948ba9b38091c177fa5f9"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 064.jpg",
+   "sizeBytes": 287266,
+   "crc32": "11f15b01",
+   "sha256": "8e2d4ffd88e3f39215d341a9105da58f3668636067dee9461b880a4f003e775b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 065.jpg",
+   "sizeBytes": 287374,
+   "crc32": "8168bdff",
+   "sha256": "31995615b30c2502c9d3a3a4edda8f944881d3911a115c1a110979e3ade0d4c3"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 066.jpg",
+   "sizeBytes": 240557,
+   "crc32": "0eeccce8",
+   "sha256": "18ea0a42bf2b9a14eb1fd1c7c3763ad502d29c48e6a4702f1c62d3d97b0d1b5b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 067.jpg",
+   "sizeBytes": 246579,
+   "crc32": "72cffe6f",
+   "sha256": "b5824a006c4e91dbe88e4abe6411d123b7dd4288b40968d72a7170bcc3c5a100"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 068.jpg",
+   "sizeBytes": 267876,
+   "crc32": "d1f441ec",
+   "sha256": "a9012861f112edaf159f3221d7492d306120b9b9834845cd0255a8455bb7f928"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 069.jpg",
+   "sizeBytes": 73817,
+   "crc32": "50cd3856",
+   "sha256": "f5231dee70a493163e6ceca99c05aea096c34e7dd22483639f4c1582fe17a4e1"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 070.jpg",
+   "sizeBytes": 83594,
+   "crc32": "7373de5c",
+   "sha256": "8032c7c6b055c2738788a8fa48291ac3bf0a8a285f69a5f67453a685c6a2f844"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 071.jpg",
+   "sizeBytes": 310530,
+   "crc32": "3e594cc5",
+   "sha256": "7ce2daa9ce13fab9248c9c09b0aa141f12f19ab83f3415f010ddd433f99b36ee"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 072.jpg",
+   "sizeBytes": 227908,
+   "crc32": "f54dddea",
+   "sha256": "506c5a075068a987cf989629d28c4913be18dcfb33451c766e274375d88c2271"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 073.jpg",
+   "sizeBytes": 274824,
+   "crc32": "66817a5a",
+   "sha256": "4e218eb9cd8b9b8894ed151f5ff99e1839978acdacf801ac12aa8c2e69046928"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 074.jpg",
+   "sizeBytes": 244362,
+   "crc32": "f1ec7781",
+   "sha256": "62e7be56836b34b1e0d08c16437fb78d39039bb1d88f69f6399f37bbba7bd519"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 075.jpg",
+   "sizeBytes": 213588,
+   "crc32": "e89c4710",
+   "sha256": "ea91221bf4e9a50e0cf26fee5e2b9b914f3f2511760d41874cf8adb25e7e29dc"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 076.jpg",
+   "sizeBytes": 260638,
+   "crc32": "37b06b5d",
+   "sha256": "e091ffed2602e1df8fe18c3a21c8c48a22fab5d91d0e9f5290dfaa8a96beac93"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 077.jpg",
+   "sizeBytes": 200190,
+   "crc32": "62d21ea1",
+   "sha256": "772835a38f4dacec80794314375d008290c776421c87610fbb5cb99870f30db8"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 078.jpg",
+   "sizeBytes": 204019,
+   "crc32": "26d6fd45",
+   "sha256": "084491028842ca7db0b74a5bf23b67736939a16a69021d97ad1f6d538a805b39"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 079.jpg",
+   "sizeBytes": 216715,
+   "crc32": "e247cfc1",
+   "sha256": "a135bafc470e99bb87e0150c7a14f3fa77c522e54f6d75303cc3346e273d5d5a"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 080.jpg",
+   "sizeBytes": 232851,
+   "crc32": "64409e13",
+   "sha256": "1431cf30ab5eae8dab124fd973bf5056e9893ceba79b3e6526c20e18c8317b32"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 081.jpg",
+   "sizeBytes": 242209,
+   "crc32": "56a7140f",
+   "sha256": "e2c6aa50aef623d067f0f3114ce420a7c973d560243f13c804dcf29d4f8c1de7"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 082.jpg",
+   "sizeBytes": 95790,
+   "crc32": "f21269ec",
+   "sha256": "d510004bd2236caedabe836aff65de7b66debc5a0b9d936fb3a29c9b4fa41bc7"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 083.jpg",
+   "sizeBytes": 213845,
+   "crc32": "4186b42b",
+   "sha256": "6b75fbe343014aefda4b2f4bc92145d9612b776d45a37d06039cebee33f332a2"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 084.jpg",
+   "sizeBytes": 210239,
+   "crc32": "dd2c0607",
+   "sha256": "58ef440ea5cee3c1fe5bd5e5121357809b7e063a282a6502dbac36400c50231d"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 085.jpg",
+   "sizeBytes": 313509,
+   "crc32": "a53a66da",
+   "sha256": "c8d48a53e02b7658056af29764699afc428cca84ad19714c9cde178047c922ac"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 086.jpg",
+   "sizeBytes": 221161,
+   "crc32": "95463bd2",
+   "sha256": "741c3890a3264bfc69b97f71c223d92f589b20f894842872f947340c35fd95b9"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 087.jpg",
+   "sizeBytes": 248518,
+   "crc32": "f0aedf29",
+   "sha256": "80a41e367a4ecff6806fe0647e6af0ccd6dffba1e1a596b227b1a72401285f70"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 088.jpg",
+   "sizeBytes": 206742,
+   "crc32": "96081484",
+   "sha256": "f2cf20a2485a4db84371b93c25ead80b88d215252bcf0650eb8ecee201f535cf"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 089.jpg",
+   "sizeBytes": 287530,
+   "crc32": "032c2f39",
+   "sha256": "c8334dbf405c307f49104bcdf65c9e25af86e7b2f878aa58d67d511464b708e2"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 090.jpg",
+   "sizeBytes": 240006,
+   "crc32": "13a96bc4",
+   "sha256": "13b52bb1dbcea047260fa456c21aabc0807b42336cf7d72a583be2903c0c3bc9"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 091.jpg",
+   "sizeBytes": 92037,
+   "crc32": "c659d438",
+   "sha256": "81cdf32c4f9587769433fd4663416190b4f96012687e7de9d4462c5f7aefb9b2"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 092.jpg",
+   "sizeBytes": 100197,
+   "crc32": "d156484f",
+   "sha256": "b092eb91b88c3e6ae62d5706351a81c253bfd059774107b95bac89be50c3cfea"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 093.jpg",
+   "sizeBytes": 250373,
+   "crc32": "6748500c",
+   "sha256": "bbeb4f9ee5562613dd3a83c4a2f6b03a4afc93c768e0a9ec77e7f1869fc83c4f"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 094.jpg",
+   "sizeBytes": 274497,
+   "crc32": "828cf122",
+   "sha256": "0a85df1ebcc14b9c5f6dbf6bc35dc3c501da5bc0e37d581c7c08fdea216de66d"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 095.jpg",
+   "sizeBytes": 236416,
+   "crc32": "e419d9d7",
+   "sha256": "9913053aae861ceb8c8d5de51332d5c8df6b6bb3d45ec275e34e750a7739c634"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 096.jpg",
+   "sizeBytes": 210199,
+   "crc32": "93095672",
+   "sha256": "0c34d3ebfa710fd7001b6bbbf0c5533acb20d8a095dd85f35292fb4346fada7a"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 097.jpg",
+   "sizeBytes": 214676,
+   "crc32": "31eda6b1",
+   "sha256": "60496ceef146b7587080efc5c2962453b96a184aef92cfb65925492ef0e765f8"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 098.jpg",
+   "sizeBytes": 267443,
+   "crc32": "f1e0d89a",
+   "sha256": "6d39e666a10c1a57bac52cb9ced7bccda7eb2a0f60412cf1a22c151de1ac78b0"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 099.jpg",
+   "sizeBytes": 312476,
+   "crc32": "14bd979c",
+   "sha256": "febae7bf138af9490fa9aba5f00dff19cb1dbd2260353a18f569348e032e2391"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 100.jpg",
+   "sizeBytes": 305668,
+   "crc32": "896c8c8d",
+   "sha256": "b4fe1804eb25a12b71d67f50da50c8adbd788363941a58561cd515cb59037420"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 101.jpg",
+   "sizeBytes": 277411,
+   "crc32": "43331eee",
+   "sha256": "a63e910e556d5724745257ca6921b33926401520358796290734a2e5d88f74ab"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 102-103.jpg",
+   "sizeBytes": 209286,
+   "crc32": "36f8b809",
+   "sha256": "92cc48a0ebfe4e26769b96a1b0d46514d03cfb298b96f27012e5ba08028047bf"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 104.jpg",
+   "sizeBytes": 264197,
+   "crc32": "98a81168",
+   "sha256": "fa3be13f206f91fc56aa3dd7153c022e52e421bd9a968bdbc14d2ae6778499fa"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 105.jpg",
+   "sizeBytes": 261640,
+   "crc32": "03fb4666",
+   "sha256": "98ea24a1577fa024845f53a8439ded0e622e18b5995628a3fd774b8c0e88e598"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 106.jpg",
+   "sizeBytes": 285790,
+   "crc32": "54bd1f5c",
+   "sha256": "22c4c968612a4292e85e72bbfc470600e3d67c66f08378179ead40bfe4d7e2fe"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 107.jpg",
+   "sizeBytes": 270064,
+   "crc32": "a55fd249",
+   "sha256": "ae5835eed72d8bad3a9cd412d3fc2cf5d6109f596e111ee9a8a2dba7a9341bff"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 108.jpg",
+   "sizeBytes": 330753,
+   "crc32": "8c8a83aa",
+   "sha256": "8ecb99de37662299c44eb11f38c0cbb1c33467ae2b010e544a0cf79c0511bebb"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 109.jpg",
+   "sizeBytes": 288357,
+   "crc32": "b3bf221f",
+   "sha256": "baaf0327cdbaadc467d9a310e7d166d07c49df8fd85f3a64c29b21a8c212ea03"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 110.jpg",
+   "sizeBytes": 294163,
+   "crc32": "ab9e7ada",
+   "sha256": "21ad3b55fc5b3d37a3adca8aade080ff926308c4f51713a2e6420fc8b95619ea"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 111.jpg",
+   "sizeBytes": 210891,
+   "crc32": "3a34c08c",
+   "sha256": "73244399059ef6d653835678b432d07a3f9830f49f7d7ee42c747cc2dfee85f1"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 112.jpg",
+   "sizeBytes": 233159,
+   "crc32": "e2dfc3a1",
+   "sha256": "8e5c2a3969ccff98a2dbe657b153511d29c243fcae8e2fb6f9d8441438ab827c"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 113.jpg",
+   "sizeBytes": 91276,
+   "crc32": "5f43f7c2",
+   "sha256": "a1383720fedaf20385547629fe8110387ed8d73f91ae6419afbac4f35af19083"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 114.jpg",
+   "sizeBytes": 97342,
+   "crc32": "fc51346c",
+   "sha256": "a6b523d3ec0cb5c1fef3728db06f5858f79ab4f13f7fdf6caffa6204ad16df57"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 115.jpg",
+   "sizeBytes": 258804,
+   "crc32": "3808c73b",
+   "sha256": "ae973c085012d07a5e0fc90db309e01f0e00d62bd74777f95b2490859157a4f5"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 116-117.jpg",
+   "sizeBytes": 279521,
+   "crc32": "1d4edd74",
+   "sha256": "6b59840a98495cd143210e808d5314511ce6a378bb7b83e2bf8aab26937e4105"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 118.jpg",
+   "sizeBytes": 340621,
+   "crc32": "833053b3",
+   "sha256": "6c1055213d98aff70c28ee03d0b6f4c85f416e50d17404b6ad4a2af19a457634"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 119.jpg",
+   "sizeBytes": 285892,
+   "crc32": "b5b321cf",
+   "sha256": "e4c0b8120e60e7a843f9da47f0a854824b20d97af695b9aecd119143a8f9034a"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 120.jpg",
+   "sizeBytes": 314071,
+   "crc32": "7086008e",
+   "sha256": "6518a9f4398c5f4c04ddb03de5370d8dc4f77c6ea67d62719149aea727939993"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 121.jpg",
+   "sizeBytes": 330965,
+   "crc32": "76dd14b0",
+   "sha256": "270a3ec2404e74f6462c75ef4cdf8dc9803c7730c1fd622105595d777cfff4b1"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 122-123.jpg",
+   "sizeBytes": 274354,
+   "crc32": "60d46457",
+   "sha256": "378079e607258c7f3198e01e57fd5570d15883df5d3e30c002849f236f6587d6"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 124-125.jpg",
+   "sizeBytes": 225098,
+   "crc32": "7d33f4f3",
+   "sha256": "93b13308deda34c1470ffb6f12b5b89e5fe4ffa137c135b9834d31b996c515c9"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 126.jpg",
+   "sizeBytes": 307165,
+   "crc32": "a183f580",
+   "sha256": "897c7da8d4b81a050f55811b41c9a9c5e8bb1a9cade704f1b93ed7253914fe26"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 127.jpg",
+   "sizeBytes": 272076,
+   "crc32": "ded745a2",
+   "sha256": "81f9686b4aefe1f3ba17c25216482cf301fe3d288fef538df75fc7b856c8f4b0"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 128.jpg",
+   "sizeBytes": 221428,
+   "crc32": "52fdf785",
+   "sha256": "eacb76a24703fa437c02fec3bacb26e43a5bf4303d8c0d14d7f723658e46305d"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 129.jpg",
+   "sizeBytes": 252544,
+   "crc32": "5fa08017",
+   "sha256": "e29a6afb135321fc6a8528b1f8b70f27823b3e003cf4005e4bf406983f0c7d02"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 130.jpg",
+   "sizeBytes": 310328,
+   "crc32": "d6d742ca",
+   "sha256": "4cb858f83a8a073b3168dd0fd041fdfcbaf10b425e72643917c1551319747574"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 131.jpg",
+   "sizeBytes": 263557,
+   "crc32": "8f35dbfb",
+   "sha256": "30bb6134dd4b4da15ba6430dc900b784623c15c00f0032f8b62024c524254a18"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 132.jpg",
+   "sizeBytes": 193669,
+   "crc32": "63e21214",
+   "sha256": "debbccf8c266892f66a36fd3cf5d6de0d1f2ec453677a5a36edc3f3bcc5dbf68"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 133.jpg",
+   "sizeBytes": 254021,
+   "crc32": "93971816",
+   "sha256": "e6d36983a62159ad52bdcfd2949651cb1766e737cdf35e836a3287d5ed89c038"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 134.jpg",
+   "sizeBytes": 261135,
+   "crc32": "97c015e6",
+   "sha256": "4ae4ed5c6b3d1fa1aac52a4998ed930e24655e31e80afce185e391707bbd9e6f"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 135.jpg",
+   "sizeBytes": 119070,
+   "crc32": "39a953ff",
+   "sha256": "badc24b44a655f6854bbd8229a6e31ae2ff92b04b0600a372a909c96cccfbd09"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 136.jpg",
+   "sizeBytes": 102326,
+   "crc32": "c7b1ec0c",
+   "sha256": "41bb30ccc167ef4867a9771dea17aa2b84523a8896a35e97f720ecaecd80bef0"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 137.jpg",
+   "sizeBytes": 266470,
+   "crc32": "528ab56c",
+   "sha256": "22ccb16a1793855932ec9ad5f75beff7d341902860089641f9cb98cb36e9b341"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 138-139.jpg",
+   "sizeBytes": 307153,
+   "crc32": "0d9ca56a",
+   "sha256": "28efb04dbdbb52cd07303c8e68bda1f883e953b485dbc7c6292067bf13e99d0d"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 140.jpg",
+   "sizeBytes": 253375,
+   "crc32": "17b9964f",
+   "sha256": "99b78b9928d2223e983697263fa3c10ad06a820e474e7159632804dbfc263be0"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 141.jpg",
+   "sizeBytes": 306115,
+   "crc32": "2a3da1bb",
+   "sha256": "e863aea024b4dd3fd59bc16c35a7fed91057c11b6c370410583de67ab17f74ae"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 142.jpg",
+   "sizeBytes": 257248,
+   "crc32": "40189a66",
+   "sha256": "158ede8036a6d034f719409f9e469535885b44641cb9dc2354a0e4504ef47d71"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 143.jpg",
+   "sizeBytes": 272017,
+   "crc32": "73275503",
+   "sha256": "439930d5725c78f29d2e790a9366b6768b46d58c7ebfbc02e8219e24eb1a99ef"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 144.jpg",
+   "sizeBytes": 249830,
+   "crc32": "8f739c37",
+   "sha256": "c9c840608166b9e6fadb2be9ad1ca737ef61b3e4afc3ed0e8950cae92090fef8"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 145.jpg",
+   "sizeBytes": 172329,
+   "crc32": "9874ed05",
+   "sha256": "9c20f1a602d305be03acd2a54a6da2a1491175d90e799f002bfa3708ceb15dc7"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 146.jpg",
+   "sizeBytes": 258253,
+   "crc32": "46e91707",
+   "sha256": "3cc8e2c9e515487958b60aab4a0c205c3fb409d391822eb8512a97e2e2db4abf"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 147.jpg",
+   "sizeBytes": 275908,
+   "crc32": "c254ba06",
+   "sha256": "a318844f39e2baf0894a7c815afee5da91209073a1cb36efc654b855cc884b19"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 148.jpg",
+   "sizeBytes": 289908,
+   "crc32": "f4b7f31a",
+   "sha256": "d8fa0d2c210850081e1cf240be979872f7fbc0d87ce62fe330aa0aad14f30385"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 149.jpg",
+   "sizeBytes": 263404,
+   "crc32": "9d0dbae7",
+   "sha256": "d1c9a45e38b28516032def3cbb23acd89c4238939cb6cc0e0acec04579981a64"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 150.jpg",
+   "sizeBytes": 299822,
+   "crc32": "dc0dda77",
+   "sha256": "1238b89de50a3fb57b747d9118e86d2d847daa1d29dc979bc00dcc57a8b75c22"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 151.jpg",
+   "sizeBytes": 242487,
+   "crc32": "6fefef77",
+   "sha256": "3f2a9eb98be49665e045c9a3dd5c5f8243b40bac07b330123c6376c94f339dc2"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 152.jpg",
+   "sizeBytes": 298355,
+   "crc32": "70bf7966",
+   "sha256": "88241c9302ab5baceaec6920be03fb2c3cdc6c9e1fc5de0678d4301aa7bbee16"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 153.jpg",
+   "sizeBytes": 215775,
+   "crc32": "29f00971",
+   "sha256": "1defbb2f9eda24e01fb43e77c10551817cc37a359d460ae37dd8fd7371a96401"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 154.jpg",
+   "sizeBytes": 287143,
+   "crc32": "186052ec",
+   "sha256": "812215bf4ed0f3330201e42513ebd400132c16d6756dc28bb7e41c7240b64b56"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 155.jpg",
+   "sizeBytes": 311832,
+   "crc32": "6c926194",
+   "sha256": "52c9bce64038b7005e8fb07dc82c75e94d1ccc8c0a4a957888beffea6038a78c"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 156.jpg",
+   "sizeBytes": 262200,
+   "crc32": "3931338a",
+   "sha256": "13d1d8700ff88e86a6131b04fd74cd1840b3e9aaa85e84066675cd035f089638"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 157.jpg",
+   "sizeBytes": 121954,
+   "crc32": "63b8ca16",
+   "sha256": "a85d0ccc57b64137cfd5442696d37719d2d3326d4f9ad8ea1e931c1084583876"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 158.jpg",
+   "sizeBytes": 105565,
+   "crc32": "ddbb9389",
+   "sha256": "20a459789b753a0e9405e5800b9d665d6e29c16487feddba6b2a92ae8ef95790"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 159.jpg",
+   "sizeBytes": 276642,
+   "crc32": "3a686b60",
+   "sha256": "7d03fac9ac0504df814e3faf4432dd10aa920b8a09cd8aacf6b5ddf36aa2cb6b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 160-161.jpg",
+   "sizeBytes": 311084,
+   "crc32": "0211eea0",
+   "sha256": "dcfc1f2f7320e53dae10e0a552a5ccf5985126e6ddc316b1a99e8d509af292cd"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 162.jpg",
+   "sizeBytes": 201698,
+   "crc32": "cfa3df7e",
+   "sha256": "670a0330438b87823860be8e25746062b50c7b67dcadb7a3175d595394679e50"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 163.jpg",
+   "sizeBytes": 251596,
+   "crc32": "323c8a46",
+   "sha256": "6db5ddcf4e54ef20d9a9efaf017638087233811db4a3d05141f4644fbf974432"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 164.jpg",
+   "sizeBytes": 303386,
+   "crc32": "1c98b5b7",
+   "sha256": "0a76bbf1fb929886d7e746475309c8b04632664165b0e1950d35767116d1c920"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 165.jpg",
+   "sizeBytes": 324185,
+   "crc32": "881703be",
+   "sha256": "89701d6241e05848c8e46fd1275048e21ea77c34db305d571b95032e1d3c997b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 166-167.jpg",
+   "sizeBytes": 294556,
+   "crc32": "5db2154e",
+   "sha256": "ca205a8561699baabd396bccf9be1805242648dd60004d06fb73764a95fae845"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 168.jpg",
+   "sizeBytes": 300317,
+   "crc32": "29084a9e",
+   "sha256": "81236fd5cee035b78c650678080c210735e46635622369cc5307445cb89ebc17"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 169.jpg",
+   "sizeBytes": 250881,
+   "crc32": "0a0315dd",
+   "sha256": "e46da935defd32b9e9deec80af90320845c593123ffbdd5bf7099aa91fa89ccf"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 170.jpg",
+   "sizeBytes": 309439,
+   "crc32": "c7ddd897",
+   "sha256": "4a5768dbe11832604c97f380b3be3c5c0e21ef6660c7b4937577437dda2cd8b5"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 171.jpg",
+   "sizeBytes": 208913,
+   "crc32": "028f3765",
+   "sha256": "924334ecae947fe081b6759a7f75074888163b10a41f2bdbb33d5aaa69d675d0"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 172.jpg",
+   "sizeBytes": 312484,
+   "crc32": "1a075819",
+   "sha256": "c91dd7eeae4a1e966db3c350e7555f00bbcec845d235ce4d53473c1268959f2e"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 173.jpg",
+   "sizeBytes": 292080,
+   "crc32": "97907568",
+   "sha256": "0dbaff9bc0c881edcf585276f62ccf3582e37113951d67674fc60e38eedae848"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 174.jpg",
+   "sizeBytes": 304645,
+   "crc32": "3fa263cb",
+   "sha256": "fec9f81ffad501d429a30d8f5e49d47f6bde92b728d635826c215264f78e7c88"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 175.jpg",
+   "sizeBytes": 299063,
+   "crc32": "e8a2c4f3",
+   "sha256": "25295758db9623445a40d25fdc9b60db5452da4030b9389d6f3de07f4bd477a2"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 176.jpg",
+   "sizeBytes": 335948,
+   "crc32": "3e47ef71",
+   "sha256": "959f282dbb802ea6a6e5a242e40fdecf9a437e07f379a84ed2b7652737bf18c2"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 177.jpg",
+   "sizeBytes": 312541,
+   "crc32": "4ee87bd8",
+   "sha256": "3e449c890093c6e83b25b7d272012e310435e2046135c1a1a1d83c190913a94b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 178.jpg",
+   "sizeBytes": 260536,
+   "crc32": "f2b8b8eb",
+   "sha256": "4cec2ed3f660e7660b25e7a0083ae2d585c76edb0d7d782e5715c7e8ef7c392a"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 179.jpg",
+   "sizeBytes": 290883,
+   "crc32": "93578775",
+   "sha256": "54199e895bb5cba7809649d800564e76fc93dc258e48bbe117341c1f55331a1c"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 180.jpg",
+   "sizeBytes": 231202,
+   "crc32": "76f399ba",
+   "sha256": "6c47675c59cdf0ddaa59612a8b26f84b8f508e2be0b9e755eb1c58fa68015b81"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 181.jpg",
+   "sizeBytes": 306102,
+   "crc32": "c8c1a367",
+   "sha256": "88eb2294035a7271d8b1a935212edba2f692ee17ff3b0f45645331c199e3f52b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 182.jpg",
+   "sizeBytes": 288411,
+   "crc32": "de661a3e",
+   "sha256": "5a999aaf3efee03bab0d42f34e679828e37085f8561df78c4d42573092ecaca6"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 183.jpg",
+   "sizeBytes": 129674,
+   "crc32": "44fc6ba7",
+   "sha256": "5d8dd0e66e6d6eafd4829efa78c853617182fc85caa4f6cc60070a4fd026ddfa"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 184.jpg",
+   "sizeBytes": 117625,
+   "crc32": "98d069e9",
+   "sha256": "c0f2be4aa71333d11a252a9ba39afe1c871bdacfa6a067a253003e2aa4670951"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 185.jpg",
+   "sizeBytes": 287271,
+   "crc32": "e2bbb30f",
+   "sha256": "c73ef502c9aa3b447b946413e2c416512341b4e64adea9160ba29220020ef445"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 186-187.jpg",
+   "sizeBytes": 238557,
+   "crc32": "585dbba0",
+   "sha256": "7ad5537954aba6aba31f3e35fa4d323659044a2ad85085cbd061ab664a24285f"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 188.jpg",
+   "sizeBytes": 322844,
+   "crc32": "34261b22",
+   "sha256": "9b7cad5780898b52b573bb4f09e0318e6dd2718d81acb9f0abafd53416a65679"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 189.jpg",
+   "sizeBytes": 271233,
+   "crc32": "66f85895",
+   "sha256": "881e8bac65021445272f6d218f4221e66ea1d2a78933ddea9f47421c6123fa6e"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 190.jpg",
+   "sizeBytes": 325110,
+   "crc32": "ce0fc53a",
+   "sha256": "aa9207eb752307d8ffc963b20c2581119ba713a38a4f243bb22f1645f068cd49"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 191.jpg",
+   "sizeBytes": 295372,
+   "crc32": "16f0df1e",
+   "sha256": "0d20ceb98317c4603991f27c002b24507bfd3e1b61605d5549d9b7074dedeadc"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 192.jpg",
+   "sizeBytes": 275437,
+   "crc32": "9d2bc941",
+   "sha256": "d7931ca1d68b7b082a1cc2c940dd8d3c7a9fde98a32e18a1c9243b32ebadd078"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 193.jpg",
+   "sizeBytes": 308272,
+   "crc32": "a0b04262",
+   "sha256": "c4143d6de7a02d8da41a461a53cfffec89553824ad7158314c92f53466619e59"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 194.jpg",
+   "sizeBytes": 291655,
+   "crc32": "77b6e02f",
+   "sha256": "a77c91ed215821374b39cecbcecfe78cef787f4600add271f93e4e946f586d11"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 195.jpg",
+   "sizeBytes": 290830,
+   "crc32": "2f7caf34",
+   "sha256": "d5be7d1505e51e95638ba18a243b182d22b0cf20f842250d5ed5e9e57a083d0b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 196.jpg",
+   "sizeBytes": 241300,
+   "crc32": "ce943101",
+   "sha256": "c6ee89cbe46ff21fef0c44d077f3342d1a25bc07a3ee23818902702e97c2fb87"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 197.jpg",
+   "sizeBytes": 252529,
+   "crc32": "5d4fdd64",
+   "sha256": "e43d8abb9d00367894a49379a137221cea7ca49c2a99478835eb0e63dfe8b0ea"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 198-199.jpg",
+   "sizeBytes": 249245,
+   "crc32": "aed12a4e",
+   "sha256": "464083e153e7a5321d89d5918825adb8add7048fb96ba9fc257146e68160d1c0"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 200.jpg",
+   "sizeBytes": 287626,
+   "crc32": "feeeafc1",
+   "sha256": "1cf38c7e5a0f53c0228cbfd5fda51defd44408defe1a03a71b0128efaa072109"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 201.jpg",
+   "sizeBytes": 268639,
+   "crc32": "e54931e8",
+   "sha256": "d8bdc1b1a7afe32303395d71f24c791913d2ac93a9b3f9e042ccd804b9bda6a1"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 202.jpg",
+   "sizeBytes": 306574,
+   "crc32": "23c232d9",
+   "sha256": "fc24a96a513eaded36f8fcf9d7bead67fa5be3ef5f965d2af3056a090065658a"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 203.jpg",
+   "sizeBytes": 260225,
+   "crc32": "2638f9b9",
+   "sha256": "5a36e6feb780e4ef3a0f3f72270973b1602dcc1354fcabae7fca94c06019c4a7"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 204.jpg",
+   "sizeBytes": 219747,
+   "crc32": "a727ea66",
+   "sha256": "93fae474266e42fd214b23c290555df93c6e7a832c30355a877d602e0d32d967"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 205.jpg",
+   "sizeBytes": 87957,
+   "crc32": "a215f5e4",
+   "sha256": "dd4bf25ab5df075c2903bfb4e33b378c48552e0f833f15f756749b7d98e7272d"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 206.jpg",
+   "sizeBytes": 107862,
+   "crc32": "ef50e285",
+   "sha256": "3edf5021ff32c92cb944501e2e07457b19378b3b8d34e48a36bb6d5063f5419f"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 207.jpg",
+   "sizeBytes": 261801,
+   "crc32": "31cf82ff",
+   "sha256": "978997235ada0307b1158d87a8d5fc5b1866ccb0bf2f6eb3690318f10de8de79"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 208-209.jpg",
+   "sizeBytes": 361727,
+   "crc32": "0e9f2e24",
+   "sha256": "f456932149369a6a44e8cf7873ab863f7a98b78359e0e043d332371fbf9c59d4"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 210.jpg",
+   "sizeBytes": 344090,
+   "crc32": "9584836b",
+   "sha256": "6408a49bac38db65102f9bbda0f905be207e11d18598c6d3c1d60e5fd4496235"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 211.jpg",
+   "sizeBytes": 319028,
+   "crc32": "ff322dbe",
+   "sha256": "b7cbc6b0665028cd608782c8c05cdb615a9d6de9936e97b477f914dc2b894560"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 212.jpg",
+   "sizeBytes": 265320,
+   "crc32": "e0acca9a",
+   "sha256": "0c9b56b74e35bdcbb8899c0aaba37b8702cd8ce71b57c81fbf8ad112a4f169dc"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 213.jpg",
+   "sizeBytes": 252975,
+   "crc32": "ed772700",
+   "sha256": "bdfaa238fd6ed243ade84d51ab35303706c010b2f9834b9eab4b712e0c169657"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 214.jpg",
+   "sizeBytes": 255919,
+   "crc32": "af119609",
+   "sha256": "a2d98ddcd9396577059e67baac51549a755fb31f9b3912236f4bf470ff4ec231"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 215.jpg",
+   "sizeBytes": 228883,
+   "crc32": "114ab2b5",
+   "sha256": "30938dc72fa409f0bdb7da65935f25e058a7a7556d276e128791398e7ce40547"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 216.jpg",
+   "sizeBytes": 214055,
+   "crc32": "27fc8a0e",
+   "sha256": "c2e39d80152ac4dab5e47d37d02c079ed5dfda8a9fe6190a51a2805240f26ad4"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 217.jpg",
+   "sizeBytes": 232285,
+   "crc32": "ec3847d3",
+   "sha256": "840e7243981637fea0e9879c5ad0cfb576deaf9b3e08e40551c4ae469ec65c39"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 218.jpg",
+   "sizeBytes": 248288,
+   "crc32": "0b10a924",
+   "sha256": "56c0b6d4e8b1dc115f9be6e4fe550768b26b305e5db7f8c8a7e6a0b0448b15da"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 219.jpg",
+   "sizeBytes": 285802,
+   "crc32": "3112a004",
+   "sha256": "d26b41df3335c15ffb4d9009416e6cd5d40e47a6ec8488de9dace68a44753700"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 220.jpg",
+   "sizeBytes": 273611,
+   "crc32": "d11a9aa1",
+   "sha256": "bbfb73936cd38b64a32c1d865148e5b413c757678b85775fa98beb8fc7a8d330"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 221.jpg",
+   "sizeBytes": 293183,
+   "crc32": "bd8b8c45",
+   "sha256": "f3d2e16029d772ce6b68b9abf33fb5b36d2ca9135c98a798feda6ab5d54120e3"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 222.jpg",
+   "sizeBytes": 273866,
+   "crc32": "03b8bc6c",
+   "sha256": "da21bb9bec0ec1c97aa69e5289835a039ae3e32f47490643d71fc017f6c41270"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 223.jpg",
+   "sizeBytes": 267621,
+   "crc32": "4ccb9142",
+   "sha256": "2ada54d7aa6baf0af3a6e2cfd27ca3aba766e2d79c4ea5d505b8e58249a45827"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 224.jpg",
+   "sizeBytes": 272319,
+   "crc32": "bac65431",
+   "sha256": "cf1886c7988015897f33dfcf86d2a67dfebe3b36a7f17e9492e2b6abfe6d5ac6"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 225.jpg",
+   "sizeBytes": 260747,
+   "crc32": "6882f5ab",
+   "sha256": "158e847a4ad3ac11645b672c1d9fda231586f2e3ebcbdf22842cb996925462a8"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 226.jpg",
+   "sizeBytes": 270780,
+   "crc32": "9706a1c7",
+   "sha256": "d60597c6eb2b1c9b3d299cf4b72dbe6f41afd0a06341f82d99d6f6482ff68901"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 227.jpg",
+   "sizeBytes": 294189,
+   "crc32": "b4d35d9d",
+   "sha256": "c067da657b48951a8a99cd0373ae75c32949121ec4709d7326a9a8771672e003"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 228.jpg",
+   "sizeBytes": 246367,
+   "crc32": "e20edd70",
+   "sha256": "1a8070dd7ba1a9061869d2e93728ab8dd33de4d7fce01b4b0eb5f1cf6454fd16"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 229.jpg",
+   "sizeBytes": 267365,
+   "crc32": "b1791b7f",
+   "sha256": "71f4bd95560058ab2296fd0077ea728aaa8f04a23a0022c12673cd38a04c3994"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 230.jpg",
+   "sizeBytes": 254877,
+   "crc32": "ce7b2922",
+   "sha256": "53ee64d7eb475f875d28d3a222294c8d828321507260fc8710958e51db254c7a"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 231.jpg",
+   "sizeBytes": 286931,
+   "crc32": "2260f7df",
+   "sha256": "80946dc9c329ff3df225b9a90f54da4c1465896f9109484f382f776c54b5486a"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 232.jpg",
+   "sizeBytes": 226870,
+   "crc32": "93261b86",
+   "sha256": "856746eae200485b5055c2425bcd8e7097d3f6808ed2d0d4c1d03446940921ca"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 233.jpg",
+   "sizeBytes": 139049,
+   "crc32": "b78119e0",
+   "sha256": "63032b6e602e34276711941a3d021990f3acb8df27f4ecfcdee10230273bcfee"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 234.jpg",
+   "sizeBytes": 95795,
+   "crc32": "2fb4cd93",
+   "sha256": "8c2ecc0d1fcbaf985cdce426a04597985e0fe2bc26737304862d455c164e7bd9"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 235.jpg",
+   "sizeBytes": 289384,
+   "crc32": "0b6fd928",
+   "sha256": "de3db779612d9b54e6ccbb428117a9505dec6cbeb7de3a1f53e63a7d405eff92"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 236.jpg",
+   "sizeBytes": 254217,
+   "crc32": "b4bf1564",
+   "sha256": "186c03b50bcb0505240f1b78736a49afb7c20732fdef19ceda86f5b223d555a2"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 237.jpg",
+   "sizeBytes": 239185,
+   "crc32": "e65b1430",
+   "sha256": "21422e2c3ecb4ebfbafc375a0d4ccf8a2241717e39f2646937dff366290d46f4"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 238-239.jpg",
+   "sizeBytes": 263258,
+   "crc32": "a3a2e3cf",
+   "sha256": "0c6b79bf4fa74f3ab7a88fbe52bd8823a334b88942f0d774494eee437fa7d42d"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 240.jpg",
+   "sizeBytes": 276572,
+   "crc32": "051a93bf",
+   "sha256": "499a8cf5aa210cc01e5f64bb56cbfbd4fddbfe4328ea1935cf17cc219bba1a2c"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 241.jpg",
+   "sizeBytes": 319751,
+   "crc32": "88ca9fc7",
+   "sha256": "c7b994d5daa79c7b9d33928b4ec633424731fc4e029c842d4be607312cfdeb18"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 242.jpg",
+   "sizeBytes": 363064,
+   "crc32": "6a49998f",
+   "sha256": "9d8477e2caca42d18c4ce7c6691856e4227ee328b1aa0fda2eaaa73e8fd20dad"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 243.jpg",
+   "sizeBytes": 282515,
+   "crc32": "009c9c37",
+   "sha256": "e8a1276e32cf483a3ab4a5e2f5548f48cddf2fd026f6efb4c2a2b61870c93e1e"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 244.jpg",
+   "sizeBytes": 268296,
+   "crc32": "a8eac175",
+   "sha256": "c9f94acfbb652ce3ea64fccd0a781697508d3469f19eee9f221d607f364cdb30"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 245.jpg",
+   "sizeBytes": 333612,
+   "crc32": "a7571915",
+   "sha256": "5d1559077f0554d537ecaa4a29edd54f4c2878880142681ec5df9929e1380683"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 246.jpg",
+   "sizeBytes": 271374,
+   "crc32": "eac94b82",
+   "sha256": "50eb7c69c6f5271d3555e991921bc393fff948ab6487be94fefda54a71983803"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 247.jpg",
+   "sizeBytes": 187062,
+   "crc32": "4b878265",
+   "sha256": "92f210456cf9fa3cbf6dc3971bed9c37d4790ad23f472950611e1f1b3002fa56"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 248.jpg",
+   "sizeBytes": 102323,
+   "crc32": "72c1a99e",
+   "sha256": "c0a39eedd6c4d81c195ebf5c762d6e423c5f556c85d7505ad828cce6a9d80c34"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 249.jpg",
+   "sizeBytes": 111423,
+   "crc32": "e78cb78a",
+   "sha256": "2ff67fd7cb980085d5c18205cc3a8f77ddb41e669ba4d189a7a2107c3eeb531b"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 250.jpg",
+   "sizeBytes": 24189,
+   "crc32": "f7976f8d",
+   "sha256": "9af592b1a54fc2793d643963a1465198ec4f88e20411778a8c30bed9435dccbc"
+  },
+  {
+   "path": "Vagabond, v01 [2002] [Viz]/Vagabond v01 251.jpg",
+   "sizeBytes": 92385,
+   "crc32": "a01ef4e7",
+   "sha256": "a6dcd79d216ba8404a0165b80eb5f0cb15ebec1f2a35bfe598dba589a9d6248b"
+  }
+ ]
+}

@@ -1,0 +1,3 @@
+tags:
+  conformance:
+    timeout: 10m

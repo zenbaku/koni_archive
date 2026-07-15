@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "set": "gzip",
+  "tools": {
+    "gzip": "Apple gzip 475"
+  },
+  "files": [
+    "anonymous.gz",
+    "hello.txt.gz",
+    "multi_member.gz",
+    "tarball.tar.gz"
+  ]
+}

@@ -1,0 +1,309 @@
+{
+ "schema": 1,
+ "archive": {
+  "fileName": "Beelzebub v00 (2008) [Trinity BAKumA] [OneShot].cbz",
+  "sizeBytes": 13825481,
+  "sha256": "39a77de6f8840536023e54997664bbf6bf1ace3f7392feec72f1e58120a435f7",
+  "format": "zip"
+ },
+ "tool": {
+  "name": "cpython-zipfile",
+  "version": "3.10.19"
+ },
+ "entries": [
+  {
+   "path": "Beelzebub - 000 (OShot) - p000 [mag] [Trinity BAKumA].jpg",
+   "sizeBytes": 586048,
+   "crc32": "76516784",
+   "sha256": "b7b68f4b7be6ee574a0cc77c897ba9c6efbeeca164bac773d537c8715baac634"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p001 [mag] [Trinity BAKumA].jpg",
+   "sizeBytes": 606887,
+   "crc32": "153d58db",
+   "sha256": "9d6abca9fcbfc3231fce72200b4fb7617c8d872018ae10d1069e9d5f8772bd88"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p002 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 365387,
+   "crc32": "2bfe51ea",
+   "sha256": "33f08c75e3d41f60bd2d40cc7009e3e15922cdea9cf0a831683c1c88553dd10a"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p003 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 244808,
+   "crc32": "8a38bd77",
+   "sha256": "fb3fd79ef029390869a98e3f634829032c4536057bf32b042e13e002fa4252c8"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p004 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 238552,
+   "crc32": "a9751d6d",
+   "sha256": "cc3b4d04419e4a7a9cdc3a2ae51cc4bc22dd117513027798187b6390ee6f36ea"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p005 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 359791,
+   "crc32": "b7b52122",
+   "sha256": "6d73ecc48d8b9e4e8aef052199b5c7087a01aabaa9e0ca12b3ca7e870dfba5b2"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p006 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 252447,
+   "crc32": "7dd2ab5f",
+   "sha256": "9cb1225d5f343bfd06afd627be71de022a0268e1c9b2977d7412cd3ece1ec955"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p007 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 313580,
+   "crc32": "1d84de16",
+   "sha256": "5136d3ef893668f2bcea990d7a220d1ecdd318e5a43fcfcdf6238249ee506efd"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p008 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 282367,
+   "crc32": "a313d679",
+   "sha256": "e62d8dbbf680ee85417c1b8ca93ba7c73445c6863af1ac3c28cf89cc4c0c0cb9"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p009 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 201601,
+   "crc32": "04390c7c",
+   "sha256": "1436c33a0df80178a4825520947430f5f5fea15d8b9a58fd05cc5fc33e89b873"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p010 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 230851,
+   "crc32": "f145f8ff",
+   "sha256": "47306ac61b1ea7306b4c065f4161e2ca234b39db76376bd242a57d3324e2bab6"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p011 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 216683,
+   "crc32": "67052b42",
+   "sha256": "60e1309bf72c561843ce8147be764be094b56b9c37d2f6bfa43b2a3d3c82b2df"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p012 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 247690,
+   "crc32": "a0e395bd",
+   "sha256": "913e0e01128624ad9fa1dca71a948dfcf42b14885f79c62d08e048fc307f8cd9"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p013 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 210348,
+   "crc32": "72c5ea48",
+   "sha256": "68502709597fab8ad4f8b04edd6d553fdbe1e5b3aa466198b8ca8207252c83b5"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p014 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 214789,
+   "crc32": "afe744cf",
+   "sha256": "c7ce9833d65dfacf7645747f46591877573a362905eb549ccb0dfb19e39ab6c6"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p015 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 266330,
+   "crc32": "009037ce",
+   "sha256": "08044f4b1617ee7d6c435274ae0caf67886b117cec0eefe5523b8bce053f6e5e"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p016 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 213770,
+   "crc32": "6e99cf19",
+   "sha256": "c6fdeeecfb90a67a66cb427147f931f20cfc3d2832c6d0f665567ff071670942"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p017 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 230398,
+   "crc32": "20358845",
+   "sha256": "610995112616a1e34253a3dcff5b394707e7c2fd1988c9c70e8b53bcb8a99d83"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p018 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 272455,
+   "crc32": "4e98f645",
+   "sha256": "e4f83c282fe86a592ca527d309175771919e9b26ecc3a7a7eba22ea67751b9b6"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p019 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 238402,
+   "crc32": "16463ab9",
+   "sha256": "4658f70e1efe50c7dce80c38fddd345c402c9b47b4ddff255dbe89ff1dd44c04"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p020 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 246322,
+   "crc32": "9b199939",
+   "sha256": "5c9385ea45f72edb012fe2f865df3685c967a384503010d671476a680a919e07"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p021 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 276183,
+   "crc32": "dbadb379",
+   "sha256": "0f24038ca006257ab48b520e7c62ab7864e2bf70c4ccf69fb139eb779e2b5033"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p022 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 267411,
+   "crc32": "7641aa9c",
+   "sha256": "d23afb2ed7a044ba1c1b452454fe6ef2587bdc7bfa384d0c3d98df17e78fddeb"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p023 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 268408,
+   "crc32": "d8785e16",
+   "sha256": "01835537ac8e863b053abc733ac5eb59842572956f47dae75121a514f5f6bb24"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p024 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 266046,
+   "crc32": "c3b7fdf7",
+   "sha256": "8baf531a7242ca61b8e7b42b04bee815b13688376bb3e2ed7bbe90e650f2c876"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p025 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 295381,
+   "crc32": "697f4b77",
+   "sha256": "35d76e954e02cbc6396247bd6df99c3676fc7067080120a4583efbe0328906f5"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p026 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 266959,
+   "crc32": "a3b974fa",
+   "sha256": "47ef7f72e374344805a8e819d88edcd1c0629d476d18f5f016e9cb4f6e82aa61"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p027 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 276476,
+   "crc32": "c291ea4f",
+   "sha256": "0da9a684eee110d31a90fd031ce86d8d98f5a3d85cd529603f815f3759646821"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p028 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 253488,
+   "crc32": "1767e46c",
+   "sha256": "1fca505c5f23672c426fe8249f0e90c15b7edd6aa7ff49b6437ba0c71758f106"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p029 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 188899,
+   "crc32": "c25c0b4b",
+   "sha256": "13478a1e8f392188312c469b220d5996d2b79aa9a6a97235ff7eaa9400ed5c60"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p030 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 263619,
+   "crc32": "e6ff032c",
+   "sha256": "45a5a7fe3e04a0957f23b59306eac2e30c6c27e36093a8c214b768e5f305a064"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p031 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 293008,
+   "crc32": "723f0e46",
+   "sha256": "3790829e4720d78deb414b0699e4b10461a3022928e2fb5d4efbdfa3a87d28dc"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p032 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 209230,
+   "crc32": "d7744259",
+   "sha256": "b05e0db23ca01ff0b5b02eac6e550a336b62d2a41f7c065c76a2ba0dd792de92"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p033 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 272142,
+   "crc32": "4bf4da42",
+   "sha256": "e5a3f295ca2cdf7264bd1200e61d8a94faf33389ebc8d950b290db6cbd3472ae"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p034 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 289548,
+   "crc32": "646e99e2",
+   "sha256": "94e72e3629129ad0d2f812f7d4a0ce6ec537f38ca006362baed70367236fb37f"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p035 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 241989,
+   "crc32": "371b2f38",
+   "sha256": "eb4e6c6b4b0694b3b8803a7d6088056d6f61eff841dbe3795ad931209c39f439"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p036 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 252256,
+   "crc32": "51f06a7d",
+   "sha256": "4bf0b324d249193451a5eb7b3d73aa722ca27676bad50b358843366b6f0144b9"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p037 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 401266,
+   "crc32": "6ef86e86",
+   "sha256": "abd67fc766d13e3bdeef42b1f5685c5b1b5d6516a80f1b73daedf7142c9df2ef"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p038 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 259224,
+   "crc32": "95832b28",
+   "sha256": "d4b6a2147d9697510792aeb1ceccbce4bf3c9caafd013fd032135babf467ba2d"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p039 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 263525,
+   "crc32": "a1a75619",
+   "sha256": "ff98c5bf819830e7a4094918c219fefd19727cf1cbcc2485abae822bb007d10d"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p040 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 199155,
+   "crc32": "845ecd97",
+   "sha256": "e1ccabfff6e6034fa7155a79de4ebd401a696d068e76af04752aef72ef1b45b9"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p041 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 201181,
+   "crc32": "573c02d0",
+   "sha256": "c298a69a47d520a567ccd3c674e9763ba4f1b76012c6f57a1d243375a7447b42"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p042 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 266443,
+   "crc32": "dff1abf0",
+   "sha256": "77b79a528e187cd9498b8c72dd167bdcbbef2a8609ad5c9c4e3a5db8c914a8b3"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p043-044 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 564530,
+   "crc32": "12eb7ef7",
+   "sha256": "3336f40ccce036a924f389e61b51617cbdaca41fb9f3e433b35431d4e99c325b"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p045 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 210330,
+   "crc32": "12394035",
+   "sha256": "4106c0a8cb5bd1185a6714b952acf3c98cb4ea46dfbc309b24bad31999ab8089"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p046 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 311931,
+   "crc32": "19017ce2",
+   "sha256": "bdcb4a8f1a715bc889fdd59716558a463d80ffa9ca8e25f8e1d12936313fac7a"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p047 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 257868,
+   "crc32": "64285a8e",
+   "sha256": "75675812a917292198a87d0368f3f808ef347cad974e52b6b3daa707fbe538ff"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p048 [mag] [Trinity BAKumA].png",
+   "sizeBytes": 296497,
+   "crc32": "afa27446",
+   "sha256": "605a906ad932c2ac118fca623d776e8ce4dc437ef99341155f51e180dfde7e93"
+  },
+  {
+   "path": "Beelzebub - 000 (OShot) - p048x1 [Credits] [mag] [Trinity BAKumA].jpg",
+   "sizeBytes": 361854,
+   "crc32": "9b1f6967",
+   "sha256": "a4aac99239df6c09252e1dbb26da61af248e1e10d7eb813591547c156f83cb78"
+  }
+ ]
+}
