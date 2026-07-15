@@ -1,0 +1,97 @@
+# Taskfile for the koni_archive monorepo — https://taskfile.dev
+#
+# Publish sequencing: pub.dev requires a package's dependencies to already be
+# published, so the order below is topological — leaves first, the facade and
+# http-source last:
+#
+#   koni_archive_core, koni_codecs   (no intra-repo deps)
+#     → koni_tar, koni_gzip, koni_zip, koni_sevenz, koni_rar
+#       → koni_archive        (facade; depends on every format)
+#       → koni_http_source    (depends on core; dev-deps koni_zip)
+#
+# Prerequisites: `dart pub login` (pub.dev auth) before `task publish`.
+# Usage: `task --list`, `task verify`, `task publish:dry`, `task release`.
+
+version: '3'
+
+vars:
+  # Dependency order — do not reorder without checking the graph above.
+  PACKAGES:
+    - koni_archive_core
+    - koni_codecs
+    - koni_tar
+    - koni_gzip
+    - koni_zip
+    - koni_sevenz
+    - koni_rar
+    - koni_archive
+    - koni_http_source
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  get:
+    desc: Resolve the whole workspace
+    cmds:
+      - dart pub get
+
+  analyze:
+    desc: Analyze all packages (zero-diagnostic policy)
+    cmds:
+      - dart analyze --fatal-infos
+
+  format:
+    desc: Check formatting (fails if anything is unformatted)
+    cmds:
+      - dart format --output=none --set-exit-if-changed .
+
+  test:
+    desc: Run the full test matrix (VM + dart2js + dart2wasm)
+    cmds:
+      - dart run tool/run_tests.dart --platform vm
+      - dart run tool/run_tests.dart --platform chrome --compiler dart2js
+      - dart run tool/run_tests.dart --platform chrome --compiler dart2wasm
+
+  verify:
+    desc: Pre-release gate — formatting, analysis, and the full test matrix
+    deps: [format, analyze]
+    cmds:
+      - task: test
+
+  publish:dry:
+    desc: Dry-run publish for every package (validates, uploads nothing)
+    cmds:
+      - for: { var: PACKAGES }
+        cmd: |
+          echo "── dry-run {{.ITEM}} ──"
+          (cd {{.ITEM}} && dart pub publish --dry-run)
+
+  publish:
+    desc: >-
+      Publish all packages to pub.dev in dependency order (each prompts for
+      confirmation). If a later package reports its dependency isn't found yet,
+      wait a moment for pub.dev to propagate and re-run — already-published
+      packages are skipped by pub.
+    cmds:
+      - for: { var: PACKAGES }
+        cmd: |
+          echo "── publish {{.ITEM}} ──"
+          (cd {{.ITEM}} && dart pub publish)
+
+  publish:force:
+    desc: Same as `publish` but non-interactive (dart pub publish --force)
+    cmds:
+      - for: { var: PACKAGES }
+        cmd: |
+          echo "── publish (force) {{.ITEM}} ──"
+          (cd {{.ITEM}} && dart pub publish --force)
+
+  release:
+    desc: Full guarded release — verify, dry-run, then publish (confirms each)
+    cmds:
+      - task: verify
+      - task: publish:dry
+      - task: publish
