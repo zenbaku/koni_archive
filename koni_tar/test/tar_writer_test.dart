@@ -42,6 +42,16 @@ Future<Map<String, Uint8List>> readAll(Uint8List archive) async {
 }
 
 void main() {
+  test('a password is rejected (TAR has no encryption)', () {
+    expect(
+      () => const TarWriteFormat().openWriter(
+        BytesBuilderSink(),
+        const ArchiveWriteOptions(password: 'nope'),
+      ),
+      throwsA(isA<UnsupportedCompressionException>()),
+    );
+  });
+
   group('round-trip through the reader', () {
     test('files, sizes, and content survive', () async {
       final data = Uint8List.fromList(
