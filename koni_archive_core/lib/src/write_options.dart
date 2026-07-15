@@ -4,7 +4,11 @@ import 'entry.dart';
 /// `ArchiveWriteFormat.openWriter`.
 final class ArchiveWriteOptions {
   /// Creates options; the defaults are what applications normally want.
-  const ArchiveWriteOptions({this.compression, this.password});
+  const ArchiveWriteOptions({
+    this.compression,
+    this.password,
+    this.encryptHeader = false,
+  });
 
   /// Default compression method for entries whose [ArchiveEntrySpec] does
   /// not specify one. `null` means "the format's own default" (stored for
@@ -29,4 +33,14 @@ final class ArchiveWriteOptions {
   /// [password]-derived keys are the same primitives the readers use and
   /// carry the same non-goals (not constant-time, no key zeroization).
   final String? password;
+
+  /// Also encrypt the archive's header, hiding entry names and metadata
+  /// (7z `-mhe`). Requires [password]; opening the archive then needs the
+  /// password up front, not just to read an entry.
+  ///
+  /// **7z only.** WinZip AES (ZIP) never encrypts the central directory —
+  /// filenames are always visible there — so the ZIP writer ignores this
+  /// flag. TAR rejects any password outright. Setting it without a
+  /// [password] is an error (there is nothing to encrypt the header with).
+  final bool encryptHeader;
 }

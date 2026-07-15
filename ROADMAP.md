@@ -101,13 +101,14 @@ doc.
 | #    | Milestone       | Scope (summary)                                                  | Status |
 | ---- | --------------- | ---------------------------------------------------------------- | ------ |
 | P4-1 | ZIP encryption  | WinZip AES-256 (AE-2, method 99): per-entry salt, PBKDF2-HMAC-SHA1 keys, AES-CTR + HMAC-SHA1 tag, CRC zeroed | ✅     |
-| P4-2 | 7z encryption   | AES-256-CBC file data: `compressor → AES` folder chain, iterated-SHA-256 KDF, per-folder IV; `-mhe` headers deferred | ✅     |
+| P4-2 | 7z encryption   | AES-256-CBC file data: `compressor → AES` folder chain, iterated-SHA-256 KDF, per-folder IV; **plus `-mhe` encrypted headers** via `encryptHeader` | ✅     |
 
-`ArchiveWriteOptions.password` (whole-archive, AES-256) drives both; TAR
-rejects it (no standard encryption). Verified by self round-trip on VM +
-dart2js + dart2wasm and by `7zz x -p` decrypting our output byte-for-byte.
-Deferred: ZIP traditional zipcrypto (write), ZIP AES-128/192 (write), 7z
-`-mhe` (write) — see the scope doc.
+`ArchiveWriteOptions.password` (whole-archive, AES-256) drives both; add
+`encryptHeader` for 7z `-mhe` (hides entry names). TAR rejects any password
+(no standard encryption). Verified by self round-trip on VM + dart2js +
+dart2wasm and by `7zz x -p` decrypting our output byte-for-byte (incl. `7zz
+l -p` listing a hidden-header archive). Deferred: ZIP traditional zipcrypto
+(write), ZIP AES-128/192 (write) — see the scope doc.
 
 ---
 

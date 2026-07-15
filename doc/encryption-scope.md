@@ -144,7 +144,7 @@ is serialization + one encrypt step + a salt/IV source, not new crypto).
 | Format | Scheme | In scope |
 | ------ | ------ | -------- |
 | ZIP    | WinZip AES-256, AE-2 (method 99, HMAC-authenticated, CRC zeroed) | ✅ P4-1 |
-| 7z     | AES-256-CBC (coder `06f10701`), file data only | ✅ P4-2 |
+| 7z     | AES-256-CBC (coder `06f10701`), file data + encrypted headers (`-mhe`) | ✅ P4-2 |
 
 Triggered by `ArchiveWriteOptions.password` (whole-archive; not per-entry),
 mirroring how a reader supplies one password. Presence of a password enables
@@ -158,9 +158,6 @@ encryption; AES-256 is the only strength emitted.
   one write scheme.
 - **ZIP AES-128/192 (write)** — only AES-256 is emitted. The read side still
   decrypts all three strengths.
-- **7z encrypted headers (`-mhe`, write)** — the header stays plaintext, so
-  filenames and the AES coder parameters are visible; only the data is
-  encrypted. Symmetric with the RAR `-hp` read-side deferral.
 - **TAR** — no standard encryption exists; `TarWriteFormat.openWriter`
   throws `UnsupportedCompressionException` on a non-null password rather than
   silently writing plaintext.
@@ -184,6 +181,10 @@ encryption; AES-256 is the only strength emitted.
   end marker). Key derivation is the iterated-SHA-256 KDF with no salt (key
   per archive) and a fresh 16-byte IV per folder (2^19 rounds, 7-Zip's
   default). Empty files and directories have no folder and stay unencrypted.
+  With `ArchiveWriteOptions.encryptHeader` the header itself is wrapped in
+  the same `LZMA → AES` folder (`-mhe`): entry names/metadata are hidden and
+  the password is required at *open*, not just per entry. The read side
+  (P3-3) already handled encrypted headers, so this only inverts the reader.
 
 ## Security posture (unchanged from Phase 3)
 

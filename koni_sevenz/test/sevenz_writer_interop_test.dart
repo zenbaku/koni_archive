@@ -338,6 +338,79 @@ void main() {
       dir.deleteSync(recursive: true);
     }
   });
+
+  // -mhe encrypted headers: 7zz must decrypt our header (to even list names)
+  // with the password, and extract byte-for-byte.
+  test('7zz reads our -mhe (encrypted-header) archive', () async {
+    if (sevenZip == null) {
+      markTestSkipped('no `7zz` on PATH; interop check skipped');
+      return;
+    }
+    const password = 'header-secret-42';
+    final expected = <String, Uint8List>{
+      'private/names.txt': Uint8List.fromList(utf8.encode('hidden ' * 200)),
+      'raw.bin': Uint8List.fromList(
+        List.generate(2500, (i) => (i * 17) & 0xFF),
+      ),
+    };
+    final sink = BytesBuilderSink();
+    final writer = const SevenZWriteFormat().openWriter(
+      sink,
+      const ArchiveWriteOptions(password: password, encryptHeader: true),
+    );
+    await writer.addBytes(
+      ArchiveEntrySpec(path: 'private/names.txt'),
+      expected['private/names.txt']!,
+    );
+    await writer.addBytes(
+      ArchiveEntrySpec(path: 'raw.bin', compression: ArchiveCompression.stored),
+      expected['raw.bin']!,
+    );
+    await writer.close();
+    await sink.close();
+    final archive = sink.takeBytes();
+
+    final dir = Directory.systemTemp.createTempSync('koni_7z_mhe');
+    try {
+      final path = '${dir.path}/mhe.7z';
+      File(path).writeAsBytesSync(archive);
+
+      // Listing WITH the password reveals the hidden names (proves 7zz
+      // decrypted the header). `-p` before `l` avoids the interactive prompt.
+      final list = await Process.run(
+        sevenZip,
+        ['l', '-p$password', path],
+        stdoutEncoding: latin1,
+        stderrEncoding: latin1,
+      );
+      expect(
+        list.exitCode,
+        0,
+        reason: '7zz l failed: ${list.stdout}\n${list.stderr}',
+      );
+      expect(list.stdout, contains('private/names.txt'));
+
+      final out = Directory('${dir.path}/x')..createSync();
+      final result = await Process.run(
+        sevenZip,
+        ['x', '-y', '-p$password', '-o${out.path}', path],
+        stdoutEncoding: latin1,
+        stderrEncoding: latin1,
+      );
+      expect(
+        result.exitCode,
+        0,
+        reason: '7zz x failed: ${result.stdout}\n${result.stderr}',
+      );
+      for (final MapEntry(key: p, value: content) in expected.entries) {
+        final file = File('${out.path}/$p');
+        expect(file.existsSync(), isTrue, reason: 'missing $p');
+        expect(file.readAsBytesSync(), content, reason: 'content of $p');
+      }
+    } finally {
+      dir.deleteSync(recursive: true);
+    }
+  });
 }
 
 String? _find(String name) {

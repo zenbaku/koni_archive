@@ -41,11 +41,13 @@ import 'sevenz_crypto.dart';
 /// When [ArchiveWriteOptions.password] is set, each content folder becomes a
 /// two-coder chain `compressor → AES-256-CBC`: the compressed stream is
 /// zero-padded to a 16-byte block boundary and encrypted under a per-archive
-/// key (iterated-SHA-256 KDF, no salt) with a fresh per-folder IV. The
-/// header stays plaintext — filenames and the AES coder parameters are
-/// visible, only the data is encrypted (`-mhe` encrypted headers are
-/// deferred). Empty files and directories have no folder and stay
-/// unencrypted.
+/// key (iterated-SHA-256 KDF, no salt) with a fresh per-folder IV. By
+/// default the header stays plaintext — filenames and the AES coder
+/// parameters are visible, only the data is encrypted. Set
+/// [ArchiveWriteOptions.encryptHeader] to also encrypt the header (`-mhe`),
+/// wrapping it in the same `LZMA → AES` chain so entry names are hidden and
+/// the password is required at open. Empty files and directories have no
+/// folder and stay unencrypted.
 final class SevenZWriter extends ArchiveWriter {
   /// Creates a writer appending to [_sink]. [randomBytes] overrides the
   /// per-folder AES IV source (a cryptographic RNG by default); tests inject
@@ -93,6 +95,10 @@ final class SevenZWriter extends ArchiveWriter {
   }
 
   bool get _encrypting => _options.password != null;
+
+  /// Whether to encrypt the header (`-mhe`). Only meaningful with a password;
+  /// [SevenZWriteFormat.openWriter] rejects `encryptHeader` without one.
+  bool get _encryptHeader => _options.encryptHeader && _encrypting;
 
   Uint8List _aesKey() =>
       _aesKeyCache ??= deriveSevenZAesKey(
@@ -422,23 +428,53 @@ final class SevenZWriter extends ArchiveWriter {
     final packed = _packed.takeBytes();
     final header = _buildHeader();
 
-    // kEncodedHeader: LZMA-compress the header itself; keep whichever form
-    // is smaller overall. The header's packed stream joins the packed area
-    // right after the folders' streams (packPos = main packed length).
     var trailing = header;
     Uint8List? headerPacked;
     final encoder = LzmaEncoder(dictSize: _dictSizeFor(header.length));
     final compressed = encoder.encode(header);
-    final wrapped = _buildEncodedHeader(
-      packPos: packed.length,
-      packSize: compressed.length,
-      unpackSize: header.length,
-      props: encoder.sevenZipProps(),
-      crc: Crc32.compute(header),
-    );
-    if (compressed.length + wrapped.length < header.length) {
-      headerPacked = compressed;
-      trailing = wrapped;
+    if (_encryptHeader) {
+      // -mhe: always LZMA-compress *and* AES-encrypt the header (hide entry
+      // names/metadata), regardless of whether it comes out smaller. Same
+      // `compressor → AES` folder shape as file data.
+      final headerCompLen = compressed.length; // unpadded compressed header
+      final padded = _padTo16(compressed);
+      final iv = _randomBytes(16);
+      if (iv.length != 16) {
+        throw StateError(
+          'random IV source returned ${iv.length} bytes, need 16',
+        );
+      }
+      final aesProps = SevenZAesProps.forWrite(
+        numCyclesPower: _aesCyclesPower,
+        salt: Uint8List(0),
+        iv: iv,
+      );
+      AesCbcEncryptor(Aes(_aesKey()), iv).encryptInPlace(padded);
+      headerPacked = padded;
+      trailing = _buildEncryptedEncodedHeader(
+        packPos: packed.length,
+        packSize: padded.length, // on-disk ciphertext size
+        lzmaOutSize: header.length, // LZMA out = plaintext header size
+        aesOutSize: headerCompLen, // AES out = unpadded compressed header
+        lzmaProps: encoder.sevenZipProps(),
+        aesProps: aesProps.serialize(),
+        crc: Crc32.compute(header),
+      );
+    } else {
+      // kEncodedHeader: LZMA-compress the header; keep whichever form is
+      // smaller overall. The header's packed stream joins the packed area
+      // right after the folders' streams (packPos = main packed length).
+      final wrapped = _buildEncodedHeader(
+        packPos: packed.length,
+        packSize: compressed.length,
+        unpackSize: header.length,
+        props: encoder.sevenZipProps(),
+        crc: Crc32.compute(header),
+      );
+      if (compressed.length + wrapped.length < header.length) {
+        headerPacked = compressed;
+        trailing = wrapped;
+      }
     }
 
     final packedTotal = packed.length + (headerPacked?.length ?? 0);
@@ -499,6 +535,61 @@ final class SevenZWriter extends ArchiveWriter {
           ..number(SevenZId.crc)
           ..writeByte(1) // all CRCs defined
           ..u32(crc)
+          ..number(SevenZId.end) // end UnpackInfo
+          ..number(SevenZId.end); // end StreamsInfo
+    return h.take();
+  }
+
+  /// The encrypted (`-mhe`) kEncodedHeader: a StreamsInfo whose single folder
+  /// is the two-coder `LZMA → AES` chain that decrypts-then-decompresses to
+  /// the real header — the same shape as an encrypted file-data folder, so
+  /// the reader's encoded-header branch (which routes through the AES-aware
+  /// `_decodeFolder`) parses it unchanged.
+  Uint8List _buildEncryptedEncodedHeader({
+    required int packPos,
+    required int packSize,
+    required int lzmaOutSize,
+    required int aesOutSize,
+    required Uint8List lzmaProps,
+    required Uint8List aesProps,
+    required int crc,
+  }) {
+    final h =
+        _SevenZBuffer()
+          ..number(SevenZId.encodedHeader)
+          // PackInfo: one packed stream (the encrypted header).
+          ..number(SevenZId.packInfo)
+          ..number(packPos)
+          ..number(1)
+          ..number(SevenZId.size)
+          ..number(packSize)
+          ..number(SevenZId.end)
+          // UnpackInfo: one folder, two coders (LZMA then AES).
+          ..number(SevenZId.unpackInfo)
+          ..number(SevenZId.folder)
+          ..number(1)
+          ..writeByte(0) // folders are inline
+          ..number(2) // numCoders
+          // coder 0: LZMA
+          ..writeByte(_lzmaId.length | 0x20)
+          ..writeBytes(_lzmaId)
+          ..number(lzmaProps.length)
+          ..writeBytes(lzmaProps)
+          // coder 1: AES-256
+          ..writeByte(_aesId.length | 0x20)
+          ..writeBytes(_aesId)
+          ..number(aesProps.length)
+          ..writeBytes(aesProps)
+          // bind pair: LZMA input (0) ← AES output (1); the single packed
+          // stream (AES input, in-stream 1) is inferred.
+          ..number(0)
+          ..number(1)
+          ..number(SevenZId.codersUnpackSize)
+          ..number(lzmaOutSize) // coder 0 out = plaintext header size
+          ..number(aesOutSize) // coder 1 out = unpadded compressed header
+          ..number(SevenZId.crc)
+          ..writeByte(1) // all CRCs defined
+          ..u32(crc) // CRC of the plaintext header (folder output)
           ..number(SevenZId.end) // end UnpackInfo
           ..number(SevenZId.end); // end StreamsInfo
     return h.take();

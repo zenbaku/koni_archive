@@ -16,16 +16,31 @@ Uint8List _bytes(String s) => Uint8List.fromList(utf8.encode(s));
 Uint8List _countingBytes(int length) =>
     Uint8List.fromList(List.generate(length, (i) => (i * 7 + 1) & 0xFF));
 
+/// Whether [needle] appears as a contiguous byte run anywhere in [haystack].
+bool _contains(Uint8List haystack, Uint8List needle) {
+  if (needle.isEmpty) return true;
+  outer:
+  for (var i = 0; i + needle.length <= haystack.length; i++) {
+    for (var j = 0; j < needle.length; j++) {
+      if (haystack[i + j] != needle[j]) continue outer;
+    }
+    return true;
+  }
+  return false;
+}
+
 Future<Uint8List> writeEncrypted(
   Future<void> Function(ArchiveWriter writer) build, {
   required String password,
   ArchiveCompression? compression,
+  bool encryptHeader = false,
   Uint8List Function(int)? randomBytes,
 }) async {
   final sink = BytesBuilderSink();
   final options = ArchiveWriteOptions(
     password: password,
     compression: compression,
+    encryptHeader: encryptHeader,
   );
   final writer =
       randomBytes == null
@@ -158,7 +173,9 @@ void main() {
         MemoryByteSource(archive),
         const ArchiveReadOptions(password: password),
       );
-      final readPage = reader.entries.firstWhere((e) => e.path == 'dir/page.txt');
+      final readPage = reader.entries.firstWhere(
+        (e) => e.path == 'dir/page.txt',
+      );
       final readDir = reader.entries.firstWhere((e) => e.path == 'dir');
       final readEmpty = reader.entries.firstWhere((e) => e.path == 'empty.txt');
       expect(readPage.isEncrypted, isTrue);
@@ -169,6 +186,95 @@ void main() {
       expect(utf8.decode(files['dir/page.txt']!), 'encrypted page\n');
       expect(files['empty.txt'], isEmpty);
       expect(utf8.decode(files['日本語/ページ.txt']!), 'unicode\n');
+    });
+  });
+
+  group('encrypted header (-mhe)', () {
+    test('names and content round-trip; the header is hidden', () async {
+      final archive = await writeEncrypted(
+        (w) async {
+          await w.addBytes(
+            ArchiveEntrySpec(path: 'secret/names.txt'),
+            _bytes('hidden filename content ' * 40),
+          );
+          await w.addBytes(
+            ArchiveEntrySpec(
+              path: 'a.bin',
+              compression: ArchiveCompression.stored,
+            ),
+            Uint8List.fromList(List.generate(200, (i) => (i * 5) & 0xFF)),
+          );
+        },
+        password: password,
+        encryptHeader: true,
+      );
+
+      final files = await readFiles(archive, password: password);
+      expect(
+        utf8.decode(files['secret/names.txt']!),
+        'hidden filename content ' * 40,
+      );
+      expect(
+        files['a.bin'],
+        Uint8List.fromList(List.generate(200, (i) => (i * 5) & 0xFF)),
+      );
+
+      // The plaintext bytes of an entry name must not appear anywhere in the
+      // archive: the whole header (names included) is encrypted.
+      expect(
+        _contains(archive, _bytes('secret/names.txt')),
+        isFalse,
+        reason: 'entry name leaked into the -mhe archive',
+      );
+    });
+
+    test(
+      'opening without a password throws at open (header encrypted)',
+      () async {
+        final archive = await writeEncrypted(
+          (w) async {
+            await w.addBytes(ArchiveEntrySpec(path: 'a.txt'), _bytes('x\n'));
+          },
+          password: password,
+          encryptHeader: true,
+        );
+        expect(
+          () => SevenZReader.parse(
+            const SevenZFormat(),
+            MemoryByteSource(archive),
+            const ArchiveReadOptions(),
+          ),
+          throwsA(isA<EncryptedArchiveException>()),
+        );
+      },
+    );
+
+    test('a wrong password fails the header CRC at open', () async {
+      final archive = await writeEncrypted(
+        (w) async {
+          await w.addBytes(ArchiveEntrySpec(path: 'a.txt'), _bytes('x\n'));
+        },
+        password: password,
+        encryptHeader: true,
+      );
+      expect(
+        () => SevenZReader.parse(
+          const SevenZFormat(),
+          MemoryByteSource(archive),
+          const ArchiveReadOptions(password: 'wrong'),
+        ),
+        throwsA(isA<ArchiveException>()),
+      );
+    });
+
+    test('encryptHeader without a password is rejected at openWriter', () {
+      expect(
+        () => const SevenZWriteFormat().openWriter(
+          BytesBuilderSink(),
+          const ArchiveWriteOptions(encryptHeader: true),
+        ),
+        throwsA(isA<UnsupportedCompressionException>()),
+      );
     });
   });
 
