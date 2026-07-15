@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "set": "rar",
+  "tools": {
+    "rar": "RAR 7.23   Copyright (c) 1993-2026 Alexander Roshal   27 Jun 2026"
+  },
+  "files": [
+    "best_solid.rar",
+    "encrypted.rar",
+    "encrypted_headers.rar",
+    "normal.rar",
+    "store.rar",
+    "synthetic_comic.cbr"
+  ]
+}

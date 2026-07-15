@@ -42,7 +42,81 @@ final List<FixtureSet> fixtureSets = [
   ZipFixtureSet(),
   GzipFixtureSet(),
   SevenZFixtureSet(),
+  RarFixtureSet(),
 ];
+
+/// RAR fixtures (M9/M10): RAR5 store/compressed/solid, encrypted, RAR4,
+/// and a synthetic CBR comic. Uses the proprietary `rar` tool (§11).
+final class RarFixtureSet implements FixtureSet {
+  @override
+  String get id => 'rar';
+
+  @override
+  String get package => 'koni_rar';
+
+  @override
+  List<String> get requiredTools => ['rar'];
+
+  @override
+  Future<void> generate(Directory outDir) async {
+    final staging = Directory.systemTemp.createTempSync('koni_archive_fx');
+    try {
+      final root = staging.path;
+      final out = outDir.absolute.path;
+
+      void file(String rel, List<int> bytes) {
+        File('$root/$rel')
+          ..createSync(recursive: true)
+          ..writeAsBytesSync(bytes);
+      }
+
+      file('hello.txt', 'hello, rar!\n'.codeUnits);
+      file('empty.txt', const []);
+      file(
+        'nested/deep/data.bin',
+        List.generate(100000, (i) => ((i * 7) ^ (i >> 3)) & 0xFF),
+      );
+      file('日本語/ページ001.txt', 'unicode page\n'.codeUnits);
+      for (var i = 1; i <= 3; i++) {
+        file('comic/page00$i.png', TarFixtureSet._dummyPng(i));
+      }
+      file(
+        'comic/ComicInfo.xml',
+        '<ComicInfo><Series>Synthetic</Series></ComicInfo>\n'.codeUnits,
+      );
+
+      await TarFixtureSet._run('chmod', ['-R', 'u=rwX,go=rX', '.'], cwd: root);
+      final all =
+          staging
+              .listSync(recursive: true)
+              .map((e) => e.path.substring(root.length + 1))
+              .toList();
+      await TarFixtureSet._run('touch', [
+        '-t', '202001020304.05', ...all, '.', //
+      ], cwd: root);
+
+      Future<void> rarUp(
+        String name,
+        List<String> args,
+        List<String> members,
+      ) => TarFixtureSet._run('rar', [
+        'a', '-y', '-r0', '-ol', ...args, '$out/$name', ...members, //
+      ], cwd: root);
+
+      const basicMembers = ['hello.txt', 'empty.txt', 'nested', '日本語'];
+      await rarUp('store.rar', ['-m0'], basicMembers);
+      await rarUp('normal.rar', ['-m3'], basicMembers);
+      await rarUp('best_solid.rar', ['-m5', '-s'], basicMembers);
+      await rarUp('encrypted.rar', ['-m0', '-psecret'], ['hello.txt']);
+      await rarUp('encrypted_headers.rar', ['-m0', '-hpsecret'], ['hello.txt']);
+      // RAR4 fixtures need rar 6.x (-ma4 was removed in rar 7) — an M10
+      // prerequisite; v4 *detection* is covered synthetically in tests.
+      await rarUp('synthetic_comic.cbr', ['-m3'], ['comic']);
+    } finally {
+      staging.deleteSync(recursive: true);
+    }
+  }
+}
 
 /// 7z fixtures (M8): codec/filter matrix, solid + non-solid blocks,
 /// encrypted and deferred-codec archives, and a synthetic CB7 comic.

@@ -21,8 +21,8 @@ Last updated: 2026-07-15 · Statuses: ⬜ not started · 🟨 in progress · ✅
 | M6  | tar.gz               | Layered detection, documented random-access strategy (sequential + cache)         | `.tar.gz`/`.tgz` opens as the inner TAR                | ✅     |
 | M7  | ZIP hardening        | ZIP64, data-descriptor edge cases, encoding hook, encrypted-entry detection polish | ZIP64 fixtures pass; mojibake fixtures decode via hook | ✅     |
 | M8  | 7z                   | Container + LZMA → LZMA2 → BCJ(x86) → delta; solid-block LRU cache; BCJ2/PPMd/AES→typed errors | CB7 page-flip usable (bench recorded)                  | ✅     |
-| M9  | RAR5                 | ⚠ Gate first: provenance doc + owner sign-off (§8). Container + RAR5 codec        | CBR (v5) works                                         | ⬜     |
-| M10 | RAR4                 | PPMd variant H + RarVM filters. Largest single milestone                          | CBR (v4) works — flagship use case complete            | ⬜     |
+| M9  | RAR5                 | ✅ Gate passed: provenance signed off 2026-07-15. Container + RAR5 codec           | CBR (v5) works                                         | ✅     |
+| M10 | RAR4                 | PPMd variant H + RarVM filters. Largest single milestone                          | CBR (v4) works — flagship use case complete            | 🟨     |
 
 Every milestone additionally carries the standing definition of done
 (`PROMPT_V1.md` §13.2): all CI platforms green incl. dart2wasm, fixtures passing,

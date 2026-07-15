@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:glob/glob.dart';
 import 'package:koni_archive_core/koni_archive_core.dart';
 import 'package:koni_gzip/koni_gzip.dart';
+import 'package:koni_rar/koni_rar.dart';
 import 'package:koni_sevenz/koni_sevenz.dart';
 import 'package:koni_tar/koni_tar.dart';
 import 'package:koni_zip/koni_zip.dart';
@@ -23,6 +24,7 @@ import 'package:path/path.dart' as p;
 final ArchiveFormatRegistry builtInFormats = ArchiveFormatRegistry([
   const ZipFormat(),
   const SevenZFormat(),
+  const RarFormat(),
   // A .tar.gz sniffs as the inner TAR (§8 layering).
   const GzipFormat(layeredFormats: [TarFormat()]),
   const TarFormat(),

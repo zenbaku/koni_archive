@@ -37,12 +37,10 @@ void main() {
     );
   });
 
-  test('builtInFormats order: zip, 7z, gzip, tar', () {
-    expect(builtInFormats.formats.map((f) => f.name).toList(), [
-      'zip',
-      '7z',
-      'gzip',
-      'tar',
-    ]);
+  test('builtInFormats includes 7z after zip', () {
+    expect(
+      builtInFormats.formats.map((f) => f.name).toList(),
+      containsAllInOrder(<String>['zip', '7z', 'tar']),
+    );
   });
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0-dev (unreleased)
+
+- Lockstep release; no changes since 0.2.0.
+
 ## 0.2.0 (2026-07-15)
 
 - lockstep release; no changes since 0.1.0.

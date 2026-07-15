@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0-dev (unreleased)
+
+- M9: `RarFormat` registered in `builtInFormats` — RAR5 `.rar`/`.cbr`
+  archives open through `Archive.open`. RAR4 is a typed error (M10).
+
 ## 0.2.0 (2026-07-15)
 
 - M8: `SevenZFormat` registered in `builtInFormats` — `.7z`/`.cb7`

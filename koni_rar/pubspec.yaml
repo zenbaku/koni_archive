@@ -1,10 +1,13 @@
 name: koni_rar
 description: >-
   Clean-room RAR4/RAR5 reader for the koni_archive ecosystem, including CBR comic archives.
-version: 0.1.0-dev
+version: 0.3.0-dev
 environment:
   sdk: ^3.7.0
 resolution: workspace
+
+dependencies:
+  koni_archive_core: ^0.3.0-dev
 
 dev_dependencies:
   lints: ^6.0.0

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0-dev (unreleased)
+
+- Lockstep release; no changes since 0.2.0.
+
 ## 0.2.0 (2026-07-15)
 
 - M8: LZMA (`LzmaDecoder`), LZMA2 (`Lzma2Decoder`), and branch filters

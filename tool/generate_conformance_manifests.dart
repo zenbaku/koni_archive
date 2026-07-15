@@ -34,7 +34,10 @@ abstract class ReferenceExtractor {
 }
 
 /// Registered reference extractors; format milestones append theirs.
-final List<ReferenceExtractor> extractors = [ZipReferenceExtractor()];
+final List<ReferenceExtractor> extractors = [
+  ZipReferenceExtractor(),
+  RarReferenceExtractor(),
+];
 
 /// ZIP/CBZ manifests via CPython's `zipfile` module — an independent
 /// reference implementation (never koni_archive itself, §11).
@@ -82,6 +85,69 @@ print(json.dumps({
       throw ProcessException(
         'python3',
         ['-c', '<zip manifest script>', archive.path],
+        'exit ${result.exitCode}: ${result.stderr}',
+        result.exitCode,
+      );
+    }
+    manifestFile.writeAsStringSync(result.stdout as String);
+  }
+}
+
+/// RAR/CBR manifests via `unrar` (an independent reference tool, §11).
+/// Delegates to Python for extraction + hashing, mirroring the ZIP path.
+final class RarReferenceExtractor implements ReferenceExtractor {
+  @override
+  List<String> get extensions => const ['.rar', '.cbr'];
+
+  static const String _python = r'''
+import subprocess, hashlib, json, sys, os, re
+path = sys.argv[1]
+listing = subprocess.run(['unrar', 'lt', path], capture_output=True, text=True)
+entries = []
+name = size = crc = typ = None
+for line in listing.stdout.splitlines():
+    t = line.strip()
+    if t.startswith('Name: '): name = t[6:]
+    elif t.startswith('Size: '): size = int(t[6:].strip() or 0)
+    elif t.startswith('CRC32: '): crc = t[7:].strip().lower().rjust(8, '0')
+    elif t.startswith('Type: '):
+        typ = t[6:].strip()
+        if typ == 'File' and name is not None:
+            data = subprocess.run(['unrar', 'p', '-inul', path, name],
+                                  capture_output=True).stdout
+            entries.append({
+                'path': name,
+                'sizeBytes': size if size is not None else len(data),
+                'crc32': crc,
+                'sha256': hashlib.sha256(data).hexdigest(),
+            })
+        name = size = crc = None
+raw = open(path, 'rb').read()
+ver = subprocess.run(['unrar'], capture_output=True, text=True).stdout.splitlines()[0].strip()
+print(json.dumps({
+    'schema': 1,
+    'archive': {
+        'fileName': os.path.basename(path),
+        'sizeBytes': len(raw),
+        'sha256': hashlib.sha256(raw).hexdigest(),
+        'format': 'rar',
+    },
+    'tool': {'name': 'unrar', 'version': ver},
+    'entries': entries,
+}, indent=1, ensure_ascii=False))
+''';
+
+  @override
+  Future<void> writeManifest(File archive, File manifestFile) async {
+    final result = await Process.run('python3', [
+      '-c',
+      _python,
+      archive.path,
+    ], stdoutEncoding: utf8);
+    if (result.exitCode != 0) {
+      throw ProcessException(
+        'python3',
+        ['-c', '<rar manifest script>', archive.path],
         'exit ${result.exitCode}: ${result.stderr}',
         result.exitCode,
       );

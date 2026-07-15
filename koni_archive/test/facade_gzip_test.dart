@@ -56,6 +56,7 @@ void main() {
     expect(builtInFormats.formats.map((f) => f.name).toList(), [
       'zip',
       '7z',
+      'rar',
       'gzip',
       'tar',
     ]);

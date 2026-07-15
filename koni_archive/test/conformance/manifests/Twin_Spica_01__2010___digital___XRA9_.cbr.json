@@ -1,0 +1,1119 @@
+{
+ "schema": 1,
+ "archive": {
+  "fileName": "Twin Spica 01 (2010) (digital) (XRA9).cbr",
+  "sizeBytes": 122822867,
+  "sha256": "640b4b3083bf559a9e2faa86f7dfacc352e0d1f86412694d3c6f935d9d23030b",
+  "format": "rar"
+ },
+ "tool": {
+  "name": "unrar",
+  "version": ""
+ },
+ "entries": [
+  {
+   "path": "Twin Spica 01/00001.jpeg",
+   "sizeBytes": 340188,
+   "crc32": null,
+   "sha256": "0e914147185636012bf2aee47ec8127d18d668b703ef1dbab906c92836987e4f"
+  },
+  {
+   "path": "Twin Spica 01/00002.jpeg",
+   "sizeBytes": 340188,
+   "crc32": "4fb59e64",
+   "sha256": "e3a5872df9d050a78177c869c08ca01039360bc9bb32bd14fb0377cfe5421ca0"
+  },
+  {
+   "path": "Twin Spica 01/00003.jpeg",
+   "sizeBytes": 24636,
+   "crc32": "164f3a0b",
+   "sha256": "05e3e25993fa1a5fefacd7fac91a4aeffd72f6bf873cbcce26cb5fc0040c4e99"
+  },
+  {
+   "path": "Twin Spica 01/00004.jpeg",
+   "sizeBytes": 331092,
+   "crc32": "8759c432",
+   "sha256": "a130b9c37cfe398fe7b92ff0221407fecaf9a156265d036cf78c0325cce131f1"
+  },
+  {
+   "path": "Twin Spica 01/00005.jpeg",
+   "sizeBytes": 704012,
+   "crc32": "3c1f50aa",
+   "sha256": "97a55f109b2e2960ff4053980a1bbaa851fa44c8db7ad970d1807b232c3d2456"
+  },
+  {
+   "path": "Twin Spica 01/00006-00007.jpeg",
+   "sizeBytes": 763444,
+   "crc32": "be667853",
+   "sha256": "4c2e5d1c7914e562fb835791ae734ae0e015cb79d72b7b8113f418f5edf70498"
+  },
+  {
+   "path": "Twin Spica 01/00008.jpeg",
+   "sizeBytes": 1847972,
+   "crc32": "c67672b5",
+   "sha256": "626373047dafb251ae67f9612bd5fac71f36348aec8a62de13f21ef8afa89d18"
+  },
+  {
+   "path": "Twin Spica 01/00009.jpeg",
+   "sizeBytes": 565440,
+   "crc32": "072e4fc5",
+   "sha256": "74ef1f2f6965800158c9360be4e0c43f7ecafdb84a88a3449f92ca7516a4e6ea"
+  },
+  {
+   "path": "Twin Spica 01/00010-00011.jpeg",
+   "sizeBytes": 769412,
+   "crc32": "3934a21c",
+   "sha256": "7a41c6743627b8b65115098e7a3441d6c49a9edba96ec23a3b815bd63f22b660"
+  },
+  {
+   "path": "Twin Spica 01/00012.jpeg",
+   "sizeBytes": 1111854,
+   "crc32": "c018ce44",
+   "sha256": "98cce64ab980dc6a0295afb816b9848c025e107ef545d532a622f9e3632f2f75"
+  },
+  {
+   "path": "Twin Spica 01/00013.jpeg",
+   "sizeBytes": 814156,
+   "crc32": "ddec6252",
+   "sha256": "09538a8d5dae3e62dceeeab30cff26138d6a4e825a1bbd94b80f03c03daea0f2"
+  },
+  {
+   "path": "Twin Spica 01/00014.jpeg",
+   "sizeBytes": 758396,
+   "crc32": "427d22ef",
+   "sha256": "9c9538b082b55d5ac573ccbfcd81469eefbd100371b5e02bc9fa7af096ab7ed7"
+  },
+  {
+   "path": "Twin Spica 01/00015.jpeg",
+   "sizeBytes": 799712,
+   "crc32": "e6c4b289",
+   "sha256": "1ae0c5b7cee2a287b37205d18c222374270c41d299691fdc7cfc3f6c772821e0"
+  },
+  {
+   "path": "Twin Spica 01/00016.jpeg",
+   "sizeBytes": 751780,
+   "crc32": "9ad9eed7",
+   "sha256": "d5dffcb09113f68dbfb3f6f8525bc48151ac8086cb518ff13e98ab5d0eb85cc6"
+  },
+  {
+   "path": "Twin Spica 01/00017.jpeg",
+   "sizeBytes": 521536,
+   "crc32": "eff2858b",
+   "sha256": "90e5a7bf37808f4149b6c076cc39b37dcf445c1319dfa6427d48fd9c685e452e"
+  },
+  {
+   "path": "Twin Spica 01/00018.jpeg",
+   "sizeBytes": 605048,
+   "crc32": "bc3d0d6a",
+   "sha256": "7118f985387fd09367efed7f85368141d138b2c7b74189241b6eebebb1bb034c"
+  },
+  {
+   "path": "Twin Spica 01/00019.jpeg",
+   "sizeBytes": 732844,
+   "crc32": "367a5e4d",
+   "sha256": "f77c45a6b9abe8ca40b78136ea7a099f5aee9a092f52288b71b97a49f5ffb301"
+  },
+  {
+   "path": "Twin Spica 01/00020.jpeg",
+   "sizeBytes": 791504,
+   "crc32": "a79795e4",
+   "sha256": "edcf0ea8b7ed444e826a5f290703bf8c33e72520c45ba0c72566aeb306d39fd7"
+  },
+  {
+   "path": "Twin Spica 01/00021.jpeg",
+   "sizeBytes": 522620,
+   "crc32": "c84bc2a3",
+   "sha256": "6a6efba4b57f888455f83a82e47f4a120bc7a7223d77886338858a4334df7fb6"
+  },
+  {
+   "path": "Twin Spica 01/00022.jpeg",
+   "sizeBytes": 670716,
+   "crc32": "76251766",
+   "sha256": "7104df37767d7c3a18e027360ae050b2f4c75feac61018ca0b59bd7343b8e98b"
+  },
+  {
+   "path": "Twin Spica 01/00023.jpeg",
+   "sizeBytes": 551828,
+   "crc32": "d0f03559",
+   "sha256": "c700cb4a5db8fdf6f872157183768828970e0bcdf0ac80dcbfab48b9701bc22d"
+  },
+  {
+   "path": "Twin Spica 01/00024.jpeg",
+   "sizeBytes": 767868,
+   "crc32": "c37a569e",
+   "sha256": "4d117433f904162b90d90e268f4b0b46d49621f25893555927740450a70b113d"
+  },
+  {
+   "path": "Twin Spica 01/00025.jpeg",
+   "sizeBytes": 554760,
+   "crc32": "97bd3de9",
+   "sha256": "12d3289c5c45bf34f1418fdf4209093b6f5c7b92fdee8761b343db9762b3f39d"
+  },
+  {
+   "path": "Twin Spica 01/00026.jpeg",
+   "sizeBytes": 532256,
+   "crc32": "c3f9ef68",
+   "sha256": "0358e98753ac2f65ba42de8584637ebab747ee52e6538b76cbfe84a3d1d84b04"
+  },
+  {
+   "path": "Twin Spica 01/00027.jpeg",
+   "sizeBytes": 792868,
+   "crc32": "e00e064f",
+   "sha256": "d522404882aff38a358f35ad800f32ca1f09a5bd19b22a3b4bf2add32c720702"
+  },
+  {
+   "path": "Twin Spica 01/00028.jpeg",
+   "sizeBytes": 597400,
+   "crc32": "7971eb34",
+   "sha256": "deb97f9228b64f351d6d0e0dbcdfbd0e60e963e122bdd8e08355501815545b53"
+  },
+  {
+   "path": "Twin Spica 01/00029.jpeg",
+   "sizeBytes": 645088,
+   "crc32": "0096912c",
+   "sha256": "2a6e29a4ded57f9d9922d5d8f363919ebcc87aba6005e99e1b2382f1f4724ea1"
+  },
+  {
+   "path": "Twin Spica 01/00030.jpeg",
+   "sizeBytes": 615052,
+   "crc32": "22be2b74",
+   "sha256": "cee4ee75a8e5e65f76562aee5f478c24a353e491864001dacfc3b9496c1c4461"
+  },
+  {
+   "path": "Twin Spica 01/00031.jpeg",
+   "sizeBytes": 565936,
+   "crc32": "1ec3ac49",
+   "sha256": "468abd64ffc863a1d94cda6fe80e51504d98f155a47a968248ca77dc55da437e"
+  },
+  {
+   "path": "Twin Spica 01/00032.jpeg",
+   "sizeBytes": 566656,
+   "crc32": "746b1929",
+   "sha256": "d773d03ede3d63b66fa259bff3966ab515cf0a6962bfbcf05f2b623e4f422124"
+  },
+  {
+   "path": "Twin Spica 01/00033.jpeg",
+   "sizeBytes": 812836,
+   "crc32": "2b410972",
+   "sha256": "c0ce44f1c2c35470fedd2a177e71f1043219c6e301dff36936242c2a2c9fa97f"
+  },
+  {
+   "path": "Twin Spica 01/00034.jpeg",
+   "sizeBytes": 676404,
+   "crc32": "8453d7b1",
+   "sha256": "a52a818aee2ed6b1b6c3be0390aeeb1b64b35ee229a9fa7a75bb6fa055eaae1a"
+  },
+  {
+   "path": "Twin Spica 01/00035.jpeg",
+   "sizeBytes": 513896,
+   "crc32": "eb07d010",
+   "sha256": "c368513a4991cf1fd7fd5024d0715f4407d2183c9b2096336a0527f55cf4fb8c"
+  },
+  {
+   "path": "Twin Spica 01/00036.jpeg",
+   "sizeBytes": 522584,
+   "crc32": "8c2d17c3",
+   "sha256": "76e74603d50f37008047022ef9b2f8354314adaec5d2cd60d9b32e2db9d2f4cc"
+  },
+  {
+   "path": "Twin Spica 01/00037.jpeg",
+   "sizeBytes": 707016,
+   "crc32": "0f6ae19d",
+   "sha256": "89dfd5c7247af966dbffacff67116b2464a80450dc94c55d191b02e3b5e7cb51"
+  },
+  {
+   "path": "Twin Spica 01/00038.jpeg",
+   "sizeBytes": 589216,
+   "crc32": "601c2897",
+   "sha256": "9f6ce91bb80ff2ebe234d31ba774986f2fc6e3fd89715a039fdd9e9c1a592770"
+  },
+  {
+   "path": "Twin Spica 01/00039.jpeg",
+   "sizeBytes": 597344,
+   "crc32": "236813bd",
+   "sha256": "c8f6269bfb966095d13bbf081802bb034ca4dd42399282326805e7284ac3db4e"
+  },
+  {
+   "path": "Twin Spica 01/00040.jpeg",
+   "sizeBytes": 712660,
+   "crc32": "6c9dbd8f",
+   "sha256": "ab26c0f9afcbcba591a93bae6e36843a8923cae4e47d621d8236c1c7931f36db"
+  },
+  {
+   "path": "Twin Spica 01/00041.jpeg",
+   "sizeBytes": 561828,
+   "crc32": "e72d55b3",
+   "sha256": "75870445223d44c76cba8ef81c75500357ab76c8fcb45db929bc4c64731aff1c"
+  },
+  {
+   "path": "Twin Spica 01/00042.jpeg",
+   "sizeBytes": 715536,
+   "crc32": "220c744a",
+   "sha256": "752f07326094e158466457bd024ce3b8605d82b2b3be7f5e413808da8d62298c"
+  },
+  {
+   "path": "Twin Spica 01/00043.jpeg",
+   "sizeBytes": 761124,
+   "crc32": "bae79d80",
+   "sha256": "08d4693eda5b618f5d6ae69f600edbdd993ba49a0e99477d750a5bf1564cb71e"
+  },
+  {
+   "path": "Twin Spica 01/00044.jpeg",
+   "sizeBytes": 723376,
+   "crc32": "38d607b9",
+   "sha256": "09f4d6bbb63b1820272240a777cbeb8cdd551f8b4b79b281a40f437076fc4c42"
+  },
+  {
+   "path": "Twin Spica 01/00045.jpeg",
+   "sizeBytes": 793008,
+   "crc32": "5178d20d",
+   "sha256": "7f736edad5fae620a62b01f0667aa3188419b6b2d2de26f2c57d6573adaa36e2"
+  },
+  {
+   "path": "Twin Spica 01/00046.jpeg",
+   "sizeBytes": 568488,
+   "crc32": "66097503",
+   "sha256": "d3e30deac8b15d727c87853d9365b55bb4317eb74e64548152e0194e47f575fa"
+  },
+  {
+   "path": "Twin Spica 01/00047.jpeg",
+   "sizeBytes": 625392,
+   "crc32": "4a8c8c23",
+   "sha256": "e37b65ece6f596dec96f68bdb37e1e77a19123ea39f3baf4fea5cbd3cd5ea961"
+  },
+  {
+   "path": "Twin Spica 01/00048.jpeg",
+   "sizeBytes": 594200,
+   "crc32": "0aa6a7d7",
+   "sha256": "94cd185e5679bdb4de959d5e764b23350a1765dff5adb2eb21b9ab6b9be6a618"
+  },
+  {
+   "path": "Twin Spica 01/00049.jpeg",
+   "sizeBytes": 566584,
+   "crc32": "02a1ae24",
+   "sha256": "8df55656cb75f4452f2c9e162094a9ae3a917c23d4ed63b9bc313bd17650701e"
+  },
+  {
+   "path": "Twin Spica 01/00050.jpeg",
+   "sizeBytes": 759760,
+   "crc32": "e948c084",
+   "sha256": "d87857b0df3fe3e0e0fdcc9718fc18f1be4956740fb24dcb270b055f75802383"
+  },
+  {
+   "path": "Twin Spica 01/00051.jpeg",
+   "sizeBytes": 732568,
+   "crc32": "e0fb9ec2",
+   "sha256": "593eb486bc82fffa5660981f7b21c837255433fa39bfdf6632b5d0f621c98976"
+  },
+  {
+   "path": "Twin Spica 01/00052.jpeg",
+   "sizeBytes": 585648,
+   "crc32": "cfb8b82c",
+   "sha256": "0ddd6c11536a29d35c1f3e17d77c41ce83bff48ad0b9ebd36d4eb8115aadd67c"
+  },
+  {
+   "path": "Twin Spica 01/00053.jpeg",
+   "sizeBytes": 629292,
+   "crc32": "c978619d",
+   "sha256": "7a7b94bf524be2267da1f7b69c6f02af0ce54a7773a2d8d705ae59c6875cfb25"
+  },
+  {
+   "path": "Twin Spica 01/00054.jpeg",
+   "sizeBytes": 785748,
+   "crc32": "bc9b5dd9",
+   "sha256": "345b2ebcd32b0921753a34d4c384d924f281f025a453afaf8c3c6fd266934b03"
+  },
+  {
+   "path": "Twin Spica 01/00055.jpeg",
+   "sizeBytes": 665036,
+   "crc32": "5d003d0c",
+   "sha256": "5fee05799c44486ae1f67981e7de09b7cc9f1e34c01a336d2508ba8ad95558db"
+  },
+  {
+   "path": "Twin Spica 01/00056.jpeg",
+   "sizeBytes": 687744,
+   "crc32": "3cc0aa64",
+   "sha256": "da8c92b08ca3d331e3bcfe26fa8a9ceedd2242852a0f49851c02b5b585237cf3"
+  },
+  {
+   "path": "Twin Spica 01/00057.jpeg",
+   "sizeBytes": 732960,
+   "crc32": "060a9c6c",
+   "sha256": "0c7aa233672b595a0c08a4ec8b0bff0b78b66f5d218a0fa3f921a9edee1230de"
+  },
+  {
+   "path": "Twin Spica 01/00058.jpeg",
+   "sizeBytes": 529116,
+   "crc32": "982d8270",
+   "sha256": "468e409ef684013a3e70c1bf3e8e8443aea48cfdf8a01fb1e6d58835c5f1fffb"
+  },
+  {
+   "path": "Twin Spica 01/00059.jpeg",
+   "sizeBytes": 713704,
+   "crc32": "39038717",
+   "sha256": "1c1b8d3745b0e008915dae43d650a2f3eb8b1ea4b70b281f419813040b8a58a1"
+  },
+  {
+   "path": "Twin Spica 01/00060-00061.jpeg",
+   "sizeBytes": 743220,
+   "crc32": "250bf483",
+   "sha256": "fecd3def6b0846d965b036abe46a54a18608062a44c9f7ef03c574acf14de3af"
+  },
+  {
+   "path": "Twin Spica 01/00062.jpeg",
+   "sizeBytes": 1088134,
+   "crc32": "a3822ac8",
+   "sha256": "9be315e357745140264e397524d908c5e7833f0588803306a584e40b8276a386"
+  },
+  {
+   "path": "Twin Spica 01/00063.jpeg",
+   "sizeBytes": 631768,
+   "crc32": "b3e074d0",
+   "sha256": "a75db692331263bbf2f0ae04d09a845f3b1f0d83934182dfb767761ed7e62f5f"
+  },
+  {
+   "path": "Twin Spica 01/00064.jpeg",
+   "sizeBytes": 602264,
+   "crc32": "bbf7a458",
+   "sha256": "854be55cab68ed0372569f3cda9483e7b601ddf52871d70c30d8f0c78c7ed46f"
+  },
+  {
+   "path": "Twin Spica 01/00065.jpeg",
+   "sizeBytes": 613256,
+   "crc32": "40e65abb",
+   "sha256": "1d3f99d78e54c4d11756d51a2d51b68bf822c9d632254a6a01c05fd1dc12e690"
+  },
+  {
+   "path": "Twin Spica 01/00066.jpeg",
+   "sizeBytes": 619496,
+   "crc32": "af5eeefd",
+   "sha256": "12b65e38a2d6ce1fea8048cf5c3e821e21595a82dd3b72eb8876a3c957525f17"
+  },
+  {
+   "path": "Twin Spica 01/00067.jpeg",
+   "sizeBytes": 715360,
+   "crc32": "71f8780e",
+   "sha256": "5e9b8455214d3fd939af0ea90887da89d4276da81e2f4bcf1870c7f5303b767d"
+  },
+  {
+   "path": "Twin Spica 01/00068.jpeg",
+   "sizeBytes": 786148,
+   "crc32": "2716e40f",
+   "sha256": "8e99e368eda5ecaf05f04e558356ea5c9e234756cf2eccb9621bcf5e872880fa"
+  },
+  {
+   "path": "Twin Spica 01/00069.jpeg",
+   "sizeBytes": 548344,
+   "crc32": "8ef4934b",
+   "sha256": "d05ad8a12a29d98ac313e30d780990e2547c5bbeba7eaa18d88b4e59c3a8281e"
+  },
+  {
+   "path": "Twin Spica 01/00070-00071.jpeg",
+   "sizeBytes": 367256,
+   "crc32": "118d27ed",
+   "sha256": "bc5d4c7d614d4bc0ea72150998b04a958613533c9c7cf5bf9edf6b7a461f3b3a"
+  },
+  {
+   "path": "Twin Spica 01/00072.jpeg",
+   "sizeBytes": 1552325,
+   "crc32": "6dc4e821",
+   "sha256": "d5a02b7c670647fbd69b5c2f7c6ee8267eec16bbcca472ccf3886b8f913cd5ea"
+  },
+  {
+   "path": "Twin Spica 01/00073.jpeg",
+   "sizeBytes": 789692,
+   "crc32": "bd32d46c",
+   "sha256": "6953219208a54e4cccc54b6417e573e52ec9b91e61aa19d09db62933b560e089"
+  },
+  {
+   "path": "Twin Spica 01/00074.jpeg",
+   "sizeBytes": 780904,
+   "crc32": "94798567",
+   "sha256": "2e0f700faea489fb2fb6cfa5f8721e358655f0874a5d90313cca83af5d9dce13"
+  },
+  {
+   "path": "Twin Spica 01/00075.jpeg",
+   "sizeBytes": 702316,
+   "crc32": "aa6c8f60",
+   "sha256": "0260cdfb6b0d95d87547e412336209c933d8553804992ec5b30c4d06dadd3d6e"
+  },
+  {
+   "path": "Twin Spica 01/00076.jpeg",
+   "sizeBytes": 676420,
+   "crc32": "2ff767f9",
+   "sha256": "5b9667646969ec3899ef20ef1d3ab9e113b35a93847d8c75fd153e15c30cd489"
+  },
+  {
+   "path": "Twin Spica 01/00077.jpeg",
+   "sizeBytes": 592376,
+   "crc32": "f5e6942b",
+   "sha256": "eecb656149c249374ca3e8dec2dbe713ac233c26564292fc31606bb45b0f4350"
+  },
+  {
+   "path": "Twin Spica 01/00078.jpeg",
+   "sizeBytes": 722040,
+   "crc32": "1058aa8a",
+   "sha256": "f77445def29327237d746125450afbbc0a52aa5e97ee09ee405953971244a15f"
+  },
+  {
+   "path": "Twin Spica 01/00079.jpeg",
+   "sizeBytes": 623644,
+   "crc32": "88dd20ac",
+   "sha256": "a9dbb5abf75f27ed79487b2373da51b894b06b3fda21966d43458d17a9a1266d"
+  },
+  {
+   "path": "Twin Spica 01/00080.jpeg",
+   "sizeBytes": 527464,
+   "crc32": "43c63a2f",
+   "sha256": "8781835510413e639d1d3706702909e618149b5a8f10d00bfc9400534108bbf7"
+  },
+  {
+   "path": "Twin Spica 01/00081.jpeg",
+   "sizeBytes": 649644,
+   "crc32": "73df9aad",
+   "sha256": "003fbdc48bffcdf68d9c2d990eed26bf889756c999f519b4afeb18be02d89df8"
+  },
+  {
+   "path": "Twin Spica 01/00082.jpeg",
+   "sizeBytes": 731584,
+   "crc32": "f4d560b0",
+   "sha256": "35032f83bbe33c21c1dd895aedbb5e86110d64c65bfd1b19bcba906163b34a51"
+  },
+  {
+   "path": "Twin Spica 01/00083.jpeg",
+   "sizeBytes": 606368,
+   "crc32": "fd9a8e02",
+   "sha256": "5f7625b02c095c585a02ac258c48e4e34879c873512e37c33111c5f5a0e65f3b"
+  },
+  {
+   "path": "Twin Spica 01/00084.jpeg",
+   "sizeBytes": 726144,
+   "crc32": "7aeaec8b",
+   "sha256": "1d8effb209f12225d27bb541ed820651e1016d58db25e78c6c9be908e78b4e9c"
+  },
+  {
+   "path": "Twin Spica 01/00085.jpeg",
+   "sizeBytes": 590620,
+   "crc32": "487b4c96",
+   "sha256": "0e8190ab22963c2e92c3fc4601367aa81c0f8636a800694c09b7eade4e4677e3"
+  },
+  {
+   "path": "Twin Spica 01/00086.jpeg",
+   "sizeBytes": 617528,
+   "crc32": "fd092716",
+   "sha256": "faf77b012f1ff43c91fc989534c5500ba1ab21e9eab20a1897b839251d27d825"
+  },
+  {
+   "path": "Twin Spica 01/00087.jpeg",
+   "sizeBytes": 599116,
+   "crc32": "2bb44906",
+   "sha256": "c3e05d1fff0fe735a2cbb46fd3d1a8430320221d8b604943ddd5bd0f0800df22"
+  },
+  {
+   "path": "Twin Spica 01/00088-00089.jpeg",
+   "sizeBytes": 680768,
+   "crc32": "50d73fdb",
+   "sha256": "4d3fd7bc8fcdc9b62a9696f12334926657e1117163907e11d2cacba8a6bf22ed"
+  },
+  {
+   "path": "Twin Spica 01/00090.jpeg",
+   "sizeBytes": 1244566,
+   "crc32": "8cdc8578",
+   "sha256": "c7c45332f6eadac1dff158049876a055b916e7acb9197c1e5ab7570405cf8697"
+  },
+  {
+   "path": "Twin Spica 01/00091.jpeg",
+   "sizeBytes": 528700,
+   "crc32": "561dc5b0",
+   "sha256": "89c2ac110c4eeb7ac5a92f0b8eb86ceb351b69241f028c767dd3b41e76ec4bcf"
+  },
+  {
+   "path": "Twin Spica 01/00092.jpeg",
+   "sizeBytes": 553764,
+   "crc32": "3bc0b6b3",
+   "sha256": "7b7221634c7e3848c283a018a6e271b3d67290f521f95b647d84fe2ef0eb6418"
+  },
+  {
+   "path": "Twin Spica 01/00093.jpeg",
+   "sizeBytes": 777728,
+   "crc32": "ff2d762d",
+   "sha256": "48063ddbcc0a32f33fe5b5345ca01841b5efce5ffba7a7798abc80de80ccea31"
+  },
+  {
+   "path": "Twin Spica 01/00094.jpeg",
+   "sizeBytes": 548300,
+   "crc32": "ac65a049",
+   "sha256": "dd34496494bd045b3e93db65c6f65eb52d6ff55aa760aba18626f3cfb701b241"
+  },
+  {
+   "path": "Twin Spica 01/00095.jpeg",
+   "sizeBytes": 622268,
+   "crc32": "672855ef",
+   "sha256": "e61423a39b1bd90d65dbdb5b025304012884d451733ab5ecf585324fdc26d3d3"
+  },
+  {
+   "path": "Twin Spica 01/00096.jpeg",
+   "sizeBytes": 716556,
+   "crc32": "674d6429",
+   "sha256": "27cfd5016c05a06bcdd687dc3d0ade4abcc64b47613f2882de69f00def5690be"
+  },
+  {
+   "path": "Twin Spica 01/00097.jpeg",
+   "sizeBytes": 712868,
+   "crc32": "c2fa595e",
+   "sha256": "3ea8cc1a0fa5115bcae1eb9f0883fada2515dc9f0a6e821dcbb3869879e6af21"
+  },
+  {
+   "path": "Twin Spica 01/00098.jpeg",
+   "sizeBytes": 620084,
+   "crc32": "834dd74e",
+   "sha256": "ad4797b40100bb012dd6527bd9fb9072b07bc827215e62d0ec4fe88e81343209"
+  },
+  {
+   "path": "Twin Spica 01/00099.jpeg",
+   "sizeBytes": 709848,
+   "crc32": "878aea02",
+   "sha256": "b13d6c4c7cdcd1daaf821aef8656e7479da475291246dee277fc691364ae4aa0"
+  },
+  {
+   "path": "Twin Spica 01/00100.jpeg",
+   "sizeBytes": 537184,
+   "crc32": "31098c12",
+   "sha256": "a5a1c05048925ae400e9fbd8312d14d3e65d830e3526188d1b08427a64cf1f85"
+  },
+  {
+   "path": "Twin Spica 01/00101.jpeg",
+   "sizeBytes": 759124,
+   "crc32": "549818c1",
+   "sha256": "136c687b42d6c8cc948cbbb87dc8329d1a441f6558e9cfac7c416e5aa9ac225f"
+  },
+  {
+   "path": "Twin Spica 01/00102.jpeg",
+   "sizeBytes": 603832,
+   "crc32": "35bcf253",
+   "sha256": "a6c9b1da07b3d084c129cb0fabbb8f9dd4eef803729ea1a2d412362881bdc014"
+  },
+  {
+   "path": "Twin Spica 01/00103.jpeg",
+   "sizeBytes": 610156,
+   "crc32": "a6b2d492",
+   "sha256": "ef01823a1d2275433cf7ecd35f1ddc8c7555819743d65cd11f5c5ef96f3b3860"
+  },
+  {
+   "path": "Twin Spica 01/00104.jpeg",
+   "sizeBytes": 615396,
+   "crc32": "b4006094",
+   "sha256": "cadcaef6c10eedd9f682b644478117d361966c63d6e344f1ff057bf628df93c6"
+  },
+  {
+   "path": "Twin Spica 01/00105.jpeg",
+   "sizeBytes": 694904,
+   "crc32": "32609075",
+   "sha256": "f4a306b4c5b90cef80d1060b35b7816746de1ad03e13a81dbedda16d6a879d56"
+  },
+  {
+   "path": "Twin Spica 01/00106.jpeg",
+   "sizeBytes": 671744,
+   "crc32": "f1aef270",
+   "sha256": "fb3c6b4e5b2de77843e75c5c46acb78acbd14a6bc7837fbd2dd692056ea016c5"
+  },
+  {
+   "path": "Twin Spica 01/00107.jpeg",
+   "sizeBytes": 668864,
+   "crc32": "84315670",
+   "sha256": "a131a8d90aa4c2d7c1e5cbcc37d46ff2b68bc095b0817b17391175c1d85ba77e"
+  },
+  {
+   "path": "Twin Spica 01/00108-00109.jpeg",
+   "sizeBytes": 812392,
+   "crc32": "cb168b18",
+   "sha256": "dd8cd674ea49bac244790231f1070b7bbd0f0bbbb275e5c47c1c72135effdec6"
+  },
+  {
+   "path": "Twin Spica 01/00110.jpeg",
+   "sizeBytes": 1395395,
+   "crc32": "2f79ac9e",
+   "sha256": "68f862225a9ff815cb701950872185ae79a1b0098645440906f9935acc8be0b8"
+  },
+  {
+   "path": "Twin Spica 01/00111.jpeg",
+   "sizeBytes": 783200,
+   "crc32": "44055048",
+   "sha256": "e29b8d3fc8f45a45bb93032d7a3307c1c6444a25941502942c4165ba8704e3f3"
+  },
+  {
+   "path": "Twin Spica 01/00112-00113.jpeg",
+   "sizeBytes": 620044,
+   "crc32": "4840fa86",
+   "sha256": "3ee630d6ece8027f23b03a0013d35646a735ed266ee654f14696ecc6061ed242"
+  },
+  {
+   "path": "Twin Spica 01/00114.jpeg",
+   "sizeBytes": 1627007,
+   "crc32": "dd96e398",
+   "sha256": "63d169d3403161e0712519f954a8eaadf88d36931f1846ce422af8e818ff3c72"
+  },
+  {
+   "path": "Twin Spica 01/00115.jpeg",
+   "sizeBytes": 637876,
+   "crc32": "8ab914f2",
+   "sha256": "a420197a47c17570287df2905b910a69e0c298a44a0810ef48daf3ef426cc9d1"
+  },
+  {
+   "path": "Twin Spica 01/00116.jpeg",
+   "sizeBytes": 723420,
+   "crc32": "e8ddfb5f",
+   "sha256": "ee80e6419cc4c8c971af95383205f631e314e5bee6a4148424af332450a81cf6"
+  },
+  {
+   "path": "Twin Spica 01/00117.jpeg",
+   "sizeBytes": 792352,
+   "crc32": "ded75834",
+   "sha256": "f09ab6c1b86efa1415c1b778f9e1579fe67e6e2594cb7265ddb52888d59368b8"
+  },
+  {
+   "path": "Twin Spica 01/00118.jpeg",
+   "sizeBytes": 608184,
+   "crc32": "0f56535d",
+   "sha256": "a83adea7698dfb6ee95595f096298ff18dee454d22f0f210df53a6e75055f931"
+  },
+  {
+   "path": "Twin Spica 01/00119.jpeg",
+   "sizeBytes": 543268,
+   "crc32": "4cfcfc3d",
+   "sha256": "c08fb6f0cc3e6cc0d2d2ae4c682eebe2463b320c12a54ba1bf7cf2b4eac114a9"
+  },
+  {
+   "path": "Twin Spica 01/00120.jpeg",
+   "sizeBytes": 617680,
+   "crc32": "5cee6654",
+   "sha256": "4c9e331b47067b98a7c5cdb9655b1a5f3afa9b4e741c13a2baf60f82ad96b531"
+  },
+  {
+   "path": "Twin Spica 01/00121.jpeg",
+   "sizeBytes": 808980,
+   "crc32": "e3f336d2",
+   "sha256": "a9ec297fcda44637034d804fc1f6004acb942252c82c28022f34272991ed934c"
+  },
+  {
+   "path": "Twin Spica 01/00122-00123.jpeg",
+   "sizeBytes": 631404,
+   "crc32": "208529a5",
+   "sha256": "b412307589cbf6825cb176d363e09a6b9ac98dfdb930909fa47d010c380ac0db"
+  },
+  {
+   "path": "Twin Spica 01/00124.jpeg",
+   "sizeBytes": 1863775,
+   "crc32": "13e6c3c5",
+   "sha256": "e5b5a0a8ee4c3c2e2ae4539df64dbab14b844a9f9d89c1de9880fd9336ca8fc3"
+  },
+  {
+   "path": "Twin Spica 01/00125.jpeg",
+   "sizeBytes": 512812,
+   "crc32": "8e3295b7",
+   "sha256": "86d88f37910633f2bcad055320294ba30ad7d0cfc6db8fec302b92c8650f0899"
+  },
+  {
+   "path": "Twin Spica 01/00126.jpeg",
+   "sizeBytes": 698568,
+   "crc32": "eba94924",
+   "sha256": "4db9df92ddd5b94d682975170f3f6a75b5f9ad058ca8ad13aea847239df90174"
+  },
+  {
+   "path": "Twin Spica 01/00127.jpeg",
+   "sizeBytes": 511352,
+   "crc32": "53befe3c",
+   "sha256": "9d6501acecfa08da33073a8e4f05f7e4f77e39cb0fb268324d9b807304dee857"
+  },
+  {
+   "path": "Twin Spica 01/00128.jpeg",
+   "sizeBytes": 416804,
+   "crc32": "d7e55b61",
+   "sha256": "47f115935f20356cf4a5ed28457df38a928bcc852e6fca2d2f7029155365f8a7"
+  },
+  {
+   "path": "Twin Spica 01/00129.jpeg",
+   "sizeBytes": 653628,
+   "crc32": "11bb3227",
+   "sha256": "6c1bbb730fa3d04269b7ab6348a2f87d4c18f800386baf85e07e639e4ba7e4ae"
+  },
+  {
+   "path": "Twin Spica 01/00130.jpeg",
+   "sizeBytes": 620416,
+   "crc32": "26763f4d",
+   "sha256": "4dd51e4bb984e0e788509881db59e7a9a7cea15fc4212849a1248f2835d0c6a0"
+  },
+  {
+   "path": "Twin Spica 01/00131.jpeg",
+   "sizeBytes": 650840,
+   "crc32": "e9c34d05",
+   "sha256": "13fcca6e279083b10a148b993de63caa245cb9ce08236d9808a2843295b1c3ae"
+  },
+  {
+   "path": "Twin Spica 01/00132.jpeg",
+   "sizeBytes": 672052,
+   "crc32": "c7b2d152",
+   "sha256": "ba3b87c102af58ba6086364e5be9f0c9d201f8f7b50897e7c070e940b8010959"
+  },
+  {
+   "path": "Twin Spica 01/00133.jpeg",
+   "sizeBytes": 580220,
+   "crc32": "d3437aa1",
+   "sha256": "0ca15f37eb180c45fb1e197f59e2f38827250fb62cba43edbc046a438ec2f1df"
+  },
+  {
+   "path": "Twin Spica 01/00134.jpeg",
+   "sizeBytes": 520788,
+   "crc32": "784f56f1",
+   "sha256": "7c37611068289781934500ecdf0d078945b8aa4c094bded796a045bd80646d99"
+  },
+  {
+   "path": "Twin Spica 01/00135.jpeg",
+   "sizeBytes": 752768,
+   "crc32": "f6f5fe85",
+   "sha256": "d4e659b36769fd14ebddf8af4112626128ff5418f29957f007a89675f0e245bd"
+  },
+  {
+   "path": "Twin Spica 01/00136.jpeg",
+   "sizeBytes": 576648,
+   "crc32": "4f79b727",
+   "sha256": "fe8776b4582cc8462e6231a8b7f1d96e03c66920e9d3207cd818265560283c6d"
+  },
+  {
+   "path": "Twin Spica 01/00137.jpeg",
+   "sizeBytes": 754096,
+   "crc32": "16381cf6",
+   "sha256": "9627dd505ee25dda5b1557e3300867af4f08b11bfc847b026cd9fe7f17f1d129"
+  },
+  {
+   "path": "Twin Spica 01/00138.jpeg",
+   "sizeBytes": 655092,
+   "crc32": "affedec2",
+   "sha256": "b3e3988ef642f0a5f0af90b050b7eb221c3d7949b0272d7461b4c79f9fa1a457"
+  },
+  {
+   "path": "Twin Spica 01/00139.jpeg",
+   "sizeBytes": 662372,
+   "crc32": "ee4b235c",
+   "sha256": "0389b73aa4b73d5a69a436547bfc0a8cc6f0b6879ad932ef778f62278946f9a4"
+  },
+  {
+   "path": "Twin Spica 01/00140.jpeg",
+   "sizeBytes": 496560,
+   "crc32": "9ae33a3d",
+   "sha256": "ed9282fbeef66497cb5798a42f43725015f28f06c30270ba891ebc1a33efd060"
+  },
+  {
+   "path": "Twin Spica 01/00141.jpeg",
+   "sizeBytes": 496324,
+   "crc32": "424e1695",
+   "sha256": "1388bb13a05a7648ce1e07d1ae1ab95cde7fdcd9fcb85083fd2feb17cb7ddcfb"
+  },
+  {
+   "path": "Twin Spica 01/00142.jpeg",
+   "sizeBytes": 572632,
+   "crc32": "37bcab8b",
+   "sha256": "5d8c56198c21d47a64024d29179289b11cf3c5724e46e080bf1cd3b72a08b831"
+  },
+  {
+   "path": "Twin Spica 01/00143.jpeg",
+   "sizeBytes": 657328,
+   "crc32": "32cee106",
+   "sha256": "55d7e0ca18178c346560a72c1d3dc369a328071520ab73b179e3d55944dd2f46"
+  },
+  {
+   "path": "Twin Spica 01/00144.jpeg",
+   "sizeBytes": 630424,
+   "crc32": "c37b4e78",
+   "sha256": "30fcabc9e9e6d4d9058d302dafdcb856a79e0a9da824621319545754c54f17cc"
+  },
+  {
+   "path": "Twin Spica 01/00145.jpeg",
+   "sizeBytes": 678524,
+   "crc32": "367a452e",
+   "sha256": "0de831d877201ebc1ddda362710a72ee74eb64abebd9ccb589ed6e8988e5a2c9"
+  },
+  {
+   "path": "Twin Spica 01/00146.jpeg",
+   "sizeBytes": 687304,
+   "crc32": "c6cacfdc",
+   "sha256": "2f7188e2974e2862d0ad12725e1c028df5ddf3f55abf65a81954ca4018d14c1c"
+  },
+  {
+   "path": "Twin Spica 01/00147.jpeg",
+   "sizeBytes": 598720,
+   "crc32": "62ea31d9",
+   "sha256": "ff93b04f826cd8a1bd3662875178ca1bcef63713de07b8774495574fefbef710"
+  },
+  {
+   "path": "Twin Spica 01/00148.jpeg",
+   "sizeBytes": 561756,
+   "crc32": "f40c56ba",
+   "sha256": "bfb0b364f1739a70acd8fe6d3723083beb739893b448acb5878c438a1f0d5fe6"
+  },
+  {
+   "path": "Twin Spica 01/00149.jpeg",
+   "sizeBytes": 577700,
+   "crc32": "44805ebd",
+   "sha256": "e9d09a8d4d9413d26f20a57bd10a2c0e2c611cf0f789f8ac0645e343f00db2cb"
+  },
+  {
+   "path": "Twin Spica 01/00150.jpeg",
+   "sizeBytes": 656704,
+   "crc32": "14c7f8ac",
+   "sha256": "32978ba0445b83f69fe4f88ed1b2d63994ce75ad99c8fabedd0f5a8f74b0d480"
+  },
+  {
+   "path": "Twin Spica 01/00151.jpeg",
+   "sizeBytes": 670680,
+   "crc32": "5189ba67",
+   "sha256": "a120e899fdccf001638a0340410b4344a532901f98af00110b80d80bf126b707"
+  },
+  {
+   "path": "Twin Spica 01/00152-00153.jpeg",
+   "sizeBytes": 624756,
+   "crc32": "9bfd0fb0",
+   "sha256": "46378539254188985f7ff9c13f0cc3d5fc19ec3ad23422ce565d0552db682428"
+  },
+  {
+   "path": "Twin Spica 01/00154.jpeg",
+   "sizeBytes": 1913096,
+   "crc32": "4767a135",
+   "sha256": "506db5dcb6ab1869e7a3e328e6cf6c718126e6e7a5f1404fc66cea97ec6df647"
+  },
+  {
+   "path": "Twin Spica 01/00155.jpeg",
+   "sizeBytes": 711512,
+   "crc32": "5793fce4",
+   "sha256": "6d8ad624b623201f5ba703de1693f7fc305e5dc51b9054bc591de67dce2ec3f0"
+  },
+  {
+   "path": "Twin Spica 01/00156.jpeg",
+   "sizeBytes": 655112,
+   "crc32": "0faec112",
+   "sha256": "2f70329ce28c001a0adcd8bd420005977bf2d9ae93eb6937bbb8bd4dda9bb410"
+  },
+  {
+   "path": "Twin Spica 01/00157.jpeg",
+   "sizeBytes": 607888,
+   "crc32": "0819676b",
+   "sha256": "dcc0fbdad43c38197173847c9c594ff47168bc24371794ed26834b3a5562c053"
+  },
+  {
+   "path": "Twin Spica 01/00158.jpeg",
+   "sizeBytes": 740984,
+   "crc32": "41737560",
+   "sha256": "50b6aab051198d039b27994d4aca5d5625d2774ad8f82a1745944383f901cb59"
+  },
+  {
+   "path": "Twin Spica 01/00159.jpeg",
+   "sizeBytes": 684252,
+   "crc32": "ac3cb900",
+   "sha256": "e9ff6b20abff20ffa9ae01ef35475a4714d881d0dea108f1da7b4b09a2f843fb"
+  },
+  {
+   "path": "Twin Spica 01/00160.jpeg",
+   "sizeBytes": 749388,
+   "crc32": "a16f7766",
+   "sha256": "04419bae149181d126c1362bc4f0dd4ba25f28a656b7ef70ff0f8e64a1cf4fde"
+  },
+  {
+   "path": "Twin Spica 01/00161.jpeg",
+   "sizeBytes": 598948,
+   "crc32": "c61b446a",
+   "sha256": "7b111bf1fc9bc6184b57f6c786c6b44627fc1ba85d1f8028fe4bf1ed9d042d48"
+  },
+  {
+   "path": "Twin Spica 01/00162.jpeg",
+   "sizeBytes": 615076,
+   "crc32": "fb2d9043",
+   "sha256": "9b107e4bca857ded5ca1fd3be1cfce5545e5416ae73b6f45d52067a264d1f078"
+  },
+  {
+   "path": "Twin Spica 01/00163.jpeg",
+   "sizeBytes": 661008,
+   "crc32": "88511c4e",
+   "sha256": "3f1441620ff7033cc132457a8c5979e7d99f7ae9ecc3ba4b6aaea5824c15cad2"
+  },
+  {
+   "path": "Twin Spica 01/00164.jpeg",
+   "sizeBytes": 616700,
+   "crc32": "060fba1c",
+   "sha256": "de6eed5b6214546b7ff181a787835514da2775a46f9fbf0ef9ad7ad6ae50e440"
+  },
+  {
+   "path": "Twin Spica 01/00165.jpeg",
+   "sizeBytes": 775384,
+   "crc32": "c2064ef7",
+   "sha256": "5271db20e88a803915f920ae6fff0915a967fc056b6ac5b76dde7c9e620862b0"
+  },
+  {
+   "path": "Twin Spica 01/00166.jpeg",
+   "sizeBytes": 781864,
+   "crc32": "bcdf64d2",
+   "sha256": "c9acc54eb3f666a8e8aa7d98e2b695d94216e5e2a8ec3011ce32291acd5c5524"
+  },
+  {
+   "path": "Twin Spica 01/00167.jpeg",
+   "sizeBytes": 768772,
+   "crc32": "fce467e6",
+   "sha256": "af350c9a4fc628aeb39d29a3a7a4ab5b97ab23f550dbb4f190d090ad4c593089"
+  },
+  {
+   "path": "Twin Spica 01/00168.jpeg",
+   "sizeBytes": 725296,
+   "crc32": "9945ec79",
+   "sha256": "f4e6514f17904558d28a97b37b2d8c085a922033f92143c83a43b91e92388922"
+  },
+  {
+   "path": "Twin Spica 01/00169.jpeg",
+   "sizeBytes": 589232,
+   "crc32": "4e6c610b",
+   "sha256": "9b2fdbe8a2802ec0a48e5fcded61da0301b9361b3355c1217a02716441083a73"
+  },
+  {
+   "path": "Twin Spica 01/00170.jpeg",
+   "sizeBytes": 551300,
+   "crc32": "320f051d",
+   "sha256": "1e5a5526647b6acac7891f6ca965a6ea5af08527e86b369cba20040809682984"
+  },
+  {
+   "path": "Twin Spica 01/00171.jpeg",
+   "sizeBytes": 633568,
+   "crc32": "4e144651",
+   "sha256": "7801eee7254ef35fcc0e694b8c44cbf758b12f60499d78aa5bc9e078ba76f567"
+  },
+  {
+   "path": "Twin Spica 01/00172.jpeg",
+   "sizeBytes": 602308,
+   "crc32": "3c29afa5",
+   "sha256": "bc5bfdd5c5329dd8400e95f89bebaddb89e559c4ae0eed884d39345170bfe8b4"
+  },
+  {
+   "path": "Twin Spica 01/00173.jpeg",
+   "sizeBytes": 719804,
+   "crc32": "e7b7640b",
+   "sha256": "14b13abcc720f6481beb3a9df5c86adc7ecbc774083944199867e430d9723bf3"
+  },
+  {
+   "path": "Twin Spica 01/00174.jpeg",
+   "sizeBytes": 674460,
+   "crc32": "a830805d",
+   "sha256": "3cf51b95ba817951b0f0d81e03795675bc7d9d477052bcaaa7aec35203c89a5c"
+  },
+  {
+   "path": "Twin Spica 01/00175.jpeg",
+   "sizeBytes": 620384,
+   "crc32": "b3e36f2f",
+   "sha256": "09ff527b51fc1c00bbfe2f33e23fce082b6d74ea0e724789752b241794fd6995"
+  },
+  {
+   "path": "Twin Spica 01/00176.jpeg",
+   "sizeBytes": 664132,
+   "crc32": "ae102de1",
+   "sha256": "e8a40298ffa9b01db2f1378f51b87d4e9eaa45685e4f322cb5ac0b2100012008"
+  },
+  {
+   "path": "Twin Spica 01/00177.jpeg",
+   "sizeBytes": 648700,
+   "crc32": "9626c5da",
+   "sha256": "f14eb7446ceabeda4f0a6d36d766bee44d9b67e95f4bf61160cee3a735a78adb"
+  },
+  {
+   "path": "Twin Spica 01/00178.jpeg",
+   "sizeBytes": 718812,
+   "crc32": "13666117",
+   "sha256": "99733b9b5423ce6f7e2d3ed06915cf457ac8c7d4a1318c3bed508ed0db467db0"
+  },
+  {
+   "path": "Twin Spica 01/00179.jpeg",
+   "sizeBytes": 699560,
+   "crc32": "61f0c901",
+   "sha256": "689e42a303f1f14c2944999f5f9748ac87c93ed0a19c9c1bc5d7914e1b7cd05d"
+  },
+  {
+   "path": "Twin Spica 01/00180-00181.jpeg",
+   "sizeBytes": 545500,
+   "crc32": "7bab3d9b",
+   "sha256": "73522454f3d490911df68813426b20f3e8c5a0a6ed6e8afadc67014e150bcbb9"
+  },
+  {
+   "path": "Twin Spica 01/00182.jpeg",
+   "sizeBytes": 2014677,
+   "crc32": "aa80c393",
+   "sha256": "62a7ac7706cf36023826fbda07657e9916c557167db68ff4f812967fae063905"
+  },
+  {
+   "path": "Twin Spica 01/00183.jpeg",
+   "sizeBytes": 592420,
+   "crc32": "c8a2a300",
+   "sha256": "d3fe2e5012938f77703d9b753ec367f21155747baf895c79837314b3978614cb"
+  },
+  {
+   "path": "Twin Spica 01/00184.jpeg",
+   "sizeBytes": 711808,
+   "crc32": "cd1feb86",
+   "sha256": "df735203f08ccb51c306f31fe43267c104b677a75888be292a1112374cf04284"
+  },
+  {
+   "path": "Twin Spica 01/00185.jpeg",
+   "sizeBytes": 568556,
+   "crc32": "7924d15e",
+   "sha256": "ef39c4fe42e10d6c17089e423b37c279865271e997deb2ceae13e882ff1083b9"
+  },
+  {
+   "path": "Twin Spica 01/00186.jpeg",
+   "sizeBytes": 647760,
+   "crc32": "d2be321d",
+   "sha256": "09652660d5275e962b54db635f54222b79329f9c75c70e54fb560d3e41a6887a"
+  },
+  {
+   "path": "Twin Spica 01/00187.jpeg",
+   "sizeBytes": 676584,
+   "crc32": "63295d5c",
+   "sha256": "f7d9c2a543ee1df57cd953e1d33389ebbe87968debd7a58f288ef1ae64e0d5dd"
+  },
+  {
+   "path": "Twin Spica 01/00188.jpeg",
+   "sizeBytes": 327416,
+   "crc32": "2eac151c",
+   "sha256": "468938661da5057eafb1cfcb7dc2d366f1a662d278e489cd3ee17fa0bd55a21b"
+  },
+  {
+   "path": "Twin Spica 01/00189.jpeg",
+   "sizeBytes": 531480,
+   "crc32": "0298aae8",
+   "sha256": "035d6a67292aa0e5a53925d1a4ba91e03c45cbb046588a0a1aa2306b15ecbfa3"
+  },
+  {
+   "path": "Twin Spica 01/00190.jpeg",
+   "sizeBytes": 498604,
+   "crc32": "30c9b4b8",
+   "sha256": "a071d62419720dca11efb45479a0290f3df26b0a607a032bab892f486c6e086c"
+  },
+  {
+   "path": "Twin Spica 01/00191.jpeg",
+   "sizeBytes": 547600,
+   "crc32": "b1721a82",
+   "sha256": "287f399547221c715cbda6c9e7a9fb81816e1f723117cb6d779ac75b8f5d0e3a"
+  },
+  {
+   "path": "Twin Spica 01/00192.jpeg",
+   "sizeBytes": 235900,
+   "crc32": "c9c6aa6d",
+   "sha256": "a6c4435b825564d245d23bf1ecc3709bd5aad6ae9fa970e8a87be6f871214585"
+  },
+  {
+   "path": "Twin Spica 01/00193.jpeg",
+   "sizeBytes": 195264,
+   "crc32": "5eaefd11",
+   "sha256": "008a46839dfb53af017ead52e181e55c57519e313e707c86828de3d0179d8dcf"
+  },
+  {
+   "path": "Twin Spica 01/00194.jpeg",
+   "sizeBytes": 24636,
+   "crc32": "11d1c607",
+   "sha256": "0fee4d057bd0742da3c9f407c89c5e8e5b1787cde484334bd30bfb98feec93a5"
+  }
+ ]
+}

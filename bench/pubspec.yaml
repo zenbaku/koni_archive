@@ -10,11 +10,12 @@ resolution: workspace
 
 dependencies:
   archive: ^4.0.0
-  koni_archive_core: ^0.2.0
-  koni_codecs: ^0.2.0
-  koni_sevenz: ^0.2.0
-  koni_tar: ^0.2.0
-  koni_zip: ^0.2.0
+  koni_archive_core: ^0.3.0-dev
+  koni_codecs: ^0.3.0-dev
+  koni_rar: ^0.3.0-dev
+  koni_sevenz: ^0.3.0-dev
+  koni_tar: ^0.3.0-dev
+  koni_zip: ^0.3.0-dev
 
 dev_dependencies:
   lints: ^6.0.0
