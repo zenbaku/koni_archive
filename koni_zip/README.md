@@ -1,6 +1,6 @@
 # koni_zip
 
-ZIP reader for the [koni_archive](https://github.com/koni-archive)
+ZIP reader + writer for the [koni_archive](https://github.com/koni-archive)
 ecosystem, including CBZ comic archives — pure Dart, runs everywhere Dart
 runs including the web (dart2js and dart2wasm).
 
@@ -17,11 +17,13 @@ await for (final chunk in archive.openRead(page)) {
 }
 ```
 
-Stored and deflated entries stream end-to-end with CRC-32 verification —
-CBZ works, validated against a real-world corpus via reference-tool
-manifests. Password-protected archives — both traditional PKWARE
-("zipcrypto") and WinZip AES — decrypt when you pass
-`ArchiveReadOptions.password`. Exotic methods, ZIP strong encryption, and
-ZIP64 are detected with typed errors that never brick the rest of the
-archive. See [doc/features.md](doc/features.md) for the full matrix and
+Stored and deflated entries stream end-to-end with CRC-32 verification,
+ZIP64 included — CBZ works, validated against a real-world corpus via
+reference-tool manifests. Password-protected archives — both traditional
+PKWARE ("zipcrypto") and WinZip AES — decrypt when you pass
+`ArchiveReadOptions.password`. Writing emits stored + deflate with ZIP64
+where needed, interop-verified against Info-ZIP unzip. Exotic compression
+methods and ZIP strong encryption (SES) are detected with typed errors
+that never brick the rest of the archive. See
+[doc/features.md](doc/features.md) for the full matrix and
 [doc/notes.md](doc/notes.md) for design decisions.

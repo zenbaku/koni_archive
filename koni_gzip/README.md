@@ -1,9 +1,9 @@
 # koni_gzip
 
 GZIP adapter for the [koni_archive](https://github.com/koni-archive)
-ecosystem — a bare `.gz` opens as a single-entry archive; `.tar.gz`
-layering arrives with M6. Pure Dart, runs everywhere Dart runs including
-the web (dart2js and dart2wasm).
+ecosystem — a bare `.gz` opens as a single-entry archive, and
+`.tar.gz`/`.tgz` opens as the inner TAR via layered detection. Pure Dart,
+runs everywhere Dart runs including the web (dart2js and dart2wasm).
 
 Most applications should depend on the `koni_archive` facade, which
 registers this format automatically:

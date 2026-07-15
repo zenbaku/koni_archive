@@ -4,6 +4,5 @@ Core abstractions for the koni_archive ecosystem — byte sources, entry model, 
 
 Part of the [koni_archive](https://github.com/koni-archive) monorepo.
 
-> **Status: pre-release.** The public API lands milestone by milestone — see
-> the repository's `ROADMAP.md`. This package intentionally exports nothing
-> yet.
+> **Status: pre-release** (0.x, git-only). The API stays 0.x with lockstep
+> minor bumps until it stabilizes — see the repository's `ROADMAP.md`.

@@ -18,10 +18,13 @@ await for (final chunk in archive.openRead(page)) {
 }
 ```
 
-Current scope (M9): RAR5 store + compressed (methods 1–5), solid and
-non-solid, with delta/x86/ARM filters. RAR4 is the next milestone (M10);
-until then it is detected and reported with a typed error. Multi-volume
-and encrypted archives are typed errors.
+Current scope: RAR5 store + compressed (methods 1–5), solid and non-solid,
+with delta/x86/ARM filters; RAR4 store + method-29 compression (the classic
+v29 LZSS/Huffman). Password-protected file data decrypts for both
+generations via `ArchiveReadOptions.password` — RAR5 (AES-256 with
+PBKDF2-HMAC-SHA256 and check-value password verification) and RAR4
+(AES-128, iterated-SHA-1 KDF). Encrypted headers (`-hp`), multi-volume
+archives, and RAR4 solid/PPMd/RarVM are typed errors.
 
 **Provenance:** clean-room implementation — see
 [doc/rar-provenance.md](doc/rar-provenance.md) (the owner-approved policy)

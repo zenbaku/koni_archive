@@ -29,6 +29,16 @@ final bytes = await archive.readBytes(entry, maxSize: 50 << 20);
 await archive.close();
 ```
 
+Password-protected archives (ZIP zipcrypto/AES, 7z AES-256 incl. encrypted
+headers, RAR5/RAR4) decrypt transparently — supply the password at open:
+
+```dart
+final archive = await openArchiveFile(
+  'locked.cbz',
+  options: const ArchiveReadOptions(password: 'hunter2'),
+);
+```
+
 On the web, open a user-picked file without downloading it into memory:
 
 ```dart
@@ -113,27 +123,33 @@ filesystems for streaming consumption:
 | Hostile input | typed `ArchiveException` hierarchy, fuzzed in CI, path sanitization + escape flags | assorted exceptions |
 | Formats | open registry — third-party formats plug in | fixed set |
 | Web | dart2js **and** dart2wasm tested in CI | dart2js |
-| Writing | not yet (Phase 2) | yes |
+| Writing | TAR, ZIP, 7z (pure-Dart LZMA/LZMA2 encoder), interop-verified | yes |
 
-If you need archive *writing* today, use `package:archive`. If you are
-building a comic/ebook reader, file explorer, or anything that streams
-files out of archives, this is the library shaped for it.
+If you are building a comic/ebook reader, file explorer, or anything that
+streams files out of archives, this is the library shaped for it.
 
 ## Errors
 
 Everything archive-related throws a typed `ArchiveException`:
 `UnsupportedFormatException`, `CorruptArchiveException`,
 `UnexpectedEofException`, `ChecksumMismatchException`,
-`EncryptedArchiveException`, `UnsupportedCompressionException` (naming the
-method), and friends. Entry-scoped problems surface when *reading that
+`EncryptedArchiveException` (a password is required),
+`InvalidPasswordException` (the supplied password is wrong, where the
+format carries a check value), `UnsupportedCompressionException` (naming
+the method), and friends. Entry-scoped problems surface when *reading that
 entry* — one exotic entry never bricks the archive.
 
 ## Status
 
-`0.1.0` — ZIP (stored + deflate, CBZ), TAR (ustar/PAX/GNU, CBT), and GZIP
-are tested against reference tools, differential-tested against
-package:archive, and fuzzed in CI. ZIP64 and encrypted entries are detected
-with typed errors. 7z (CB7) and RAR (CBR) are the next milestones — see
+`0.5.0` (git-only, lockstep releases) — reading, writing, and read-side
+decryption are complete. ZIP/CBZ (stored + deflate, ZIP64), TAR/CBT
+(ustar/PAX/GNU), GZIP (multi-member, layered `.tar.gz`), 7z/CB7
+(LZMA/LZMA2/BCJ/delta, solid-block cache), and RAR/CBR (clean-room RAR5 +
+RAR4) read; TAR, ZIP, and 7z write; password-protected ZIP, 7z, and RAR
+archives decrypt via `ArchiveReadOptions.password`. All of it is tested
+against reference tools, differential-tested against package:archive,
+fuzzed in CI, and verified on the VM, dart2js, and dart2wasm. What remains
+(write-side encryption, RAR `-hp` headers, multi-volume, …) is tracked in
 `ROADMAP.md` at the repository root.
 
 See `example/` for a CBZ page extractor demonstrating streaming +
