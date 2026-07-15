@@ -117,8 +117,8 @@ From `PROMPT_V1.md` §15 — roughly in expected demand order:
 
 * ~~Encryption/password support (ZIP AES/zipcrypto, 7z AES, RAR)~~ → **Phase 3 above**
 * ~~Write-side encryption (ZIP AES, 7z AES)~~ → **Phase 4 above**
-* 7z reader: set `entry.isEncrypted` on parse (the ZIP reader already does;
-  a small read-side API-consistency fix)
+* ~~7z reader: set `entry.isEncrypted` on parse~~ → done (matches the ZIP
+  reader; the entry's folder-has-AES flag)
 * Sequential (non-seekable) input for TAR/gzip
 * HTTP-range `ByteSource` package (remote CBZ page reads)
 * gzip seek-index (zran-style) for random access into `.tar.gz`

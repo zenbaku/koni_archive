@@ -41,7 +41,10 @@ void main() {
     test('single file (AES → LZMA2)', () async {
       final reader = await open('encrypted.7z', password: 'secret');
       final entry = reader.entries.singleWhere((e) => e.isFile);
-      expect(entry.isEncrypted, isFalse, reason: 'header is plaintext here');
+      // The data is AES-encrypted (its folder carries the AES coder), so the
+      // entry reports encrypted — independent of whether the *header* was
+      // encrypted (it is plaintext in this fixture).
+      expect(entry.isEncrypted, isTrue);
       expect(await collect(reader, entry), helloBytes);
     });
 

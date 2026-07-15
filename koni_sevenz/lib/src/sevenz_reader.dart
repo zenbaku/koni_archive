@@ -234,6 +234,7 @@ final class SevenZReader extends ArchiveReader {
                 type: ArchiveEntryType.file,
                 uncompressedSize: size,
                 compression: _folderCompression(streams.folders[f]),
+                isEncrypted: _folderIsEncrypted(streams.folders[f]),
                 crc32: streams.substreamCrcs[stream],
               ),
             );
@@ -327,6 +328,7 @@ final class SevenZReader extends ArchiveReader {
           type: isSymlink ? ArchiveEntryType.symlink : ArchiveEntryType.file,
           uncompressedSize: size,
           compression: _folderCompression(streams.folders[folderIndex]),
+          isEncrypted: _folderIsEncrypted(streams.folders[folderIndex]),
           modified: modified,
           posixMode: unixMode == null ? null : unixMode & 0xFFF,
           crc32: crc,

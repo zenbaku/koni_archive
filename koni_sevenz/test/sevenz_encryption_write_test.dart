@@ -151,6 +151,20 @@ void main() {
       expect(pageEntry.isEncrypted, isTrue);
       expect(dirEntry.isEncrypted, isFalse);
 
+      // The reader flags it too (parses the AES coder in the folder): a
+      // content file is encrypted, a directory and an empty file are not.
+      final reader = await SevenZReader.parse(
+        const SevenZFormat(),
+        MemoryByteSource(archive),
+        const ArchiveReadOptions(password: password),
+      );
+      final readPage = reader.entries.firstWhere((e) => e.path == 'dir/page.txt');
+      final readDir = reader.entries.firstWhere((e) => e.path == 'dir');
+      final readEmpty = reader.entries.firstWhere((e) => e.path == 'empty.txt');
+      expect(readPage.isEncrypted, isTrue);
+      expect(readDir.isEncrypted, isFalse);
+      expect(readEmpty.isEncrypted, isFalse);
+
       final files = await readFiles(archive, password: password);
       expect(utf8.decode(files['dir/page.txt']!), 'encrypted page\n');
       expect(files['empty.txt'], isEmpty);
