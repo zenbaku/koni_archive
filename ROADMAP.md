@@ -127,10 +127,38 @@ order of attack:
 | R2 | RAR5 `-hp` encrypted-header **read** | ✅ (per-block IV + block-key CBC headers; byte-exact vs rar 7.x on VM/dart2js/dart2wasm; wrong/no-password typed errors) |
 | R3 | Solid RAR4 | ✅ (persistent tables/offset-cache/window across the run; byte-exact vs unrar on VM/dart2js/dart2wasm; fuzz-hardened) |
 | R4 | Multi-volume (RAR4 + RAR5) | ✅ (`ArchiveReadOptions.nextVolume` resolver; split files reassembled across volumes; store + compressed, both versions, byte-exact vs unrar on VM/dart2js/dart2wasm) |
-| R5 | RAR4 PPMd (variant H) — the finale; large, no corpus coverage | ⬜ |
+| R5 | RAR4 PPMd (variant H) — the finale; large, no corpus coverage | ⬜ (next session) |
 
 Custom (non-standard) RarVM programs stay a typed error by *license* (only the
 GPL unrar describes a generic interpreter), not by difficulty.
+
+### R5 — RAR4 PPMd (variant H): starting notes
+
+Full RAR reading is the goal, so PPMd is **in scope** — it is the last gap,
+deferred only for size, not permanently. What a future session needs to know:
+
+* **Current state:** a hard stub. `rar4_decoder.dart` `_parseCodes` reads the
+  block-type bit and, when it is PPMd, throws
+  `FormatException('RAR4 PPMd blocks are not supported')`, which the reader maps
+  to a typed `UnsupportedFeatureException` (one PPMd entry never bricks the
+  archive). No PPMd decoder exists.
+* **What it is:** RAR4 uses **PPMd variant H** (Dmitry Shkarin's PPMII) — the
+  same variant 7-Zip carries for RAR compatibility. A range/arithmetic decoder
+  + an order-N context model with SEE (secondary escape estimation), a
+  suffix-linked context tree, and a bespoke sub-allocator (glue/expand/restart).
+  Multi-hundred lines, notoriously fiddly, and subject to the same dart2js
+  32-bit-arithmetic traps as the LZMA/RAR codecs (`-p chrome -c dart2js,dart2wasm`
+  is mandatory, not optional).
+* **Reference / provenance:** libarchive's BSD `rar.c` **does** include PPMd var.H
+  (it uses `archive_ppmd7.c`) — an approved clean-room reference (unlike the
+  GPL unrar). Confirm `rar.c` / `archive_ppmd7.c` cover variant H before relying
+  on them; record in `doc/references.md`.
+* **No corpus oracle:** the manga corpus never triggers PPMd (RAR picks it for
+  *text*, and comics are images), so there is no local ground truth. Author a
+  PPMd v4 fixture with **rar 6.24** (rar 7.x cannot author v4) — force PPMd via
+  RAR's method/`-mc` switches over highly text-like input — commit it to
+  `test/fixtures/rar_static/` (like the other v4 fixtures), and verify byte-exact
+  vs `unrar`. This is the only RAR gap with no existing test oracle.
 
 ## Deferred backlog (typed errors today; candidates for post-Phase-1)
 
