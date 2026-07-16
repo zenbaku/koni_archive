@@ -9,8 +9,10 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:koni_archive_core/koni_archive_core.dart';
+import 'package:koni_codecs/crypto.dart';
 
 import 'rar5_container.dart' show Rar5FileHeader, Rar5Toc;
+import 'rar_crypto.dart';
 
 /// RAR4 block types.
 abstract final class Rar4BlockType {
@@ -42,7 +44,17 @@ const int _dictionaryMax = 0x400000;
 
 /// Parses a RAR4 archive's headers into the shared [Rar5FileHeader] model
 /// (method 0x30 = store → 0, 0x31–0x35 → 1–5; version 29).
-Future<Rar5Toc> parseRar4(ByteSource source, int signatureEnd) async {
+///
+/// When the main header sets the `-hp` (encrypted-headers) flag and a
+/// [password] is supplied, every following block header is decrypted before
+/// parsing (see [_parseRar4EncryptedHeaders]); without a password the returned
+/// TOC is flagged [Rar5Toc.headerEncrypted] with no files, and the caller
+/// reports the locked archive.
+Future<Rar5Toc> parseRar4(
+  ByteSource source,
+  int signatureEnd, {
+  String? password,
+}) async {
   final files = <Rar5FileHeader>[];
   var offset = signatureEnd;
   var isVolume = false;
@@ -76,10 +88,19 @@ Future<Rar5Toc> parseRar4(ByteSource source, int signatureEnd) async {
 
     if (type == Rar4BlockType.endArc) break;
     if (type == Rar4BlockType.main) {
-      if (flags & _mhdPassword != 0) {
-        return Rar5Toc(const [], true); // encrypted headers
-      }
       isVolume = flags & _mhdVolume != 0;
+      if (flags & _mhdPassword != 0) {
+        // `-hp`: the main header is plaintext (it carries this flag), but
+        // every block after it is AES-encrypted. Without a password we can
+        // only report that the archive is locked.
+        if (password == null) return Rar5Toc(const [], true);
+        return _parseRar4EncryptedHeaders(
+          source,
+          offset + headerSize + addSize,
+          password,
+          isVolume: isVolume,
+        );
+      }
       offset += headerSize + addSize;
       continue;
     }
@@ -110,6 +131,144 @@ Future<Rar5Toc> parseRar4(ByteSource source, int signatureEnd) async {
   }
   return Rar5Toc(files, false, isVolume: isVolume);
 }
+
+/// Walks the AES-encrypted block headers of a `-hp` RAR4 archive, starting at
+/// [startOffset] (just past the plaintext main header). Each block is stored
+/// as `salt[8] · AES-128-CBC(header padded to 16)`; the salt is the same value
+/// repeated before every block, and each block's cipher is (re)initialised with
+/// the salt-derived IV — CBC chains only *within* a block, not across them
+/// (matching the BSD `rardecode`'s per-block decrypt reader, `doc/references.md`).
+///
+/// File *data* between headers stays encrypted under each file's own salt
+/// (the SALT flag in its now-decrypted header) and is decrypted later by the
+/// reader's `-p` path — nothing extra to do here.
+///
+/// RAR4 has no password-check value, so a wrong password is detected by the
+/// header CRC: the first block failing to decrypt to a valid header
+/// ([InvalidPasswordException]) is almost always a bad password (a 16-bit CRC
+/// cannot fully separate that from corruption). A later block failing after
+/// the first decoded cleanly is corruption ([InvalidHeaderException]).
+Future<Rar5Toc> _parseRar4EncryptedHeaders(
+  ByteSource source,
+  int startOffset,
+  String password, {
+  required bool isVolume,
+}) async {
+  final files = <Rar5FileHeader>[];
+  // The salt is repeated verbatim before every block, so memoize the (costly,
+  // 0x40000-round SHA-1) key derivation by salt.
+  final keyCache = <String, Rar4Keys>{};
+  var offset = startOffset;
+  var isFirstBlock = true;
+
+  while (offset + 8 <= source.length) {
+    final saltStart = offset;
+    final salt = Uint8List.fromList(await source.read(saltStart, 8));
+    final keys = keyCache[_hex(salt)] ??= Rar4Keys.derive(password, salt);
+    final encStart = saltStart + 8;
+
+    // A block needs at least one 16-byte AES block for its (padded) header.
+    if (encStart + 16 > source.length) {
+      if (isFirstBlock) {
+        throw InvalidPasswordException(
+          'RAR4 encrypted headers: wrong password or corrupt archive',
+          format: 'rar',
+          offset: saltStart,
+        );
+      }
+      break; // truncated tail after a clean run of headers
+    }
+
+    // Decrypt the first block to learn the header size, then continue the same
+    // CBC chain for the rest of the (padded) header.
+    final cbc = AesCbcDecryptor(Aes(keys.aesKey), keys.iv);
+    final first = Uint8List.fromList(await source.read(encStart, 16));
+    cbc.decryptInPlace(first);
+    final storedCrc = first[0] | (first[1] << 8);
+    final type = first[2];
+    final blockFlags = first[3] | (first[4] << 8);
+    final headerSize = first[5] | (first[6] << 8);
+    final padded = (headerSize + 15) & ~15;
+
+    if (headerSize < 7 || encStart + padded > source.length) {
+      if (isFirstBlock) {
+        throw InvalidPasswordException(
+          'RAR4 encrypted headers: wrong password or corrupt archive',
+          format: 'rar',
+          offset: saltStart,
+        );
+      }
+      throw InvalidHeaderException(
+        'RAR4 encrypted block header size $headerSize is invalid',
+        format: 'rar',
+        offset: saltStart,
+      );
+    }
+
+    final headerBytes = Uint8List(padded)..setRange(0, 16, first);
+    if (padded > 16) {
+      final rest = Uint8List.fromList(
+        await source.read(encStart + 16, padded - 16),
+      );
+      cbc.decryptInPlace(rest);
+      headerBytes.setRange(16, padded, rest);
+    }
+
+    // The stored CRC covers the unpadded header body (bytes 2..headerSize).
+    final calcCrc =
+        Crc32.compute(Uint8List.sublistView(headerBytes, 2, headerSize)) &
+        0xFFFF;
+    if (calcCrc != storedCrc) {
+      if (isFirstBlock) {
+        throw InvalidPasswordException(
+          'RAR4 encrypted headers: wrong password or corrupt archive',
+          format: 'rar',
+          offset: saltStart,
+        );
+      }
+      throw InvalidHeaderException(
+        'RAR4 encrypted block header CRC mismatch',
+        format: 'rar',
+        offset: saltStart,
+      );
+    }
+    isFirstBlock = false;
+
+    if (type == Rar4BlockType.endArc) break;
+
+    // Data (if any) follows the padded header, at a real source offset.
+    final dataOffset = encStart + padded;
+    if (type == Rar4BlockType.file) {
+      final header = _parseFileHeader(
+        Uint8List.sublistView(headerBytes, 0, headerSize),
+        blockFlags,
+        dataOffset,
+        saltStart,
+      );
+      files.add(header);
+      offset = dataOffset + header.dataSize;
+      continue;
+    }
+
+    // Any other block: skip its header and, when present, its add-size data.
+    var addSize = 0;
+    if (blockFlags & _hdAddSizePresent != 0 && headerSize >= 11) {
+      addSize =
+          headerBytes[7] |
+          (headerBytes[8] << 8) |
+          (headerBytes[9] << 16) |
+          (headerBytes[10] << 24);
+    }
+    offset = dataOffset + addSize;
+  }
+
+  // headerEncrypted stays true (the archive *had* encrypted headers); the
+  // populated file list signals a successful decrypt, mirroring RAR5.
+  return Rar5Toc(files, true, isVolume: isVolume);
+}
+
+String _hex(Uint8List b) =>
+    b.map((x) => x.toRadixString(16).padLeft(2, '0')).join();
 
 Rar5FileHeader _parseFileHeader(
   Uint8List headerBytes,

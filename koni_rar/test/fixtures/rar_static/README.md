@@ -12,6 +12,8 @@ deletes them.
 | --- | --- |
 | `enc_rar4_store.rar` | rar 6.24, `-ma4 -m0 -psecret` — encrypted RAR4 store (hello.txt, lorem.txt, nested/notes.txt) |
 | `enc_rar4.rar` | rar 6.24, `-ma4 -m3 -psecret` — encrypted RAR4 compressed (same members) |
+| `hp_rar4.rar` | rar 6.24, `-ma4 -m3 -hpsecret` — RAR4 **encrypted headers** (`-hp`, same members); the block headers themselves are AES-encrypted, so even listing needs the password |
+| `hp_rar4_store.rar` | rar 6.24, `-ma4 -m0 -hpsecret` — RAR4 `-hp` over stored members (isolates the header crypto from the method-29 decoder) |
 | `filter_delta.rar` | rar 6.24, `-ma4 -m5` over `grad.bmp` (24-bit gradient BMP) — trips the **delta** filter (kind 0) |
 | `filter_e8.rar` | rar 6.24, `-ma4 -m5` over `x86call.bin` (synthetic x86 with dense CALLs to a fixed target) — trips the **x86 E8** filter (kind 1) |
 | `filter_rgb.rar` | rar 6.24, `-ma4 -m5 -mm` over `rgbimg.bmp` (correlated-channel BMP) — trips the **RGB** filter (kind 3) plus a delta block |

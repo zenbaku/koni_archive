@@ -85,6 +85,68 @@ void main() {
     },
     timeout: const Timeout(Duration(minutes: 5)),
   );
+
+  // The no-password pass above only reaches the "archive is locked" branch for
+  // `-hp` archives. Mutating them and opening *with* the password drives the
+  // encrypted-header walker itself (per-block salt read, AES decrypt, header
+  // size/CRC checks) — the same §7 invariant must hold there.
+  test(
+    'mutated encrypted-header (-hp) archives throw typed errors only',
+    () async {
+      final budget = Duration(
+        seconds:
+            int.tryParse(
+              Platform.environment['KONI_ARCHIVE_FUZZ_SECONDS'] ?? '',
+            ) ??
+            5,
+      );
+      final seed = DateTime.now().millisecondsSinceEpoch ^ 0x48705f34;
+      final random = Random(seed);
+      printOnFailure('fuzz seed: $seed');
+
+      final fixtures = [
+        for (final name in const ['hp_rar4.rar', 'hp_rar4_store.rar'])
+          File('test/fixtures/rar_static/$name').readAsBytesSync(),
+      ];
+      const options = ArchiveReadOptions(password: 'secret');
+
+      final deadline = DateTime.now().add(budget);
+      var iterations = 0;
+      while (DateTime.now().isBefore(deadline)) {
+        iterations++;
+        final mutated = _mutate(
+          fixtures[random.nextInt(fixtures.length)],
+          random,
+        );
+        try {
+          final reader = await const RarFormat().openReader(
+            MemoryByteSource(mutated),
+            options,
+          );
+          for (final entry in reader.entries) {
+            try {
+              var total = 0;
+              await for (final chunk in reader.openRead(entry)) {
+                total += chunk.length;
+                if (total > 1024 * mutated.length + (1 << 20)) {
+                  fail(
+                    'entry ${entry.path} streamed more bytes than plausible',
+                  );
+                }
+              }
+            } on ArchiveException {
+              // typed: fine
+            }
+          }
+          await reader.close();
+        } on ArchiveException {
+          // typed: fine
+        }
+      }
+      printOnFailure('completed $iterations iterations');
+    },
+    timeout: const Timeout(Duration(minutes: 5)),
+  );
 }
 
 Uint8List _mutate(Uint8List base, Random random) {

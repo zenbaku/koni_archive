@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+- **RAR4 encrypted headers (`rar -ma4 -hp`, read)** now decode with
+  `ArchiveReadOptions.password` (previously a typed error) — the whole archive,
+  including entry names and sizes, is locked, so listing itself needs the
+  password. The block headers are decrypted inline during the container walk
+  (`rar4_container.dart`): after the plaintext marker + main header (which
+  carries the `MHD_PASSWORD` flag), each following block is
+  `salt[8] · AES-128-CBC(header padded to 16)` with the cipher re-initialised
+  per block from the salt-derived IV, reusing the RAR3 SHA-1 KDF + AES-128
+  already built for `-p`; file data between headers stays keyed by each file's
+  own salt (the existing `-p` path). RAR4 has no password-check value, so a
+  wrong password is caught by the 16-bit header CRC and reported as
+  `InvalidPasswordException` (no password → `EncryptedArchiveException`).
+  Byte-exact vs `unrar` on VM + dart2js + dart2wasm; fuzz-hardened. Framing
+  cross-checked against the BSD Go `rardecode` (`archive15.go` /
+  `decrypt_reader.go`) — libarchive's RAR4 reader has no crypto. Fixtures
+  authored with rar 6.24 (7.x cannot create v4). Multi-volume `-hp` threads the
+  password per volume but is unverified (no split `-hp` fixture).
+
 - **RAR 2.0** (unpack version 20) **LZ** decoding — vintage `.rar` files now read
   (previously a misleading corruption error). `rar20_decoder.dart` is a
   clean-room LZSS+Huffman decoder adapted from the BSD Go `rardecode`

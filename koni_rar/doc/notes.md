@@ -21,10 +21,10 @@ mid-file PPMd→method-29 block switch (implementation-scoped — the BSD
 `rardecode` reader shows the path, but the PPMd↔LZSS loop hand-off is
 unimplemented).
 File encryption (`-p`) is supported on both
-versions and RAR5 header encryption (`-hp`) reads with a password (see
-below). **Multi-volume sets read** (both versions) when the caller supplies
-the other volumes via `ArchiveReadOptions.nextVolume` (see below). RAR4
-`-hp` stays a typed error (§15).
+versions, and header encryption (`-hp`) reads with a password on both
+versions too (see below). **Multi-volume sets read** (both versions) when
+the caller supplies the other volumes via `ArchiveReadOptions.nextVolume`
+(see below).
 
 ## Container
 
@@ -364,6 +364,42 @@ which cannot create v4 — same constraint as the method-29 decoder's
 missing fixture). They are committed static files; CI needs only the
 committed bytes.
 
-RAR4 encrypted **headers** (`rar -ma4 -hp`) remain deferred (typed error):
-their layout uses the RAR3 SHA-1 KDF and differs from the RAR5 `-hp` scheme
-above, and no committed v4 fixture exists (rar 7.x can't author v4).
+**RAR4 header encryption (`rar -ma4 -hp`) IS supported (R7)**
+(`ArchiveReadOptions.password`; wrong password → `InvalidPasswordException`,
+no password → `EncryptedArchiveException`). It is decrypted inline during the
+header walk in `rar4_container.dart` (`_parseRar4EncryptedHeaders`), reusing
+the RAR3 SHA-1 KDF + AES-128-CBC already built for `-p`. The framing differs
+from RAR5 `-hp` in three ways worth stating plainly:
+
+- **The marker and main header stay plaintext.** The main header carries the
+  `MHD_PASSWORD` flag (`0x0080`); detecting it is what triggers the encrypted
+  walk. Everything *after* the main header is encrypted. (RAR5 instead has a
+  dedicated plaintext `HEAD_CRYPT` block.)
+- **Each following block is `salt[8] · AES-128-CBC(header padded to 16)`**,
+  with the cipher re-initialised per block from the salt-derived IV (CBC
+  chains only *within* a block, matching RAR5's per-block framing). Unlike
+  RAR5 there is **no clear IV** — the IV comes from the KDF, as under `-p`.
+  The salt is the same archive-wide value repeated before every block, so the
+  costly (`0x40000`-round) key derivation is memoized by salt.
+- **No password-check value** (RAR3/4 has none). The wrong-password signal is
+  the block's own **16-bit header CRC** (`crc32(header[2:size]) & 0xFFFF`,
+  over the *unpadded* header): the first block failing to decrypt to a valid
+  header is reported as `InvalidPasswordException` (a 16-bit CRC can't fully
+  separate a bad password from corruption, so the message says both); a
+  *later* block failing after the first decoded cleanly is corruption
+  (`InvalidHeaderException`).
+
+File **data** between the (now-decrypted) headers is untouched by this layer —
+it stays encrypted under each file's own SALT-flag key and is decrypted by the
+existing `-p` path, so `_parseRar4EncryptedHeaders` only has to place the
+data offset after the padded header. Reverse-engineered against `rar 6.24`
+`-ma4 -hp` fixtures (byte-exact: header CRCs and decrypted content reproduce,
+`unrar` the oracle) and cross-checked against the Go `rardecode` `archive15.go`
+/ `decrypt_reader.go` framing (BSD; see `doc/references.md`); libarchive's
+RAR4 reader has no crypto.
+
+**Fixture provenance:** `hp_rar4.rar` / `hp_rar4_store.rar` were likewise
+authored with **rar 6.24** (rar 7.x can't create v4) and committed as static
+files under `test/fixtures/rar_static/`. Deferred still: RAR4 `-hp` over a
+*multi-volume* set — the password is threaded through per-volume parsing, but
+no split `-hp` fixture exists to verify it.

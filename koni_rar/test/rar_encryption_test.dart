@@ -131,6 +131,55 @@ void main() {
     });
   });
 
+  group('RAR4 encrypted headers (rar -ma4 -hp)', () {
+    // Fixtures authored with rar 6.24 (`-hpsecret`); with `-hp` the block
+    // headers (names, sizes) are AES-encrypted too, so even listing needs the
+    // password. Same members as the `-p` fixtures above, so the byte-exact
+    // decrypt is the CRC-verified default read path.
+    test('compressed (rar -ma4 -m3 -hp): lists and decodes', () async {
+      final reader = await openStatic('hp_rar4.rar', password: 'secret');
+      expect(
+        reader.entries.map((e) => e.path),
+        containsAll(<String>['hello.txt', 'lorem.txt', 'nested/notes.txt']),
+      );
+      expect(reader.entries.first.isEncrypted, isTrue);
+      expect(await collect(reader, file(reader, 'hello.txt')), helloBytes);
+      expect(await collect(reader, file(reader, 'lorem.txt')), loremBytes);
+      expect(
+        await collect(reader, file(reader, 'nested/notes.txt')),
+        notesBytes,
+      );
+    });
+
+    test('stored (rar -ma4 -m0 -hp): lists and decodes', () async {
+      final reader = await openStatic('hp_rar4_store.rar', password: 'secret');
+      expect(reader.entries.first.compression, ArchiveCompression.stored);
+      expect(await collect(reader, file(reader, 'hello.txt')), helloBytes);
+      expect(await collect(reader, file(reader, 'lorem.txt')), loremBytes);
+      expect(
+        await collect(reader, file(reader, 'nested/notes.txt')),
+        notesBytes,
+      );
+    });
+
+    test('wrong password fails opening (header CRC)', () async {
+      // RAR4 has no password-check value; the encrypted-header CRC is the
+      // wrong-password signal (a 16-bit CRC can't fully separate it from
+      // corruption, so the message says both).
+      await expectLater(
+        openStatic('hp_rar4.rar', password: 'wrong'),
+        throwsA(isA<InvalidPasswordException>()),
+      );
+    });
+
+    test('no password: listing itself is locked', () async {
+      await expectLater(
+        openStatic('hp_rar4.rar'),
+        throwsA(isA<EncryptedArchiveException>()),
+      );
+    });
+  });
+
   group('password handling', () {
     test('no password: throws at openRead, listing works', () async {
       final reader = await open('encrypted.rar');

@@ -129,7 +129,7 @@ order of attack:
 | R4 | Multi-volume (RAR4 + RAR5) | ✅ (`ArchiveReadOptions.nextVolume` resolver; split files reassembled across volumes; store + compressed, both versions, byte-exact vs unrar on VM/dart2js/dart2wasm) |
 | R5 | RAR4 PPMd (variant H) — the finale; large, no corpus coverage | ✅ (public-domain Ppmd7 model + RAR range decoder; byte-exact vs unrar/CRC from 82 B to 2.6 MB, order 2–63, mem 1–8 MB, non-solid **and solid**, on VM/dart2js/dart2wasm; fuzz-hardened. Only a mid-file PPMd→method-29 switch stays a typed error — see R8) |
 | R6 | Custom (non-standard) RAR4 **RarVM** filter programs — a generic bytecode interpreter | ⬜ (unblocked: the BSD Go `rardecode` `vm.go` is a clean-room reference, so no longer license-bounded) |
-| R7 | RAR4 **`-hp` encrypted headers** (read) | ⬜ (RAR3/4 header crypto; `rardecode` supports it — reference available) |
+| R7 | RAR4 **`-hp` encrypted headers** (read) | ✅ (per-block `salt[8]·AES-128-CBC(header)` with the RAR3 SHA-1 KDF; byte-exact vs `unrar`/CRC on VM/dart2js/dart2wasm, fuzz-hardened; wrong password → `InvalidPasswordException` via the 16-bit header CRC. Fixtures authored with rar 6.24. Multi-volume `-hp` threads the password but is unverified — no split fixture) |
 | R8 | Mid-file **PPMd→method-29 (LZSS) block switch** (escape code 0) | ⬜ (the last PPMd gap; `rardecode`'s unified decode loop shows the range-decoder→Huffman hand-off) |
 | R9 | **RAR 1.5 / 2.0** legacy unpack methods (v15/v20, incl. RAR2 multimedia/audio) | ✅ for **RAR 2.0 (v20) LZ**: byte-exact vs `unrar` on VM/dart2js/dart2wasm, fuzz-hardened; fixtures authored with DOS RAR 2.50 under DOSBox. v26 shares the v20 decoder but is untested (no fixture). Typed errors (no permissive reference — only GPL unrar): **v15** (RAR 1.5; `rardecode` returns `ErrUnsupportedDecoder`), the **multimedia/audio** block (`rardecode`'s decoder mis-decodes it vs `unrar`), and **solid v20 continuations** (run start still decodes; full solid-v20 decode deferred) |
 
@@ -139,8 +139,8 @@ completeness track. It **lifts the license boundary** that had deferred the
 generic RarVM interpreter (R6) and RAR4 `-hp` headers (R7): those were held back
 because the only prior interpreter/`-hp` reference was the GPL unrar, and
 `rardecode` is BSD-2-Clause. R8 (mid-file PPMd↔LZSS switch) and R9 (legacy
-methods) are now reference-backed too. Suggested order by effort/value: R7
-(cheap, contained), R6 (highest impact, largest — a full VM), R9 (breadth), R8
+methods) are now reference-backed too. R7 and R9 have landed; the remaining
+order by effort/value is **R6** (highest impact, largest — a full VM) then R8
 (niche). Separately, `rardecode` is a second *independent* implementation (not
 just the `unrar` black-box binary) — worth a source-level cross-read to
 re-verify the fiddly already-shipped paths (RAR5 filter math, the method-29
@@ -209,21 +209,36 @@ with a **generic RarVM interpreter** so *any* method-29 filter decodes.
 * **Scope note:** the *standard*-filter fast path already covers what the manga
   corpus emits; R6 is a completeness play for archives from other tools.
 
-### R7 — RAR4 `-hp` encrypted headers (read): starting notes
+### R7 — RAR4 `-hp` encrypted headers (read): done (2026-07-16)
 
-RAR4 file-data decryption (`-p`, P3-5) already works; `-hp` (encrypted *headers*)
-is still a typed error. R7 reads it with a password.
+RAR4 file-data decryption (`-p`, P3-5) already worked; `-hp` (encrypted
+*headers*) now reads with a password too. The block headers are decrypted inline
+during the container walk in `rar4_container.dart`
+(`_parseRar4EncryptedHeaders`), reusing the RAR3 SHA-1 KDF + AES-128-CBC from
+`-p`. Full detail in `koni_rar/doc/notes.md` ("RAR4 header encryption").
 
-* **What it is:** with `-hp`, the block headers themselves are AES-encrypted
-  (the same RAR3 SHA-1 KDF + AES-128-CBC as file data, salted). The reader must
-  detect the encrypted-header archive, derive the key from the password, and
-  decrypt each header before parsing — mirroring the RAR5 `-hp` path (R2) but
-  with RAR3 crypto (already implemented in `rar_crypto.dart`).
-* **Provenance:** `rardecode` supports RAR3/4 `-hp` (BSD reference); the RAR5
-  `-hp` reader (R2) is the structural analogue on our side. Contained scope.
-* **Fixtures:** `rar a -ma4 -hpsecret …` with rar 6.24; wrong/missing-password
-  cases must stay typed errors (RAR4 has no password check value, so a wrong
-  password surfaces as a checksum/parse error — same policy as P3-5).
+* **The framing (confirmed empirically, then cross-checked vs `rardecode`):**
+  the marker and main header stay **plaintext** — the main header carries the
+  `MHD_PASSWORD` flag (`0x0080`), which triggers the encrypted walk. Every block
+  after it is `salt[8] · AES-128-CBC(header padded to 16)`, with the cipher
+  **re-initialised per block** from the salt-derived IV (CBC chains only within a
+  block; no clear IV — unlike RAR5). The salt is one archive-wide value repeated
+  before each block (so the `0x40000`-round KDF is memoized). File **data** stays
+  keyed by each file's own SALT-flag key (the existing `-p` path).
+* **Wrong password:** RAR3/4 has no password-check value, so the 16-bit header
+  CRC (`crc32(header[2:size]) & 0xFFFF`) is the signal — a first-block failure is
+  `InvalidPasswordException` (a 16-bit CRC can't fully separate a bad password
+  from corruption, so the message says both); a later-block failure after a clean
+  first block is `InvalidHeaderException`. No password → `EncryptedArchiveException`.
+* **Verified:** byte-exact vs `unrar`/CRC-32 on VM + dart2js + dart2wasm
+  (`test/rar4_hp_web_test.dart`), fuzz-hardened (mutated `-hp` archives opened
+  *with* the password → typed errors only). Fixtures `hp_rar4.rar` /
+  `hp_rar4_store.rar` authored with **rar 6.24** live in `test/fixtures/rar_static/`.
+* **Provenance:** framing adapted from the BSD Go `rardecode` (`archive15.go`
+  `readBlockHeader`/`parseArcBlock`, `decrypt_reader.go`); libarchive's RAR4
+  reader has no crypto.
+* **Deferred:** RAR4 `-hp` over a *multi-volume* set — the password is threaded
+  through per-volume parsing, but no split `-hp` fixture exists to verify it.
 
 ### R8 — Mid-file PPMd→method-29 (LZSS) block switch: starting notes
 

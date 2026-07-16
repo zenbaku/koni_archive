@@ -16,6 +16,7 @@
 | **RAR4 PPMd** (variant H, `-mct`) | clean-room Ppmd7 (public-domain) + RAR range decoder; byte-exact vs unrar on VM/dart2js/dart2wasm — non-solid **and solid** |
 | RAR4 solid archives (method-29 **and PPMd**) | shared tables/offset-cache/window (method-29) or shared model/escape/window (PPMd) across the run; per-file cache, random access |
 | RAR5 header encryption (`-hp`, read) | decrypts headers + data with `ArchiveReadOptions.password` (R2) |
+| RAR4 header encryption (`-hp`, read) | decrypts per-block AES-128-CBC headers (RAR3 SHA-1 KDF) with `ArchiveReadOptions.password` (R7); wrong password → `InvalidPasswordException` via the header CRC. Fixtures authored with rar 6.24 |
 | Multi-volume RAR (RAR4 + RAR5) | split files reassembled via `ArchiveReadOptions.nextVolume` (store + compressed) |
 | Entry metadata | UTF-8 names, mtime (UTC), unix modes, dirs, symlinks (RAR5 REDIR) |
 | CRC-32 verification | on by default; `verifyChecksums: false` opt-out |
@@ -30,8 +31,8 @@
 | RAR 1.5 (unpack v15), and the RAR 2.0/2.6 multimedia/**audio** block | `UnsupportedFeatureException`. No correct permissive reference — v15: `rardecode` returns `ErrUnsupportedDecoder`; audio: `rardecode`'s predictor mis-decodes it vs unrar. Only the GPL unrar has either. Store decodes at any version |
 | Encrypted entry, no password | `EncryptedArchiveException` at `openRead` (listing works) |
 | Wrong RAR5 password | `InvalidPasswordException` (reliable 8-byte check value) |
-| Wrong RAR4 password | RAR4 has no check value: surfaces as `ChecksumMismatchException` (stored) or `CorruptArchiveException` (compressed garbage) — never an untyped error |
-| RAR4 encrypted headers (`-hp`) | `EncryptedArchiveException` at open — deferred (RAR5 `-hp` reads) |
+| Wrong RAR4 password (`-p` file data) | RAR4 has no check value: surfaces as `ChecksumMismatchException` (stored) or `CorruptArchiveException` (compressed garbage) — never an untyped error |
+| Wrong RAR4 password (`-hp` headers) | `InvalidPasswordException` from the 16-bit header CRC (which can't fully separate a bad password from corruption, so the message says both) |
 | Multi-volume without a `nextVolume` resolver | `UnsupportedFeatureException` |
 
 ## Provenance (§8, §13.5)

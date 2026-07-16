@@ -12,11 +12,11 @@
 /// 2.0/2.6 (unpack v20/v26) LZ. Custom VM programs, a mid-file PPMd→method-29
 /// block switch, RAR 1.5 (v15), and the RAR 2.x audio block stay typed errors.
 /// Password-protected *files* decrypt via `ArchiveReadOptions.password` —
-/// RAR5 with AES-256 (P3-4) and RAR4 with AES-128 (P3-5). RAR5 encrypted
-/// *headers* (`-hp`) also read with a password; RAR4 `-hp` stays a typed
-/// error. Multi-volume sets (both versions) read when the other volumes are
-/// supplied via `ArchiveReadOptions.nextVolume`. See `doc/rar-provenance.md`
-/// for the clean-room policy and `doc/references.md` for attributions.
+/// RAR5 with AES-256 (P3-4) and RAR4 with AES-128 (P3-5). Encrypted *headers*
+/// (`-hp`) also read with a password, for both RAR5 and RAR4. Multi-volume
+/// sets (both versions) read when the other volumes are supplied via
+/// `ArchiveReadOptions.nextVolume`. See `doc/rar-provenance.md` for the
+/// clean-room policy and `doc/references.md` for attributions.
 library;
 
 export 'src/rar_format.dart';

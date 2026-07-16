@@ -90,19 +90,13 @@ final class RarReader extends ArchiveReader {
   }) async {
     final toc =
         isRar4
-            ? await parseRar4(source, 7) // RAR4 signature is 7 bytes
+            ? await parseRar4(source, 7, password: options.password)
             : await Rar5Toc.parse(source, 8, password: options.password);
     if (toc.headerEncrypted) {
-      // RAR5 `-hp` is decrypted in place when a password is supplied (the
-      // crypt header keyed every following header, and `toc.files` is
-      // populated); a wrong password already threw InvalidPasswordException.
-      // RAR4 `-hp` (RAR3 KDF) stays a documented deferral.
-      if (isRar4) {
-        throw EncryptedArchiveException(
-          'RAR4 encrypted headers (rar -ma4 -hp) are not supported',
-          format: 'rar',
-        );
-      }
+      // Both `-hp` paths decrypt the headers in place when a password is
+      // supplied (the crypt/main header keys every following block, and
+      // `toc.files` is populated); a wrong password already threw
+      // InvalidPasswordException. Without a password, the archive is locked.
       if (options.password == null) {
         throw EncryptedArchiveException(
           'the archive uses encrypted headers (rar -hp); supply '
@@ -162,7 +156,7 @@ final class RarReader extends ArchiveReader {
 
     Future<Rar5Toc> parseVolume(ByteSource src) =>
         isRar4
-            ? parseRar4(src, 7)
+            ? parseRar4(src, 7, password: options.password)
             : Rar5Toc.parse(src, 8, password: options.password);
 
     addVolume(firstSource, (await parseVolume(firstSource)).files);
@@ -279,9 +273,9 @@ final class RarReader extends ArchiveReader {
       decoded = await _decodeToBytes(index, header, entry.path);
     } on FormatException catch (e) {
       // A decoder feature we deliberately defer (custom RarVM programs, the
-      // mid-file PPMd block switch, encrypted headers) surfaces as an
-      // unsupported-feature error, not corruption (§8/§9), so one such entry
-      // never implies the archive is damaged.
+      // mid-file PPMd→method-29 block switch) surfaces as an unsupported-
+      // feature error, not corruption (§8/§9), so one such entry never
+      // implies the archive is damaged.
       if (e.message.contains('not supported')) {
         throw UnsupportedFeatureException(
           e.message,
