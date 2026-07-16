@@ -10,18 +10,16 @@ RAR5 (`Rar!\x1A\x07\x01\x00`): store and compressed methods 1–5, solid
 and non-solid, with delta / x86 (E8/E8E9) / ARM filters.
 
 RAR4 (`Rar!\x1A\x07\x00`, M10): the v1.5 container + store and the
-method-29 (v2.9/v3+) LZSS+Huffman codec, **non-solid**, including the
-**RarVM standard filters** (see `rar4_filters.dart`). This is what the
+method-29 (v2.9/v3+) LZSS+Huffman codec, **solid and non-solid**, including
+the **RarVM standard filters** (see `rar4_filters.dart`). This is what the
 real-world CBR corpus uses (`-m0` store, `-m3`/`-m5` method-29, and the
 delta filter on 37 pages of one volume). The following RAR4 features are
-**deferred as typed errors**: PPMd variant H, *custom* (non-standard) VM
+**deferred as typed errors**: PPMd variant H and *custom* (non-standard) VM
 filter programs — a license-bounded boundary, not a difficulty one: the
 only interpreter reference is GPL unrar, and the standard filters are the
-ones real archives emit — and solid RAR4 (its cross-file persistent-table
-semantics differ from RAR5; real CBRs are non-solid). File encryption
-(`-p`) is supported on both versions and RAR5 header encryption (`-hp`)
-reads with a password (see below); RAR4 `-hp` and multi-volume stay typed
-errors (§15).
+ones real archives emit. File encryption (`-p`) is supported on both
+versions and RAR5 header encryption (`-hp`) reads with a password (see
+below); RAR4 `-hp` and multi-volume stay typed errors (§15).
 
 ## Container
 
@@ -107,6 +105,30 @@ on the reader's default CRC-32 verify as their backstop (a wrong result throws
 `ChecksumMismatchException`, never silent corruption) rather than a dedicated
 fixture. The delta arithmetic matches RAR5's `_delta`; the E8/E9 arithmetic
 mirrors RAR5's `_e8e9`.
+
+## RAR4 solid runs
+
+A solid run shares compression state across files. Unlike RAR5 (which
+rebuilds Huffman tables per file and only shares the window), RAR4 keeps the
+**tables, the repeated-offset cache, and the window** across the run: only
+the run's first compressed file carries a table block; every later file's
+packed data is its own byte-aligned bitstream that reuses the existing
+tables. `Rar4Decoder.decompressFile` takes `parseTable:` — true for the first
+compressed file (or any non-solid file), false for continuations — and the
+reader (`_decodeSolidRar4`) drives one decoder across the run, picking
+`parseTable: !decoder.hasTables` so a stored-file prefix still lets the first
+*compressed* file build the tables. The window is sized to hold the whole run
+without wrapping, so each file's output is a direct slice, cached for repeat
+or out-of-order reads (an out-of-order read rebuilds the run from its start).
+`hasTables` checks **all four** codes so a `_parseCodes` that threw part-way
+on mutated input is never mistaken for a usable table set, and a mid-run
+decode error drops the shared decoder so the next read rebuilds cleanly
+(both hardened via the fuzz pool, which seeds `rar_static/solid_rar4.rar`).
+Verified byte-exact (sha256) against `unrar` on a five-file run whose files
+cross-reference each other, on VM + dart2js + dart2wasm
+(`test/rar4_solid_test.dart`). Reference: none — libarchive's `rar.c`
+explicitly bails on solid RAR ("RAR solid archive support unavailable"); this
+follows the RAR3 format's continuous-state model, verified empirically.
 
 ## RAR4 container (M10)
 

@@ -16,6 +16,7 @@ deletes them.
 | `filter_e8.rar` | rar 6.24, `-ma4 -m5` over `x86call.bin` (synthetic x86 with dense CALLs to a fixed target) — trips the **x86 E8** filter (kind 1) |
 | `filter_rgb.rar` | rar 6.24, `-ma4 -m5 -mm` over `rgbimg.bmp` (correlated-channel BMP) — trips the **RGB** filter (kind 3) plus a delta block |
 | `filter_audio.rar` | rar 6.24, `-ma4 -m5` over `a_audio.raw` (16-bit stereo PCM sine) — trips the **audio** filter (kind 4) |
+| `solid_rar4.rar` | rar 6.24, `-ma4 -m3 -s` over five text files sharing a vocabulary — a **solid** run where later files reference earlier ones through the shared window |
 
 The `filter_*.rar` archives are the CI regression guard for the RAR4 RarVM
 standard filters (`rar4_filters_test.dart` decodes them byte-exact on

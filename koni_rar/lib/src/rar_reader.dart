@@ -16,8 +16,9 @@ const int _maxFileSize = 1024 * 1024 * 1024;
 
 /// Reader for RAR5 and RAR4 archives (and CBR comics). Created via
 /// `RarFormat.openReader`. RAR5 handles store + methods 1–5 (solid and
-/// non-solid); RAR4 handles store + method-29 (non-solid). PPMd, RarVM
-/// filters, and solid RAR4 surface as typed errors (see `doc/features.md`).
+/// non-solid); RAR4 handles store + method-29 (solid and non-solid) with the
+/// RarVM standard filters. PPMd and custom (non-standard) VM filter programs
+/// surface as typed errors (see `doc/notes.md`).
 final class RarReader extends ArchiveReader {
   RarReader._(this.format, this._source, this._options, this._headers)
     : entries = List.unmodifiable([for (final h in _headers) _toEntry(h)]) {
@@ -41,6 +42,13 @@ final class RarReader extends ArchiveReader {
   // already covers. A jump backwards rebuilds from the run start.
   Rar5Decoder? _solidDecoder;
   int _solidNextIndex = 0;
+
+  // RAR4 solid run: one decoder whose Huffman tables, repeated-offset cache,
+  // and window persist across the run; plus each file's decoded slice.
+  Rar4Decoder? _solidRar4Decoder;
+  int _solidRar4NextIndex = 0;
+  final Map<int, Uint8List> _solidRar4Outputs = {};
+
   bool _closed = false;
 
   // Derived keys, memoized by salt; the password is constant for a reader,
@@ -263,19 +271,13 @@ final class RarReader extends ArchiveReader {
       return Uint8List.sublistView(output, 0, header.unpackedSize);
     }
 
-    // Solid RAR4 uses persistent cross-file table state that differs from
-    // RAR5; it is a documented deferral (§8) — real-world CBRs are
-    // non-solid. Solid RAR5 is fully supported below.
-    if (header.version == 29) {
-      throw UnsupportedFeatureException(
-        'solid RAR4 archives are not supported yet',
-        format: 'rar',
-        entryPath: entryPath,
-      );
-    }
-    // Solid RAR5: decode from the run start into a shared window, keeping
-    // every file's output so a later (or repeat) read is a slice.
-    return _decodeSolid(index, header, entryPath);
+    // Solid runs share cross-file state, so decode from the run start into a
+    // shared window and keep every file's output (a later or repeat read is a
+    // slice). RAR4 carries persistent Huffman tables + repeated-offset cache
+    // (only the run's first file has a table block); RAR5 rebuilds per file.
+    return header.version == 29
+        ? _decodeSolidRar4(index, header, entryPath)
+        : _decodeSolid(index, header, entryPath);
   }
 
   // Cache of decoded solid-file outputs by index (within the current run).
@@ -343,6 +345,84 @@ final class RarReader extends ArchiveReader {
       out[i] = decoder.output[(start + i) & mask];
     }
     return out;
+  }
+
+  /// Decodes a solid RAR4 run. One [Rar4Decoder] carries the tables,
+  /// repeated-offset cache, and window across the run; only the first
+  /// compressed file parses a table (later files reuse it). The window is
+  /// sized to hold the whole run without wrapping, so each file's output is a
+  /// direct slice, kept for repeat/out-of-order reads.
+  Future<Uint8List> _decodeSolidRar4(
+    int index,
+    Rar5FileHeader header,
+    String entryPath,
+  ) async {
+    if (_solidRar4Outputs.containsKey(index)) return _solidRar4Outputs[index]!;
+
+    // Run start: the first file at/after the previous non-solid boundary.
+    var runStart = index;
+    while (runStart > 0 && _headers[runStart].solid) {
+      runStart--;
+    }
+
+    // (Re)build the run if the decoder is not positioned to continue.
+    if (_solidRar4Decoder == null || _solidRar4NextIndex != runStart) {
+      _solidRar4Decoder = Rar4Decoder(
+        Uint8List(_solidRar4WindowSize(runStart)),
+      );
+      _solidRar4NextIndex = runStart;
+      _solidRar4Outputs.clear();
+    }
+    final decoder = _solidRar4Decoder!;
+
+    try {
+      for (var i = _solidRar4NextIndex; i <= index; i++) {
+        final h = _headers[i];
+        final start = decoder.writePtr;
+        if (h.method == 0 || h.isDirectory) {
+          // Stored/empty member: append its bytes to the shared window so
+          // later compressed members can still reference them.
+          final decrypted = await _readData(h);
+          final raw =
+              h.isEncrypted && decrypted.length > h.unpackedSize
+                  ? Uint8List.sublistView(decrypted, 0, h.unpackedSize)
+                  : decrypted;
+          decoder.output.setRange(start, start + raw.length, raw);
+          decoder.writePtr += raw.length;
+        } else {
+          decoder.decompressFile(
+            await _readData(h),
+            h.unpackedSize,
+            parseTable: !decoder.hasTables,
+          );
+        }
+        _solidRar4Outputs[i] = Uint8List.fromList(
+          Uint8List.sublistView(decoder.output, start, decoder.writePtr),
+        );
+        _solidRar4NextIndex = i + 1;
+      }
+    } catch (_) {
+      // A mid-run failure leaves the shared decoder in an undefined state;
+      // drop it so the next read rebuilds the run from scratch.
+      _solidRar4Decoder = null;
+      rethrow;
+    }
+    return _solidRar4Outputs[index]!;
+  }
+
+  /// Window big enough to hold the whole solid RAR4 run without wrapping.
+  int _solidRar4WindowSize(int runStart) {
+    var total = _headers[runStart].unpackedSize;
+    for (var i = runStart + 1; i < _headers.length && _headers[i].solid; i++) {
+      total += _headers[i].unpackedSize;
+    }
+    if (total > _maxFileSize) {
+      throw CorruptArchiveException(
+        'solid RAR4 run claims an implausible total size $total',
+        format: 'rar',
+      );
+    }
+    return _pow2Ceil(total < 0x20000 ? 0x20000 : total);
   }
 
   int _runWindowSize(int runStart) {
@@ -475,5 +555,7 @@ final class RarReader extends ArchiveReader {
     _closed = true;
     _solidDecoder = null;
     _solidOutputs.clear();
+    _solidRar4Decoder = null;
+    _solidRar4Outputs.clear();
   }
 }

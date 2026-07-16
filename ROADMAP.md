@@ -125,7 +125,7 @@ order of attack:
 | --- | --- | ------ |
 | R1 | RAR4 RarVM **standard filters** (delta, x86 E8/E9, RGB, audio) — unblocks 37 delta-filtered pages in the corpus | ✅ (byte-exact vs rar 6.24 on VM/dart2js/dart2wasm; conformance now 0 deferrals) |
 | R2 | RAR5 `-hp` encrypted-header **read** | ✅ (per-block IV + block-key CBC headers; byte-exact vs rar 7.x on VM/dart2js/dart2wasm; wrong/no-password typed errors) |
-| R3 | Solid RAR4 | ⬜ |
+| R3 | Solid RAR4 | ✅ (persistent tables/offset-cache/window across the run; byte-exact vs unrar on VM/dart2js/dart2wasm; fuzz-hardened) |
 | R4 | Multi-volume (RAR4 + RAR5) | ⬜ |
 | R5 | RAR4 PPMd (variant H) — the finale; large, no corpus coverage | ⬜ |
 

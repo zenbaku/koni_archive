@@ -127,6 +127,17 @@ final class Rar4Decoder {
   /// Write cursor (also the total decoded byte count).
   int writePtr = 0;
 
+  /// Whether a *complete* Huffman table set has been parsed. In a solid run
+  /// only the first compressed file carries a table block; later files reuse
+  /// it, so they are decoded with `parseTable: false` on the same decoder
+  /// instance. All four codes are checked so a `_parseCodes` that threw
+  /// part-way (mutated table) is not mistaken for a usable table set.
+  bool get hasTables =>
+      _mainCode != null &&
+      _offsetCode != null &&
+      _lowOffsetCode != null &&
+      _lengthCode != null;
+
   _Huffman? _mainCode;
   _Huffman? _offsetCode;
   _Huffman? _lowOffsetCode;
@@ -167,9 +178,19 @@ final class Rar4Decoder {
   static const List<int> _shortBases = [0, 4, 8, 16, 32, 64, 128, 192];
   static const List<int> _shortBits = [2, 2, 3, 4, 5, 6, 6, 6];
 
-  /// Decodes the file's [packed] data (a continuous bitstream) to
-  /// [unpackedSize] bytes appended from the current [writePtr].
-  void decompressFile(Uint8List packed, int unpackedSize) {
+  /// Decodes the file's [packed] data to [unpackedSize] bytes appended from
+  /// the current [writePtr].
+  ///
+  /// A non-solid file (or a solid run's first file) begins with its own
+  /// Huffman table block ([parseTable] true). A solid *continuation* file
+  /// carries no table block — it reuses the tables, repeated-offset cache,
+  /// and window left by the previous file in the run, so pass [parseTable]
+  /// false and reuse the same decoder instance.
+  void decompressFile(
+    Uint8List packed,
+    int unpackedSize, {
+    bool parseTable = true,
+  }) {
     final fileBase = writePtr;
     final target = writePtr + unpackedSize;
     if (target > output.length) {
@@ -177,7 +198,13 @@ final class Rar4Decoder {
     }
     _filters.reset();
     final bits = _Bits(packed);
-    _parseCodes(bits); // every file starts with a table block
+    if (parseTable) {
+      _parseCodes(bits); // run start / non-solid: read the table block
+    } else if (!hasTables) {
+      throw const FormatException(
+        'RAR4 solid continuation without a preceding table',
+      );
+    }
     final mask = output.length - 1;
 
     while (writePtr < target) {

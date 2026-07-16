@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- **Solid RAR4** archives now decode (previously a typed error). One decoder
+  carries the Huffman tables, repeated-offset cache, and window across the
+  run — only the run's first compressed file parses a table block; later
+  files reuse it — with each file's output kept for repeat/out-of-order
+  reads. Verified byte-exact (sha256) against `unrar` on a cross-referencing
+  five-file run on VM + dart2js + dart2wasm (`test/rar4_solid_test.dart`,
+  `rar_static/solid_rar4.rar`); a fuzz-found partial-table crash on mutated
+  input was fixed along the way (both hardened via the fuzz pool).
+
 - RAR5 **encrypted headers** (`rar -hp`) now read with a password via
   `ArchiveReadOptions.password` (previously a typed error at open). The crypt
   header keys every following header block — each carries a clear 16-byte IV
