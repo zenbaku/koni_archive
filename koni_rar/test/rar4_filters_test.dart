@@ -16,6 +16,7 @@ import 'dart:typed_data';
 
 import 'package:koni_archive_core/koni_archive_core.dart';
 import 'package:koni_rar/koni_rar.dart';
+import 'package:koni_rar/src/rar4_filters.dart' show debugForceRar4Vm;
 import 'package:test/test.dart';
 
 // filter_delta.rar -> delta filter (kind 0).
@@ -248,5 +249,31 @@ void main() {
 
   test('decodes a RAR4 entry using the audio filter', () async {
     expect(await _readOnly(_audio, 'a_audio.raw'), 9600);
+  });
+
+  // The four standard programs are real RarVM bytecode. Forcing them through
+  // the generic interpreter (instead of the native fast path) and getting the
+  // same CRC-verified bytes proves the VM byte-exact — transitively vs `unrar`,
+  // since these fixtures already pass against it. This is R6's core check
+  // (modern rar can't author a non-standard program, so the standard ones are
+  // the only VM oracle). Runs on dart2js/dart2wasm too.
+  group('generic RarVM executes the standard programs byte-exact', () {
+    setUp(() => debugForceRar4Vm = true);
+    tearDown(() => debugForceRar4Vm = false);
+
+    test('delta program on the VM', () async {
+      expect(await _readOnly(_delta, 'grad.bmp'), 27702);
+    });
+    test('x86 E8 program on the VM', () async {
+      expect(await _readOnly(_e8, 'x86call.bin'), 12016);
+    });
+    test('RGB (+ delta) program on the VM', () async {
+      // Two chained filters in one file — exercises the VM's fresh-memory and
+      // chaining paths, not just a single invocation.
+      expect(await _readOnly(_rgb, 'rgbimg.bmp'), 61494);
+    });
+    test('audio program on the VM', () async {
+      expect(await _readOnly(_audio, 'a_audio.raw'), 9600);
+    });
   });
 }

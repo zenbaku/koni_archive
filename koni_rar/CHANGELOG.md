@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+- **RAR4 generic RarVM filter interpreter (R6)** — any method-29 filter program
+  now decodes, not just the four fingerprinted standard ones (delta, x86 E8/E9,
+  RGB, audio), which previously left a non-standard program a typed error.
+  `rar4_vm.dart` is a full pseudo-x86 interpreter (8 registers, a 256 KiB
+  address space, C/Z/S flags, ~40 opcodes) adapted from the BSD Go `rardecode`
+  (`vm.go`/`filters.go`); the standard set keeps its native fast path. Verified
+  byte-exact by routing the four standard programs — which *are* real RarVM
+  bytecode — through the interpreter to the same CRC-checked fixtures (`unrar`
+  the oracle; modern rar can't author a non-standard program), plus a
+  hand-assembled program covering the opcodes the standard set doesn't reach,
+  on VM + dart2js + dart2wasm; fuzz-hardened. All arithmetic is masked to 32
+  bits (a split-halves multiply and a power-of-two shift table keep it exact on
+  the web). Remaining typed error: a filter reached *through* a PPMd escape (the
+  filter bytes arrive via the PPMd symbol stream, unwired).
+
 - **RAR4 encrypted headers (`rar -ma4 -hp`, read)** now decode with
   `ArchiveReadOptions.password` (previously a typed error) — the whole archive,
   including entry names and sizes, is locked, so listing itself needs the

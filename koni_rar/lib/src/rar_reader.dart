@@ -27,10 +27,11 @@ final class _VolumeSegment {
 /// Reader for RAR5 and RAR4 archives (and CBR comics). Created via
 /// `RarFormat.openReader`. RAR5 handles store + methods 1–5 (solid and
 /// non-solid); RAR4 handles store + method-29 (solid and non-solid) with the
-/// RarVM standard filters, and PPMd variant H (`-mct`, solid and non-solid);
-/// RAR 2.0/2.6 (unpack v20/v26) LZ also decodes. Custom (non-standard) VM filter
-/// programs, a mid-file PPMd→method-29 block switch, RAR 1.5 (v15), and the RAR
-/// 2.x audio block surface as typed errors (see `doc/notes.md`).
+/// RarVM filters (the standard set natively, any other program on a generic
+/// interpreter), and PPMd variant H (`-mct`, solid and non-solid); RAR 2.0/2.6
+/// (unpack v20/v26) LZ also decodes. A mid-file PPMd→method-29 block switch, a
+/// filter reached through PPMd, RAR 1.5 (v15), and the RAR 2.x audio block
+/// surface as typed errors (see `doc/notes.md`).
 final class RarReader extends ArchiveReader {
   RarReader._(
     this.format,

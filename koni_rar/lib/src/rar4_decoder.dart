@@ -4,11 +4,12 @@
 /// Clean-room per `doc/rar-provenance.md`; layout and the length/offset
 /// base tables follow libarchive's BSD `archive_read_support_format_rar.c`
 /// (Tim Kientzle, Andres Mejia — see `doc/references.md` and `NOTICE`); no
-/// unrar or GPL source was consulted. The RarVM standard filters (delta,
-/// x86, RGB, audio) are handled by [Rar4Filters]; **PPMd (variant H)** blocks
-/// are decoded by [Ppmd7Model] (see `rar4_ppmd.dart`). A *custom* (non-standard)
-/// VM program — including one reached through a PPMd escape — stays a
-/// [FormatException] the reader maps to a typed error.
+/// unrar or GPL source was consulted. RarVM filters are handled by
+/// [Rar4Filters] (the standard delta/x86/RGB/audio programs natively, any other
+/// program on the generic interpreter in `rar4_vm.dart`); **PPMd (variant H)**
+/// blocks are decoded by [Ppmd7Model] (see `rar4_ppmd.dart`). A filter reached
+/// *through* a PPMd escape stays a [FormatException] the reader maps to a typed
+/// error (the filter bytes arrive via the PPMd symbol stream, unwired).
 ///
 /// Malformed input throws [FormatException].
 library;
@@ -401,9 +402,11 @@ final class Rar4Decoder {
       case 2:
         return true; // end of PPMd data
       case 3:
-        // A RarVM filter reached through PPMd. libarchive does not parse these,
-        // and a *custom* program is license-bounded regardless; the reader maps
-        // this to a typed UnsupportedFeatureException.
+        // A RarVM filter reached through PPMd: the filter bytes arrive via the
+        // PPMd symbol stream rather than the LZ bitstream, and wiring that hand-
+        // off into [Rar4Filters] is unimplemented (libarchive does not parse it
+        // either). The generic VM (R6) can now *run* any program, so this is an
+        // implementation gap, not a license one; still a typed error, and rare.
         throw const FormatException(
           'RAR4 PPMd embedded filters are not supported',
         );

@@ -8,6 +8,7 @@ import 'dart:typed_data';
 
 import 'package:koni_archive_core/koni_archive_core.dart';
 import 'package:koni_rar/koni_rar.dart';
+import 'package:koni_rar/src/rar4_filters.dart' show debugForceRar4Vm;
 import 'package:test/test.dart';
 
 import 'src/rar4_builder.dart';
@@ -82,6 +83,76 @@ void main() {
         }
       }
       printOnFailure('completed $iterations iterations');
+    },
+    timeout: const Timeout(Duration(minutes: 5)),
+  );
+
+  // Drive the generic RarVM (compile + execute) on corrupt input: mutate the
+  // standard-filter fixtures with the force-VM seam on, so the filter programs
+  // run through the interpreter. The §7 invariant holds here too — a bad
+  // program or region must throw a typed error, never a RangeError or a hang
+  // (the VM's memory is masked and its instruction count is capped).
+  test(
+    'mutated filter fixtures on the generic VM throw typed errors only',
+    () async {
+      final budget = Duration(
+        seconds:
+            int.tryParse(
+              Platform.environment['KONI_ARCHIVE_FUZZ_SECONDS'] ?? '',
+            ) ??
+            5,
+      );
+      final seed = DateTime.now().millisecondsSinceEpoch ^ 0x726d3676;
+      final random = Random(seed);
+      printOnFailure('fuzz seed: $seed');
+
+      final fixtures = [
+        for (final name in const [
+          'filter_delta.rar',
+          'filter_e8.rar',
+          'filter_rgb.rar',
+          'filter_audio.rar',
+        ])
+          File('test/fixtures/rar_static/$name').readAsBytesSync(),
+      ];
+
+      debugForceRar4Vm = true;
+      try {
+        final deadline = DateTime.now().add(budget);
+        var iterations = 0;
+        while (DateTime.now().isBefore(deadline)) {
+          iterations++;
+          final mutated = _mutate(
+            fixtures[random.nextInt(fixtures.length)],
+            random,
+          );
+          try {
+            final reader = await const RarFormat().openReader(
+              MemoryByteSource(mutated),
+              const ArchiveReadOptions(),
+            );
+            for (final entry in reader.entries) {
+              try {
+                var total = 0;
+                await for (final chunk in reader.openRead(entry)) {
+                  total += chunk.length;
+                  if (total > 1024 * mutated.length + (1 << 20)) {
+                    fail('entry ${entry.path} streamed implausibly many bytes');
+                  }
+                }
+              } on ArchiveException {
+                // typed: fine
+              }
+            }
+            await reader.close();
+          } on ArchiveException {
+            // typed: fine
+          }
+        }
+        printOnFailure('completed $iterations iterations');
+      } finally {
+        debugForceRar4Vm = false;
+      }
     },
     timeout: const Timeout(Duration(minutes: 5)),
   );

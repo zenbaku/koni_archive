@@ -128,7 +128,7 @@ order of attack:
 | R3 | Solid RAR4 | ✅ (persistent tables/offset-cache/window across the run; byte-exact vs unrar on VM/dart2js/dart2wasm; fuzz-hardened) |
 | R4 | Multi-volume (RAR4 + RAR5) | ✅ (`ArchiveReadOptions.nextVolume` resolver; split files reassembled across volumes; store + compressed, both versions, byte-exact vs unrar on VM/dart2js/dart2wasm) |
 | R5 | RAR4 PPMd (variant H) — the finale; large, no corpus coverage | ✅ (public-domain Ppmd7 model + RAR range decoder; byte-exact vs unrar/CRC from 82 B to 2.6 MB, order 2–63, mem 1–8 MB, non-solid **and solid**, on VM/dart2js/dart2wasm; fuzz-hardened. Only a mid-file PPMd→method-29 switch stays a typed error — see R8) |
-| R6 | Custom (non-standard) RAR4 **RarVM** filter programs — a generic bytecode interpreter | ⬜ (unblocked: the BSD Go `rardecode` `vm.go` is a clean-room reference, so no longer license-bounded) |
+| R6 | Custom (non-standard) RAR4 **RarVM** filter programs — a generic bytecode interpreter | ✅ (`rar4_vm.dart`: full pseudo-x86 VM adapted from the BSD Go `rardecode` `vm.go`/`filters.go`; standard set keeps its native fast path. Byte-exact by running the 4 standard programs — real RarVM bytecode — through the VM to the same `unrar`-checked fixtures, on VM/dart2js/dart2wasm; hand-assembled op-coverage test + fuzz-hardened. Filter-through-PPMd stays a typed error) |
 | R7 | RAR4 **`-hp` encrypted headers** (read) | ✅ (per-block `salt[8]·AES-128-CBC(header)` with the RAR3 SHA-1 KDF; byte-exact vs `unrar`/CRC on VM/dart2js/dart2wasm, fuzz-hardened; wrong password → `InvalidPasswordException` via the 16-bit header CRC. Fixtures authored with rar 6.24. Multi-volume `-hp` threads the password but is unverified — no split fixture) |
 | R8 | Mid-file **PPMd→method-29 (LZSS) block switch** (escape code 0) | ⬜ (the last PPMd gap; `rardecode`'s unified decode loop shows the range-decoder→Huffman hand-off) |
 | R9 | **RAR 1.5 / 2.0** legacy unpack methods (v15/v20, incl. RAR2 multimedia/audio) | ✅ for **RAR 2.0 (v20) LZ**: byte-exact vs `unrar` on VM/dart2js/dart2wasm, fuzz-hardened; fixtures authored with DOS RAR 2.50 under DOSBox. v26 shares the v20 decoder but is untested (no fixture). Typed errors (no permissive reference — only GPL unrar): **v15** (RAR 1.5; `rardecode` returns `ErrUnsupportedDecoder`), the **multimedia/audio** block (`rardecode`'s decoder mis-decodes it vs `unrar`), and **solid v20 continuations** (run start still decodes; full solid-v20 decode deferred) |
@@ -139,9 +139,10 @@ completeness track. It **lifts the license boundary** that had deferred the
 generic RarVM interpreter (R6) and RAR4 `-hp` headers (R7): those were held back
 because the only prior interpreter/`-hp` reference was the GPL unrar, and
 `rardecode` is BSD-2-Clause. R8 (mid-file PPMd↔LZSS switch) and R9 (legacy
-methods) are now reference-backed too. R7 and R9 have landed; the remaining
-order by effort/value is **R6** (highest impact, largest — a full VM) then R8
-(niche). Separately, `rardecode` is a second *independent* implementation (not
+methods) are now reference-backed too. R6, R7, and R9 have landed; the only
+remaining item is **R8** (niche: the mid-file PPMd→method-29 hand-off, and the
+related filter-through-PPMd read). Separately, `rardecode` is a second
+*independent* implementation (not
 just the `unrar` black-box binary) — worth a source-level cross-read to
 re-verify the fiddly already-shipped paths (RAR5 filter math, the method-29
 offset cache, the encryption KDFs) if a bug ever surfaces. RAR *writing* stays
@@ -181,33 +182,33 @@ range-decoder variant and escape-char dispatch adapted from libarchive's BSD
   A code-0 to another PPMd block is handled. Rare — needs `-mct` auto-mode over
   alternating text/non-text content.
 
-### R6 — Custom (non-standard) RAR4 RarVM filter programs: starting notes
+### R6 — Custom (non-standard) RAR4 RarVM filter programs: done (2026-07-16)
 
-Today `rar4_filters.dart` recognizes only the four **standard** RarVM programs
-(delta, x86 E8/E9, RGB, audio) by fingerprint and runs hand-written
-implementations; any other filter program is a typed error. R6 replaces that
-with a **generic RarVM interpreter** so *any* method-29 filter decodes.
+`rar4_vm.dart` (`RarVm`) is a full pseudo-x86 interpreter (8 registers, a 256 KiB
+address space, C/Z/S flags, ~40 opcodes), so *any* method-29 filter program
+decodes — not just the four fingerprinted standard ones. The standard set keeps
+its native fast path in `rar4_filters.dart`; only a non-standard program falls
+through to the VM. Full detail in `koni_rar/doc/notes.md` ("RAR4 RarVM generic
+interpreter").
 
-* **What it is:** RAR3/4's filters are little bytecode programs for a pseudo-x86
-  VM (8 registers, a 256 KB address space, ~40 opcodes: mov/cmp/add/sub/xor/
-  mul/div, shifts, conditional jumps, call/ret, push/pop/pusha/popa, movzx/
-  movsx). A file's `read_filter` record carries a compiled program; the decoder
-  runs it over each filtered output region. Standard filters are just the
-  common programs — a generic interpreter subsumes the fingerprint dispatch.
-* **Provenance (the unblock):** deferred until now **by license** — the only
-  interpreter reference was the GPL unrar. The BSD Go `rardecode` `vm.go` is a
-  clean-room generic RarVM interpreter (BSD-2-Clause), so R6 is now
-  license-clear (adapt structure; keep the BSD notice in `NOTICE`, attribution
-  in `references.md`). Update the stale "by license" wording in
-  `references.md`/`notes.md`/`rar-provenance.md` when this lands.
-* **Fixtures / oracle:** author RAR4 archives whose data trips a *non-standard*
-  program (harder than the standard filters — needs input the compressor
-  filters with a bespoke program; may require crafted content or specific `-mc`
-  modes) with rar 6.24, verify byte-exact vs `unrar`. Keep the standard-filter
-  fingerprints as a fast path or drop them once the VM is byte-exact on the
-  existing `filter_*.rar` fixtures. dart2js/dart2wasm 32-bit traps apply.
-* **Scope note:** the *standard*-filter fast path already covers what the manga
-  corpus emits; R6 is a completeness play for archives from other tools.
+* **The unblock:** deferred until now **by license** (the only interpreter
+  reference was the GPL unrar); the BSD-2-Clause Go `rardecode` `vm.go`/
+  `filters.go` retired that boundary. Machine + opcode/flag semantics + program
+  bit-decoding adapted from `vm.go`, the filter global-block wiring from
+  `filters.go` (notice in `NOTICE`, attribution in `references.md`).
+* **Verification — the standard programs are the oracle.** Modern rar can't
+  author a non-standard filter program (the custom-filter mechanism is gone), so
+  there is no bespoke fixture. Instead a test seam (`debugForceRar4Vm`) routes
+  the four standard programs — which *are* real RarVM bytecode — through the VM
+  and checks the same CRC-verified fixtures (byte-exact transitively vs `unrar`),
+  on VM/dart2js/dart2wasm, incl. the multi-filter RGB+delta archive. A
+  hand-assembled program covers the opcodes the standard set doesn't reach
+  (`sar`/`adc`/`sbb`/`div`/`xor`/`and`/`or`); the standard programs already
+  exercise the precision-sensitive `mul`/`shl`/`shr`/`neg`. Fuzz-hardened. The
+  web gate caught a real dart2js trap (a 64-bit typed list for the shift table).
+* **Deferred:** a filter reached *through* a PPMd escape — the generic VM can run
+  any program, but the filter bytes arriving via the PPMd symbol stream are not
+  wired into it (rare; folded into R8's PPMd hand-off work).
 
 ### R7 — RAR4 `-hp` encrypted headers (read): done (2026-07-16)
 

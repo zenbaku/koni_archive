@@ -15,11 +15,11 @@ the **RarVM standard filters** (see `rar4_filters.dart`). This is what the
 real-world CBR corpus uses (`-m0` store, `-m3`/`-m5` method-29, and the
 delta filter on 37 pages of one volume). **PPMd variant H** ("text
 compression", `-mct`) is also decoded — see the PPMd section below. **Solid PPMd runs** decode too (see the PPMd section). The
-following RAR4 features stay **typed errors**: *custom* (non-standard) VM
-filter programs (license-bounded — the only reference is GPL unrar), and a
-mid-file PPMd→method-29 block switch (implementation-scoped — the BSD
-`rardecode` reader shows the path, but the PPMd↔LZSS loop hand-off is
-unimplemented).
+following RAR4 features stay **typed errors**: a mid-file PPMd→method-29 block
+switch and a filter reached *through* a PPMd escape (both implementation-scoped
+— the BSD `rardecode` reader shows the path, but the PPMd↔LZSS loop hand-off /
+PPMd-stream filter read are unwired). *Non-standard* RarVM filter programs now
+decode on the generic interpreter (R6).
 File encryption (`-p`) is supported on both
 versions, and header encryption (`-hp`) reads with a password on both
 versions too (see below). **Multi-volume sets read** (both versions) when
@@ -137,10 +137,8 @@ registers, and — for a new program — the bytecode, XOR-checked and
 fingerprinted), and scheduled. Because this decoder decodes a whole file into
 the window first, filters are applied as a post-pass over the file's disjoint
 forward regions (the window holds *raw* LZ output; matches during decode copy
-raw→raw, so post-hoc filtering is correct). A **custom** (non-standard) VM
-program has no pure-Dart interpreter here and is a documented deferral — the
-only interpreter reference is GPL unrar, so this boundary is license-bounded,
-not difficulty-bounded (`doc/rar-provenance.md`).
+raw→raw, so post-hoc filtering is correct). A **non-standard** program (no
+fingerprint match) runs on the generic VM below (R6).
 
 Verification (see `test/rar4_filters_test.dart` + the fixtures below):
 delta, E8, RGB, and audio each decode **byte-exact** against genuine rar 6.24
@@ -152,6 +150,55 @@ on the reader's default CRC-32 verify as their backstop (a wrong result throws
 `ChecksumMismatchException`, never silent corruption) rather than a dedicated
 fixture. The delta arithmetic matches RAR5's `_delta`; the E8/E9 arithmetic
 mirrors RAR5's `_e8e9`.
+
+## RAR4 RarVM generic interpreter — R6
+
+`rar4_vm.dart` (`RarVm`): a full pseudo-x86 interpreter, so *any* method-29
+filter program decodes, not just the four fingerprinted standard ones (that was
+a typed error before). The standard set keeps its native fast path in
+`rar4_filters.dart`; only a non-standard program falls through to the VM. This
+was unblocked when the BSD-2-Clause Go `rardecode` established a clean-room
+reference (`vm.go` / `filters.go`) — the prior "license-bounded" note (only the
+GPL unrar had an interpreter) is retired.
+
+* **The machine:** 8 registers, a 256 KiB byte address space (`+4` slack for a
+  LE32 read at the top mask address), carry/zero/sign flags, and ~40 opcodes
+  (mov/cmp/add/sub/xor/and/or/mul/div/shifts/inc/dec/neg/not, conditional
+  jumps, push/pop/call/ret/pusha/popa/pushf/popf, movzx/movsx, adc/sbb). A
+  program is bit-decoded (`readCommands` / `decodeArg`, MSB-first, RAR's
+  variable-length number encoding) into an instruction list; jump immediates are
+  resolved to absolute command indices at compile time (`fixJumpOp`). Execution
+  is capped at 25M instructions (runaway guard).
+* **Filter glue** (`_executeVm` in `rar4_filters.dart`, from `filters.go`): a
+  *fresh* zeroed 256 KiB memory per invocation (so a program's globals and stack
+  never see a previous filter's leftovers — load-bearing for the multi-filter
+  RGB fixture); the input region at `mem[0..len)`; a fixed global block at
+  `0x3C000` (r0..r6, then len/offset/usage at the reference's slots) followed by
+  the record's user global (flag 0x08) and the program's embedded static data;
+  registers r3=global addr, r4=len, r5=usage count, r6=file offset, r7=vmSize.
+  After the run the output region is read back from the global block
+  (`vg[0x1c]`=length, `vg[0x20]`=start), and any global data the program marked
+  to keep (`vg[0x30]`) persists to its next invocation.
+* **Web-safety:** all arithmetic is masked to 32 bits; the one multiply that can
+  exceed 2^53 uses a split-16-bit `_mul32`, and shifts index a plain power-of-two
+  table rather than a native `>=32`-bit shift. (The powers table is a plain
+  `List<int>`, not a 64-bit typed list — dart2js cannot represent the latter and
+  throws at runtime; the web test caught exactly this.)
+* **Verification — the standard programs are the oracle.** Modern rar cannot
+  author a non-standard filter program (the custom-filter mechanism is gone), so
+  there is no bespoke fixture. Instead, a test seam (`debugForceRar4Vm`) routes
+  the four standard programs — which *are* real RarVM bytecode — through the VM
+  and checks the same CRC-verified fixture bytes: byte-exact transitively vs
+  `unrar`, on VM + dart2js + dart2wasm, including the multi-filter RGB+delta
+  archive (`test/rar4_filters_test.dart`). Hand-assembled programs cover the
+  opcodes the standard set doesn't reach — `sar`/`adc`/`sbb`/`div`/`xor`/`and`/
+  `or`, plus a `call`→`ret` round-trip (the standard programs hit `ret`'s
+  terminate branch but never a returning call) — in `test/rar4_vm_test.dart`;
+  the standard programs already exercise the precision-sensitive
+  `mul`/`shl`/`shr`/`neg`. Fuzz-hardened: mutated filter
+  fixtures run through the VM throw typed errors only, never a `RangeError` or a
+  hang. Remaining typed error: a filter reached *through* a PPMd escape (the
+  bytes arrive via the PPMd symbol stream, unwired) — rare.
 
 ## RAR4 PPMd (variant H) — R5
 

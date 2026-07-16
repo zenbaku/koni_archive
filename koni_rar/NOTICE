@@ -71,12 +71,15 @@ The solid RAR4 PPMd control flow (each solid file a PPMd block ending with an
 escape-code-2 marker; the shared model and escape symbol carried across files;
 the RAR range decoder re-initialised per block), the RAR 2.0/2.6 (unpack
 v20/v26) LZ decoder (block header, code-length table, and LZ symbol dispatch),
-and the RAR3/4 encrypted-header (`-hp`) block framing (plaintext main header,
+the RAR3/4 encrypted-header (`-hp`) block framing (plaintext main header,
 then per-block `salt[8] · AES-128-CBC(header)` with the cipher re-initialised
-per block from the salt-derived IV; the header-CRC wrong-password signal), were
-adapted from the BSD Go `rardecode` reader (`archive15.go`, `decrypt_reader.go`,
-`decode29.go`, `decode29_ppm.go`, `ppm_model.go`, `decode20.go`,
-`decode20_lz.go`, `huffman.go`):
+per block from the salt-derived IV; the header-CRC wrong-password signal), and
+the generic RarVM filter interpreter (the machine, opcode/flag semantics, and
+program bit-decoding in `vm.go`; the filter global-block wiring in
+`filters.go`), were adapted from the BSD Go `rardecode` reader (`archive15.go`,
+`decrypt_reader.go`, `vm.go`, `filters.go`, `bit_reader.go`, `decode29.go`,
+`decode29_ppm.go`, `ppm_model.go`, `decode20.go`, `decode20_lz.go`,
+`huffman.go`):
 
   github.com/nwaples/rardecode
   Copyright (c) 2015, Nicholas Waples

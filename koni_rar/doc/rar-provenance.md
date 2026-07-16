@@ -52,11 +52,13 @@ not be consulted.
   RGB, audio) were later added in `rar4_filters.dart`, adapted from
   libarchive's BSD `rar.c` (`parse_filter`/`compile_program`/
   `execute_filter_*`, the `membr_*` bit-reader — libarchive's names and
-  structure, not unrar's). A *generic* interpreter for non-standard VM
-  programs, and PPMd variant H, stay typed errors: the boundary is
-  **license-bounded** (the only interpreter reference is GPL unrar) per rule
-  6 above ("when in doubt, typed error + document"), not difficulty-bounded.
-- Multi-volume and encrypted archives: typed errors (§8 non-goals).
+  structure, not unrar's). The **generic RarVM interpreter** for non-standard
+  programs (`rar4_vm.dart`, R6) and **PPMd variant H** (R5) were later added,
+  both adapted from BSD-2-Clause references (the Go `rardecode` `vm.go`/
+  `filters.go`, and the public-domain Ppmd7 codec) — the earlier
+  "license-bounded" deferral is retired now that clean-room references exist.
+- Multi-volume and encrypted archives: now read (typed errors only where a
+  clean-room reference is still missing — see `doc/features.md`).
 - RAR *writing* is permanently out of scope (§15).
 
 ## Sign-off

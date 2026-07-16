@@ -3,18 +3,19 @@
 /// RAR's compressor auto-applies a handful of *standard* filters (delta, x86
 /// E8/E8E9, RGB, audio) whose bytecode is a fixed program the decoder
 /// recognizes by fingerprint (program length + CRC-32) and runs natively —
-/// exactly as libarchive does. A non-standard (custom) VM program has no
-/// pure-Dart interpreter here and surfaces as a typed unsupported-feature
-/// error; the standard set is what real archives actually emit.
+/// exactly as libarchive does, for speed. *Any other* program is run by the
+/// generic [RarVm] interpreter (`rar4_vm.dart`), so a non-standard filter from
+/// another tool decodes too (it used to be a typed error).
 ///
 /// Clean-room per `doc/rar-provenance.md`. The filter-record layout and the
 /// native filter algorithms are adapted from libarchive's BSD
 /// `archive_read_support_format_rar.c` (`read_filter` / `parse_filter` /
 /// `compile_program` / `execute_filter_*`; Tim Kientzle, Andres Mejia — see
-/// `doc/references.md` and `NOTICE`). No unrar or GPL source was consulted.
-/// The delta and E8/E8E9 arithmetic mirrors the RAR5 filters already in this
-/// package (`rar5_decoder.dart`), which are byte-verified across
-/// VM/dart2js/dart2wasm.
+/// `doc/references.md` and `NOTICE`); the generic VM + its global-block wiring
+/// from the BSD Go `rardecode` (`vm.go` / `filters.go`). No unrar or GPL source
+/// was consulted. The delta and E8/E8E9 arithmetic mirrors the RAR5 filters
+/// already in this package (`rar5_decoder.dart`), which are byte-verified
+/// across VM/dart2js/dart2wasm.
 ///
 /// Malformed input throws [FormatException]; the reader maps a message
 /// containing "not supported" to `UnsupportedFeatureException` and anything
@@ -24,6 +25,14 @@ library;
 import 'dart:typed_data';
 
 import 'package:koni_archive_core/koni_archive_core.dart' show Crc32;
+
+import 'rar4_vm.dart';
+
+/// Test seam: when true, even a *standard* filter program is run through the
+/// generic [RarVm] instead of its native fast path, so the VM is verified
+/// byte-exact against the existing standard-filter fixtures (which are already
+/// CRC-checked against `unrar`). Never set outside tests.
+bool debugForceRar4Vm = false;
 
 // VM address space constants (libarchive names).
 const int _vmMemorySize = 0x40000; // VM_MEMORY_SIZE
@@ -40,25 +49,44 @@ const int _fltE8 = 1;
 const int _fltE8E9 = 2;
 const int _fltRgb = 3;
 const int _fltAudio = 4;
+const int _fltVm = 5; // a generic (non-standard) VM program
 
 /// A registered VM program, keyed by its fingerprint and resolved to a
-/// standard-filter kind at compile time.
+/// standard-filter kind at compile time, or (kind [_fltVm]) a compiled generic
+/// program plus its cross-invocation persistent global data.
 class _Rar4Program {
-  _Rar4Program(this.kind);
+  _Rar4Program(this.kind, [this.vm]);
 
   final int kind;
+  final RarVmProgram? vm;
   int oldFilterLength = 0;
   int usageCount = 0;
+
+  /// Global data a generic program asked to carry into its next invocation
+  /// (via the global block's saved-size slot); null until it does.
+  Uint8List? persistentGlobal;
 }
 
 /// One scheduled filter invocation over an output region.
 class _Rar4Filter {
-  _Rar4Filter(this.kind, this.registers, this.blockStart, this.blockLength);
+  _Rar4Filter(
+    this.prog,
+    this.registers,
+    this.blockStart,
+    this.blockLength,
+    this.globalData,
+  );
 
-  final int kind;
+  final _Rar4Program prog;
   final List<int> registers; // 8 VM registers at invocation time
   final int blockStart; // absolute position in the LZ output
   final int blockLength;
+
+  /// The record's user global data (filter flag `0x08`), fed to a generic VM
+  /// program; null for the standard filters, which ignore it.
+  final Uint8List? globalData;
+
+  int get kind => prog.kind;
 }
 
 /// MSB-first bit reader over a filter-code byte buffer (libarchive's
@@ -186,16 +214,18 @@ class Rar4Filters {
     }
     prog.oldFilterLength = blockLength;
 
-    // User global data (flag 0x08) only feeds an interpreted VM program; the
-    // standard filters ignore it. Consume it so a chained record that reuses
-    // this program still lines up, and bound it defensively.
+    // User global data (flag 0x08) feeds an interpreted VM program; the
+    // standard filters ignore it. Read exactly the declared bytes either way
+    // so a chained record that reuses this program still lines up.
+    Uint8List? globalData;
     if ((flags & 0x08) != 0) {
       final globalLen = br.nextNumber();
       if (globalLen > _programUserGlobalSize) {
         throw const FormatException('RAR4 filter global data too large');
       }
+      globalData = Uint8List(globalLen);
       for (var i = 0; i < globalLen; i++) {
-        br.read(8);
+        globalData[i] = br.read(8);
       }
     }
 
@@ -203,11 +233,14 @@ class Rar4Filters {
       throw const FormatException('truncated RAR4 filter record');
     }
 
-    _stack.add(_Rar4Filter(prog.kind, registers, blockStart, blockLength));
+    _stack.add(
+      _Rar4Filter(prog, registers, blockStart, blockLength, globalData),
+    );
   }
 
-  /// Compiles a program buffer: verifies its XOR check byte and resolves the
-  /// fingerprint (length + CRC-32) to a standard filter, or fails.
+  /// Compiles a program buffer: verifies its XOR check byte, then resolves the
+  /// fingerprint (length + CRC-32) to a standard filter's native fast path, or
+  /// (any other program) compiles it for the generic [RarVm].
   _Rar4Program _compile(Uint8List code) {
     var xor = 0;
     for (var i = 1; i < code.length; i++) {
@@ -217,14 +250,11 @@ class Rar4Filters {
       throw const FormatException('corrupt RAR4 filter program');
     }
     final kind = _standardKind(Crc32.compute(code), code.length);
-    if (kind < 0) {
-      // A custom VM program: no pure-Dart interpreter (only GPL references
-      // describe one), so this is a documented deferral, not corruption.
-      throw const FormatException(
-        'RAR4 custom VM filter programs are not supported',
-      );
+    if (kind >= 0 && !debugForceRar4Vm) {
+      return _Rar4Program(kind); // native fast path
     }
-    return _Rar4Program(kind);
+    // A non-standard program (or the forced-VM test path): run it on the VM.
+    return _Rar4Program(_fltVm, RarVmProgram.compile(code));
   }
 
   /// Standard-filter fingerprints (`length`, `crc32`) as recognized by
@@ -291,8 +321,9 @@ class Rar4Filters {
     mem.setRange(0, length, output, start);
   }
 
-  /// Runs one standard filter, returning `(address, length)` of the result
-  /// inside [mem].
+  /// Runs one filter, returning `(address, length)` of the result inside
+  /// [mem]. Standard kinds use their native implementation; a generic program
+  /// runs on the [RarVm].
   (int, int) _execute(_Rar4Filter f, Uint8List mem, int pos) {
     switch (f.kind) {
       case _fltDelta:
@@ -305,9 +336,107 @@ class Rar4Filters {
         return _rgb(f, mem);
       case _fltAudio:
         return _audio(f, mem);
+      case _fltVm:
+        return _executeVm(f, mem, pos);
       default:
         throw const FormatException('RAR4 filter is not supported');
     }
+  }
+
+  /// Runs a generic VM program. Input is `mem[0..blockLength)` (what [apply]
+  /// loaded or chained there); the program runs in a *fresh* zeroed VM memory
+  /// (so its globals and stack never see a previous filter's leftovers), and
+  /// its output region — reported through the global block — is copied back to
+  /// `mem[0..length)`, so chaining sees it at address 0.
+  (int, int) _executeVm(_Rar4Filter f, Uint8List mem, int pos) {
+    final program = f.prog.vm!;
+    final blockLength = f.blockLength;
+    if (blockLength < 0 || blockLength > vmGlobalAddr) {
+      throw const FormatException('RAR4 VM filter block length out of range');
+    }
+    final vmMem = Uint8List(vmSize + 4);
+    vmMem.setRange(0, blockLength, mem);
+
+    // Registers: the record's parsed set (r3=global addr, r4=len, r5=usage,
+    // r7=vmSize, plus any overrides). r6 becomes the block's file offset, but
+    // only *after* the fixed global block is written — matching filters.go,
+    // where global slot 6 holds the pre-offset r6 (override or 0), not the
+    // offset (which lives only in the register and at vg+0x24).
+    final regs = List<int>.of(f.registers);
+
+    final vg = vmGlobalAddr;
+    for (var i = 0; i < 7; i++) {
+      _writeLe32Vm(vmMem, vg + i * 4, regs[i]);
+    }
+    _writeLe32Vm(vmMem, vg + 0x1C, blockLength);
+    _writeLe32Vm(vmMem, vg + 0x24, pos & 0xFFFFFFFF); // offset as u64, hi = 0
+    _writeLe32Vm(vmMem, vg + 0x2C, f.registers[5]); // usage count
+
+    regs[6] = pos & 0xFFFFFFFF; // r6 = file offset, register-only
+
+    // User global data (persistent from a prior run if present, else the
+    // record's), then the program's embedded static data.
+    final userGlobal = f.prog.persistentGlobal ?? f.globalData;
+    var n = 0;
+    if (userGlobal != null && userGlobal.isNotEmpty) {
+      n = userGlobal.length;
+      if (n > _programUserGlobalSize) n = _programUserGlobalSize;
+      vmMem.setRange(
+        vg + vmFixedGlobalSize,
+        vg + vmFixedGlobalSize + n,
+        userGlobal,
+      );
+    }
+    final stat = program.staticData;
+    if (stat.isNotEmpty) {
+      var sn = stat.length;
+      if (vmFixedGlobalSize + n + sn > vmGlobalSize) {
+        sn = vmGlobalSize - vmFixedGlobalSize - n;
+      }
+      if (sn > 0) {
+        vmMem.setRange(
+          vg + vmFixedGlobalSize + n,
+          vg + vmFixedGlobalSize + n + sn,
+          stat,
+        );
+      }
+    }
+
+    // registers[5]/vg[0x2c] already hold this invocation's usage count (set at
+    // parse time, matching the reference's per-execute counter).
+    RarVm(vmMem, regs).execute(program);
+
+    // Persist global data the program asked to keep for its next invocation.
+    var globalSize = _readLe32Vm(vmMem, vg + 0x30) & 0xFFFFFFFF;
+    if (globalSize > 0) {
+      if (globalSize > vmGlobalSize - vmFixedGlobalSize) {
+        globalSize = vmGlobalSize - vmFixedGlobalSize;
+      }
+      f.prog.persistentGlobal = Uint8List.sublistView(
+        vmMem,
+        vg + vmFixedGlobalSize,
+        vg + vmFixedGlobalSize + globalSize,
+      );
+    }
+
+    // Output region reported by the program.
+    final length = _readLe32Vm(vmMem, vg + 0x1C) & vmMask;
+    final start = _readLe32Vm(vmMem, vg + 0x20) & vmMask;
+    if (start + length > vmSize) {
+      throw const FormatException('RAR4 VM filter output out of range');
+    }
+    mem.setRange(0, length, vmMem, start);
+    return (0, length);
+  }
+
+  static int _readLe32Vm(Uint8List m, int i) =>
+      m[i] | (m[i + 1] << 8) | (m[i + 2] << 16) | (m[i + 3] << 24);
+
+  static void _writeLe32Vm(Uint8List m, int i, int v) {
+    m[i] = v & 0xFF;
+    m[i + 1] = (v >>> 8) & 0xFF;
+    m[i + 2] = (v >>> 16) & 0xFF;
+    m[i + 3] = (v >>> 24) & 0xFF;
   }
 
   // --- Standard filters (adapted from libarchive execute_filter_*). ---
