@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0 (2026-07-16)
+
+- RAR reading is substantially more complete through the facade (via
+  `koni_rar` 0.7.0): RAR4 PPMd (variant H, solid and non-solid, including a
+  mid-file PPMd→method-29 block switch), the generic RarVM filter interpreter
+  (any method-29 filter program, not just the standard four), RAR4 `-hp`
+  encrypted headers, RAR 2.0/2.6 (v20/v26) LZ, solid RAR4, and multi-volume
+  RAR sets — the last via the new `ArchiveReadOptions.nextVolume` resolver.
+  Many archives that previously threw a typed error now decode.
+
 ## 0.6.0 (2026-07-15)
 
 - Phase 4 (write-side encryption) flows through the facade:

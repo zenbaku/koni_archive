@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.7.0 (2026-07-16)
 
 - `ArchiveReadOptions` gains `nextVolume`, a resolver a reader calls to obtain
   the later volumes of a multi-volume archive (volume 1 is the source passed

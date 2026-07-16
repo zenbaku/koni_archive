@@ -62,6 +62,11 @@ the codec infrastructure from M4's standalone-codec pattern.
   + `-mhe`), the 7z-reader `isEncrypted` fix, and the new `koni_http_source`
   package (remote reads over HTTP Range). **First release published to
   pub.dev (2026-07-15).**
+* **0.7.0** — the RAR completeness track (R1–R9): RAR4 RarVM filters (standard
+  + a generic interpreter), RAR5/RAR4 `-hp` encrypted headers, solid RAR4,
+  multi-volume RAR (new `ArchiveReadOptions.nextVolume`), RAR4 PPMd variant H
+  (solid + non-solid, incl. a mid-file PPMd→method-29 switch), and RAR 2.0/2.6
+  (v20/v26) LZ. **RAR reading is essentially complete (2026-07-16).** Git-only.
 * All packages stay 0.x with lockstep minor bumps until the API stabilizes.
 
 ---

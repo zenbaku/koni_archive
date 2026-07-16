@@ -1,7 +1,7 @@
 name: koni_gzip
 description: >-
   GZIP adapter for the koni_archive ecosystem — single-entry .gz archives and layered .tar.gz handling.
-version: 0.6.0
+version: 0.7.0
 repository: https://github.com/zenbaku/koni_archive
 topics:
   - archive
@@ -11,8 +11,8 @@ environment:
 resolution: workspace
 
 dependencies:
-  koni_archive_core: ^0.6.0
-  koni_codecs: ^0.6.0
+  koni_archive_core: ^0.7.0
+  koni_codecs: ^0.7.0
 
 dev_dependencies:
   archive: ^4.0.0

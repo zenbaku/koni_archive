@@ -40,7 +40,7 @@ Every reader and writer is tested against the reference tools — `unzip`,
 checked byte-for-byte against a corpus of real comic archives. RAR is
 read-only; writing RAR is out of scope.
 
-This is version **0.6.0**, the first release on pub.dev. See
+This is version **0.7.0** (0.6.0 was the first release on pub.dev). See
 [ROADMAP.md](ROADMAP.md) for what's done and what's deferred.
 
 ## Packages

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.0 (2026-07-16)
+
+- Lockstep release; no changes to this package since 0.6.0.
+
 ## 0.6.0 (2026-07-15)
 
 - Lockstep release with Phase 4 (write-side encryption for ZIP/7z); no

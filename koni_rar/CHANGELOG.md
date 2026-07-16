@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.7.0 (2026-07-16)
+
+Post-0.6.0 RAR completeness track (R1–R9): the reader now handles nearly the
+whole RAR4 family. Highlights below (RAR *writing* stays out of scope).
 
 - **RAR4 mid-file PPMd→method-29 (LZSS) block switch (R8)** — a `-mct` auto-mode
   archive that flips compression method mid-file (PPMd escape code 0 selecting an
@@ -111,7 +114,8 @@
   independently. Adapted clean-room from the Go `rardecode` block framing
   (BSD; `doc/references.md`); verified byte-exact against `rar 7.x`-authored
   store and compressed fixtures on VM + dart2js + dart2wasm
-  (`test/rar5_hp_test.dart`). RAR4 `-hp` stays a documented deferral.
+  (`test/rar5_hp_test.dart`). (RAR4 `-hp` also reads in this release — see the
+  R7 entry above.)
 
 - RAR4 (method-29) now decodes the **RarVM standard filters** RAR's
   compressor auto-applies — delta, x86 E8, x86 E8/E9, RGB, and audio — so

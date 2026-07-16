@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.0 (2026-07-16)
+
+- Lockstep release; no changes to this package since 0.6.0.
+
 ## 0.6.0 (2026-07-15)
 
 - P4-1: ZIP write-side encryption. `ArchiveWriteOptions.password` encrypts
