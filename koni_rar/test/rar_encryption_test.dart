@@ -149,15 +149,22 @@ void main() {
       );
     });
 
-    test(
-      'encrypted headers (-hp) stay a typed error even with a password',
-      () async {
-        await expectLater(
-          open('encrypted_headers.rar', password: 'secret'),
-          throwsA(isA<EncryptedArchiveException>()),
-        );
-      },
-    );
+    test('encrypted headers (-hp) decode with the correct password', () async {
+      // RAR5 `-hp`: the crypt header keys every following header (each with a
+      // clear 16-byte IV), and file data uses its own per-file record.
+      final reader = await open('encrypted_headers.rar', password: 'secret');
+      final entry = reader.entries.singleWhere((e) => e.isFile);
+      expect(entry.path, 'hello.txt');
+      expect(utf8.decode(await collect(reader, entry)), 'hello, rar!\n');
+      await reader.close();
+    });
+
+    test('encrypted headers (-hp) reject a wrong password at open', () async {
+      await expectLater(
+        open('encrypted_headers.rar', password: 'wrong'),
+        throwsA(isA<InvalidPasswordException>()),
+      );
+    });
   });
 
   test('corrupted ciphertext fails the tweaked CRC', () async {

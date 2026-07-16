@@ -22,7 +22,7 @@ Last updated: 2026-07-15 · Statuses: ⬜ not started · 🟨 in progress · ✅
 | M7  | ZIP hardening        | ZIP64, data-descriptor edge cases, encoding hook, encrypted-entry detection polish | ZIP64 fixtures pass; mojibake fixtures decode via hook | ✅     |
 | M8  | 7z                   | Container + LZMA → LZMA2 → BCJ(x86) → delta; solid-block LRU cache; BCJ2/PPMd/AES→typed errors | CB7 page-flip usable (bench recorded)                  | ✅     |
 | M9  | RAR5                 | ✅ Gate passed: provenance signed off 2026-07-15. Container + RAR5 codec           | CBR (v5) works                                         | ✅     |
-| M10 | RAR4                 | Container + store + method-29 (v29 LZSS/Huffman); PPMd/RarVM/solid→typed errors    | CBR (v4) works — flagship use case complete            | ✅     |
+| M10 | RAR4                 | Container + store + method-29 (v29 LZSS/Huffman) + RarVM standard filters (delta/E8/RGB/audio); PPMd/custom-VM/solid→typed errors | CBR (v4) works — flagship use case complete            | ✅     |
 
 Every milestone additionally carries the standing definition of done
 (§13.2): all CI platforms green incl. dart2wasm, fixtures passing,
@@ -113,6 +113,24 @@ l -p` listing a hidden-header archive). Deferred: ZIP traditional zipcrypto
 (write), ZIP AES-128/192 (write) — see the scope doc.
 
 ---
+
+## RAR completeness (post-0.6.0, depth-first)
+
+Owner directive after the 0.6.0 pub.dev launch: make each already-shipped
+format *excellent* before adding new formats — RAR first. Full RAR *reading*
+support is the goal (RAR writing stays permanently out of scope, §15). Agreed
+order of attack:
+
+| # | Item | Status |
+| --- | --- | ------ |
+| R1 | RAR4 RarVM **standard filters** (delta, x86 E8/E9, RGB, audio) — unblocks 37 delta-filtered pages in the corpus | ✅ (byte-exact vs rar 6.24 on VM/dart2js/dart2wasm; conformance now 0 deferrals) |
+| R2 | RAR5 `-hp` encrypted-header **read** | ✅ (per-block IV + block-key CBC headers; byte-exact vs rar 7.x on VM/dart2js/dart2wasm; wrong/no-password typed errors) |
+| R3 | Solid RAR4 | ⬜ |
+| R4 | Multi-volume (RAR4 + RAR5) | ⬜ |
+| R5 | RAR4 PPMd (variant H) — the finale; large, no corpus coverage | ⬜ |
+
+Custom (non-standard) RarVM programs stay a typed error by *license* (only the
+GPL unrar describes a generic interpreter), not by difficulty.
 
 ## Deferred backlog (typed errors today; candidates for post-Phase-1)
 

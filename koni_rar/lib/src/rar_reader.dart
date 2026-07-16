@@ -60,13 +60,25 @@ final class RarReader extends ArchiveReader {
     final toc =
         isRar4
             ? await parseRar4(source, 7) // RAR4 signature is 7 bytes
-            : await Rar5Toc.parse(source, 8);
+            : await Rar5Toc.parse(source, 8, password: options.password);
     if (toc.headerEncrypted) {
-      throw EncryptedArchiveException(
-        'the archive uses encrypted headers (rar -hp), which are not '
-        'supported (file encryption -p is; see doc/notes.md)',
-        format: 'rar',
-      );
+      // RAR5 `-hp` is decrypted in place when a password is supplied (the
+      // crypt header keyed every following header, and `toc.files` is
+      // populated); a wrong password already threw InvalidPasswordException.
+      // RAR4 `-hp` (RAR3 KDF) stays a documented deferral.
+      if (isRar4) {
+        throw EncryptedArchiveException(
+          'RAR4 encrypted headers (rar -ma4 -hp) are not supported',
+          format: 'rar',
+        );
+      }
+      if (options.password == null) {
+        throw EncryptedArchiveException(
+          'the archive uses encrypted headers (rar -hp); supply '
+          'ArchiveReadOptions.password',
+          format: 'rar',
+        );
+      }
     }
     return RarReader._(format, source, options, toc.files);
   }
@@ -177,9 +189,11 @@ final class RarReader extends ArchiveReader {
       var actual = Crc32.compute(decoded);
       // Encrypted RAR5 files store a hash-key-tweaked CRC (so the checksum
       // reveals nothing about the plaintext); tweak the computed CRC the
-      // same way before comparing.
+      // same way before comparing. The tweak is gated by the record's "use
+      // MAC" flag, which is set independently of the per-file password check
+      // — `-hp` file records tweak the CRC without carrying a check value.
       final enc = header.encryption;
-      if (enc != null && enc.usePswCheck) {
+      if (enc != null && enc.useMac) {
         actual = _rar5Keys(enc, entry.path).tweakCrc(actual);
       }
       if (actual != header.crc32) {

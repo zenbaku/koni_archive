@@ -48,7 +48,14 @@ not be consulted.
 ## Scope reminders (Phase 1)
 
 - RAR5 first (M9): no filter VM, materially simpler. Then RAR4 (M10):
-  PPMd variant H + the RarVM filter machine — the largest single milestone.
+  method-29 LZSS+Huffman. The **RarVM standard filters** (delta, x86 E8/E9,
+  RGB, audio) were later added in `rar4_filters.dart`, adapted from
+  libarchive's BSD `rar.c` (`parse_filter`/`compile_program`/
+  `execute_filter_*`, the `membr_*` bit-reader — libarchive's names and
+  structure, not unrar's). A *generic* interpreter for non-standard VM
+  programs, and PPMd variant H, stay typed errors: the boundary is
+  **license-bounded** (the only interpreter reference is GPL unrar) per rule
+  6 above ("when in doubt, typed error + document"), not difficulty-bounded.
 - Multi-volume and encrypted archives: typed errors (§8 non-goals).
 - RAR *writing* is permanently out of scope (§15).
 

@@ -162,44 +162,26 @@ final class Rar5Toc {
 
   /// Walks every base block from just past the signature to the
   /// end-of-archive marker.
-  static Future<Rar5Toc> parse(ByteSource source, int signatureEnd) async {
+  static Future<Rar5Toc> parse(
+    ByteSource source,
+    int signatureEnd, {
+    String? password,
+  }) async {
     final files = <Rar5FileHeader>[];
     var offset = signatureEnd;
+    // With encrypted headers (`rar -hp`) the crypt header yields this block
+    // key; every following header block is then prefixed by a clear 16-byte
+    // IV and AES-256-CBC encrypted under it. File *data* stays encrypted only
+    // by its own per-file record — the block key covers headers, not data
+    // (see `doc/notes.md`).
+    Rar5Keys? blockKey;
+    var headerEncrypted = false;
 
     while (offset < source.length) {
-      // Base block: CRC32 (4) + varint(header size) + header body.
-      final prefix = await source.read(
-        offset,
-        offset + 11 <= source.length ? 11 : source.length - offset,
-      );
-      final pr = ByteReader(prefix);
-      pr.skip(4); // header CRC (validated below)
-      final int rawHeaderSize;
-      final int sizeLen;
-      try {
-        final before = pr.position;
-        rawHeaderSize = readRarVarInt(pr);
-        sizeLen = pr.position - before;
-      } on ArchiveException {
-        break; // not a valid base block: end of meaningful data
-      }
-      final headerSize = rawHeaderSize + 4 + sizeLen;
-      if (rawHeaderSize == 0 || headerSize > 2 * 1024 * 1024) {
-        throw InvalidHeaderException(
-          'implausible RAR5 header size $rawHeaderSize',
-          format: 'rar',
-          offset: offset,
-        );
-      }
-      if (offset + headerSize > source.length) {
-        throw UnexpectedEofException(
-          'RAR5 header extends past the end of the archive',
-          format: 'rar',
-          offset: offset,
-        );
-      }
-      final headerBytes = await source.read(offset, headerSize);
-      final reader = ByteReader(headerBytes)..position = 4 + sizeLen;
+      final head = await _readHeaderBytes(source, offset, blockKey);
+      if (head == null) break; // truncated / not a valid base block
+      final headerBytes = head.bytes;
+      final reader = ByteReader(headerBytes)..position = 4 + head.sizeLen;
 
       final headerType = readRarVarInt(reader);
       final headerFlags = readRarVarInt(reader);
@@ -212,13 +194,19 @@ final class Rar5Toc {
       var dataSize = 0;
       if (hasData) dataSize = readRarVarInt(reader);
 
-      final dataOffset = offset + headerSize;
+      final dataOffset = offset + head.consumed;
 
       switch (headerType) {
         case Rar5HeadType.crypt:
-          return Rar5Toc(const [], true);
+          headerEncrypted = true;
+          if (password == null) {
+            return Rar5Toc(const [], true); // locked; the caller reports it
+          }
+          // Derive the block key from the crypt header and verify the
+          // password; every subsequent header decrypts under it.
+          blockKey = _deriveBlockKey(reader, password);
         case Rar5HeadType.endArc:
-          return Rar5Toc(files, false);
+          return Rar5Toc(files, headerEncrypted);
         case Rar5HeadType.file:
         case Rar5HeadType.service:
           final header = _parseFileHeader(
@@ -242,7 +230,108 @@ final class Rar5Toc {
 
       offset = dataOffset + dataSize;
     }
-    return Rar5Toc(files, false);
+    return Rar5Toc(files, headerEncrypted);
+  }
+
+  /// Reads the base-block header at [offset]: the plaintext header bytes, the
+  /// total bytes it occupies ([consumed]), and its size-varint length. When
+  /// [blockKey] is set the block is `[16-byte IV][AES-256-CBC header padded to
+  /// 16]`; otherwise it is read directly. Returns null on a truncated tail.
+  static Future<({Uint8List bytes, int consumed, int sizeLen})?>
+  _readHeaderBytes(ByteSource source, int offset, Rar5Keys? blockKey) async {
+    if (blockKey == null) {
+      final prefix = await source.read(
+        offset,
+        offset + 11 <= source.length ? 11 : source.length - offset,
+      );
+      final pr = ByteReader(prefix)..skip(4); // header CRC
+      final before = pr.position;
+      final int rawHeaderSize;
+      try {
+        rawHeaderSize = readRarVarInt(pr);
+      } on ArchiveException {
+        return null; // not a valid base block: end of meaningful data
+      }
+      final sizeLen = pr.position - before;
+      final headerSize = rawHeaderSize + 4 + sizeLen;
+      _checkHeaderSize(rawHeaderSize, headerSize, offset);
+      if (offset + headerSize > source.length) {
+        throw UnexpectedEofException(
+          'RAR5 header extends past the end of the archive',
+          format: 'rar',
+          offset: offset,
+        );
+      }
+      final headerBytes = await source.read(offset, headerSize);
+      return (bytes: headerBytes, consumed: headerSize, sizeLen: sizeLen);
+    }
+
+    // Encrypted header: a clear 16-byte IV, then the CBC header padded to a
+    // 16-byte boundary. Peek the first block to learn the header size.
+    if (offset + 32 > source.length) return null;
+    final iv = await source.read(offset, 16);
+    final firstEnc = Uint8List.fromList(await source.read(offset + 16, 16));
+    blockKey.decrypt(firstEnc, Uint8List.fromList(iv));
+    final pr = ByteReader(firstEnc)..skip(4);
+    final before = pr.position;
+    final int rawHeaderSize;
+    try {
+      rawHeaderSize = readRarVarInt(pr);
+    } on ArchiveException {
+      return null;
+    }
+    final sizeLen = pr.position - before;
+    final headerSize = rawHeaderSize + 4 + sizeLen;
+    _checkHeaderSize(rawHeaderSize, headerSize, offset);
+    final padded = ((headerSize + 15) ~/ 16) * 16;
+    if (offset + 16 + padded > source.length) return null;
+    final enc = Uint8List.fromList(await source.read(offset + 16, padded));
+    blockKey.decrypt(enc, Uint8List.fromList(iv));
+    return (
+      bytes: Uint8List.sublistView(enc, 0, headerSize),
+      consumed: 16 + padded,
+      sizeLen: sizeLen,
+    );
+  }
+
+  static void _checkHeaderSize(int rawHeaderSize, int headerSize, int offset) {
+    if (rawHeaderSize == 0 || headerSize > 2 * 1024 * 1024) {
+      throw InvalidHeaderException(
+        'implausible RAR5 header size $rawHeaderSize',
+        format: 'rar',
+        offset: offset,
+      );
+    }
+  }
+
+  /// Derives and verifies the `-hp` block key from the crypt header body
+  /// ([reader] is positioned at it): version, flags, KDF cost, salt, and (when
+  /// the flag is set) a password-check value. Throws [InvalidPasswordException]
+  /// when the check rejects the password.
+  static Rar5Keys _deriveBlockKey(ByteReader reader, String password) {
+    final version = readRarVarInt(reader);
+    if (version != 0) {
+      throw EncryptedArchiveException(
+        'unsupported RAR5 header-encryption version $version',
+        format: 'rar',
+      );
+    }
+    final flags = readRarVarInt(reader);
+    final lg2Count = reader.readUint8();
+    final salt = Uint8List.fromList(reader.readBytes(16));
+    final keys = Rar5Keys.derive(password, salt, lg2Count);
+    if (flags & 0x01 != 0) {
+      final pswCheck = Uint8List.fromList(reader.readBytes(8));
+      final csum = Uint8List.fromList(reader.readBytes(4));
+      if (rar5PswCheckIntact(pswCheck, csum) &&
+          !keys.passwordMatches(pswCheck)) {
+        throw InvalidPasswordException(
+          'password rejected by the RAR5 header check value',
+          format: 'rar',
+        );
+      }
+    }
+    return keys;
   }
 
   static Rar5FileHeader _parseFileHeader(

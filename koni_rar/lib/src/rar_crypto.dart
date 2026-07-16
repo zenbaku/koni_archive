@@ -56,6 +56,12 @@ final class Rar5EncryptionInfo {
   /// Whether a password-check value is present (flag bit 0).
   bool get usePswCheck => flags & 0x01 != 0;
 
+  /// Whether the file checksum is tweaked with the hash key (flag bit 1,
+  /// "use MAC"). Independent of [usePswCheck]: a `-hp` file record sets this
+  /// without a per-file password check (the check lives in the crypt header),
+  /// so the tweak must key off this flag, not [usePswCheck].
+  bool get useMac => flags & 0x02 != 0;
+
   /// AES-256 is the only defined RAR5 cipher.
   bool get isAes256 => version == 0;
 }

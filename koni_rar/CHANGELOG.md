@@ -1,5 +1,34 @@
 # Changelog
 
+## Unreleased
+
+- RAR5 **encrypted headers** (`rar -hp`) now read with a password via
+  `ArchiveReadOptions.password` (previously a typed error at open). The crypt
+  header keys every following header block — each carries a clear 16-byte IV
+  and is AES-256-CBC-decrypted, padded to 16 bytes — while file data stays
+  encrypted only by its own per-file record. Wrong password →
+  `InvalidPasswordException`; no password → `EncryptedArchiveException`. Also
+  fixed the encrypted-file CRC tweak to key off the record's "use MAC" flag
+  (bit 1) rather than the password-check flag (bit 0), which `-hp` sets
+  independently. Adapted clean-room from the Go `rardecode` block framing
+  (BSD; `doc/references.md`); verified byte-exact against `rar 7.x`-authored
+  store and compressed fixtures on VM + dart2js + dart2wasm
+  (`test/rar5_hp_test.dart`). RAR4 `-hp` stays a documented deferral.
+
+- RAR4 (method-29) now decodes the **RarVM standard filters** RAR's
+  compressor auto-applies — delta, x86 E8, x86 E8/E9, RGB, and audio — so
+  archives that use them read correctly instead of throwing
+  `UnsupportedFeatureException` on those entries. Recognized by program
+  fingerprint and run natively, adapted from libarchive's BSD `rar.c`
+  (clean-room; see `doc/rar-provenance.md`). Custom (non-standard) VM
+  programs remain a typed error (license-bounded: the only generic-interpreter
+  reference is GPL unrar).
+  - Verified byte-exact against genuine rar 6.24 output on VM + dart2js +
+    dart2wasm (`test/fixtures/rar_static/filter_*.rar`,
+    `test/rar4_filters_test.dart`), and the local corpus conformance now
+    decodes all of the delta-filtered volume to unrar's sha256 with zero
+    deferred entries.
+
 ## 0.6.0 (2026-07-15)
 
 - Lockstep release with Phase 4 (write-side encryption for ZIP/7z); no

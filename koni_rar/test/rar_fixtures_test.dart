@@ -127,8 +127,9 @@ void main() {
       );
     });
 
-    test('encrypted headers (-hp) stay a typed error at open', () async {
-      // Header decryption is a documented deferral (doc/notes.md).
+    test('encrypted headers (-hp) need a password at open', () async {
+      // RAR5 `-hp` decodes with a password (rar_encryption_test.dart); with
+      // none it is a locked archive — a typed error at open, not corruption.
       await expectLater(
         openFixture('encrypted_headers.rar'),
         throwsA(isA<EncryptedArchiveException>()),

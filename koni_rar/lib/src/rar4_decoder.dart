@@ -4,14 +4,17 @@
 /// Clean-room per `doc/rar-provenance.md`; layout and the length/offset
 /// base tables follow libarchive's BSD `archive_read_support_format_rar.c`
 /// (Tim Kientzle, Andres Mejia — see `doc/references.md` and `NOTICE`); no
-/// unrar or GPL source was consulted. PPMd (variant H) and the RarVM filter
-/// machine are **not** implemented — a stream that uses them throws a
-/// [FormatException] the reader maps to a typed error.
+/// unrar or GPL source was consulted. The RarVM standard filters (delta,
+/// x86, RGB, audio) are handled by [Rar4Filters]; PPMd (variant H) and
+/// custom VM programs are **not** implemented — a stream that uses them
+/// throws a [FormatException] the reader maps to a typed error.
 ///
 /// Malformed input throws [FormatException].
 library;
 
 import 'dart:typed_data';
+
+import 'rar4_filters.dart';
 
 const int _mainCodeSize = 299;
 const int _offsetCodeSize = 60;
@@ -136,6 +139,8 @@ final class Rar4Decoder {
   int _lastLowOffset = 0;
   int _lowOffsetRepeats = 0;
 
+  final Rar4Filters _filters = Rar4Filters();
+
   static const List<int> _lengthBases = [
     0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, //
     24, 28, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224,
@@ -165,10 +170,12 @@ final class Rar4Decoder {
   /// Decodes the file's [packed] data (a continuous bitstream) to
   /// [unpackedSize] bytes appended from the current [writePtr].
   void decompressFile(Uint8List packed, int unpackedSize) {
+    final fileBase = writePtr;
     final target = writePtr + unpackedSize;
     if (target > output.length) {
       throw const FormatException('RAR4 file exceeds declared output size');
     }
+    _filters.reset();
     final bits = _Bits(packed);
     _parseCodes(bits); // every file starts with a table block
     final mask = output.length - 1;
@@ -193,7 +200,23 @@ final class Rar4Decoder {
         continue;
       }
       if (symbol == 257) {
-        throw const FormatException('RAR4 filters (RarVM) are not supported');
+        // A RarVM filter definition inline in the stream (`read_filter`): a
+        // flags byte, a length, then that many filter-code bytes. Parsing
+        // schedules the filter; it is applied over the output after decode.
+        final flags = bits.read(8);
+        var codeLength = (flags & 0x07) + 1;
+        if (codeLength == 7) {
+          codeLength = bits.read(8) + 7;
+        } else if (codeLength == 8) {
+          final hi = bits.read(8);
+          codeLength = (hi << 8) | bits.read(8);
+        }
+        final code = Uint8List(codeLength);
+        for (var i = 0; i < codeLength; i++) {
+          code[i] = bits.read(8);
+        }
+        _filters.parse(code, flags, writePtr);
+        continue;
       }
 
       int offs;
@@ -275,6 +298,13 @@ final class Rar4Decoder {
       _lastOffset = offs;
       _lastLength = len;
       _copy(len, offs, mask, target);
+    }
+
+    // Apply any RarVM filters over the freshly decoded region. The window
+    // holds raw LZ output (matches copy raw→raw during decode), so filtering
+    // is a correct post-pass over the file's disjoint, forward regions.
+    if (_filters.isNotEmpty) {
+      _filters.apply(output, fileBase, target);
     }
   }
 

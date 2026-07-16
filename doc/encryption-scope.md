@@ -25,12 +25,13 @@ errors, interop with reference tools is the definition of done.
 - **ZIP "strong encryption"** (SES, flag bit 6: DES/3DES/RC2/RC4 PKWARE
   scheme) — patent-encumbered legacy, vanishingly rare in the wild. Typed
   error naming it.
-- **RAR encrypted headers** (`-hp`): RAR5 and RAR4 alike. The whole-archive
-  header lock is rarer than file encryption and needs the reader to buffer
-  and offset-remap a decrypted tail (RAR5's is even doubly-encrypted over
-  the data region). Deferred with a typed error; the RAR5 layout is
-  reverse-engineered and recorded in `koni_rar/doc/notes.md` for a future
-  implementer. File-data decryption covers real password-protected CBRs.
+- **RAR5 encrypted headers** (`-hp`): now **supported** (post-0.6.0). Each
+  header block carries a clear 16-byte IV and is AES-256-CBC-decrypted under
+  a block key from the crypt header; file *data* stays encrypted only by its
+  own per-file record (the block key covers headers, not data — an earlier
+  "doubly-encrypted" guess was wrong). See `koni_rar/doc/notes.md`.
+- **RAR4 encrypted headers** (`rar -ma4 -hp`): still a typed error — the RAR3
+  SHA-1 KDF layout differs, and rar 7.x can't author a v4 fixture for it.
 - Key files, certificates, any non-password credential.
 
 ## Public API
