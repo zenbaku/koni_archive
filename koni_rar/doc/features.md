@@ -15,6 +15,7 @@
 | RAR4 RarVM **standard** filters (delta, x86 E8/E9, RGB, audio) | applied in place after decode; byte-exact vs rar 6.24 |
 | RAR4 RarVM **generic** (non-standard) filter programs | any other filter program runs on a full pseudo-x86 interpreter (`rar4_vm.dart`, R6); the standard set keeps its native fast path. The four standard programs run through the VM decode byte-exact vs the same fixtures (the only oracle — modern rar can't author a non-standard program) on VM/dart2js/dart2wasm |
 | **RAR4 PPMd** (variant H, `-mct`) | clean-room Ppmd7 (public-domain) + RAR range decoder; byte-exact vs unrar on VM/dart2js/dart2wasm — non-solid **and solid** |
+| RAR4 mid-file **PPMd→method-29 (LZSS) block switch** | `-mct` auto-mode can flip compression method mid-file; the boundary is read the same way for either method, so decoding crosses it (R8). Byte-exact vs unrar (`ppmd_switch.rar`) on VM/dart2js/dart2wasm |
 | RAR4 solid archives (method-29 **and PPMd**) | shared tables/offset-cache/window (method-29) or shared model/escape/window (PPMd) across the run; per-file cache, random access |
 | RAR5 header encryption (`-hp`, read) | decrypts headers + data with `ArchiveReadOptions.password` (R2) |
 | RAR4 header encryption (`-hp`, read) | decrypts per-block AES-128-CBC headers (RAR3 SHA-1 KDF) with `ArchiveReadOptions.password` (R7); wrong password → `InvalidPasswordException` via the header CRC. Fixtures authored with rar 6.24 |
@@ -27,8 +28,8 @@
 
 | Feature | Error |
 | --- | --- |
-| RAR4 mid-file PPMd→method-29 (LZSS) block switch | `UnsupportedFeatureException`; needs `-mct` auto-mode over content that alternates text and non-text (rare). A code-0 to another PPMd block *is* handled (see `doc/notes.md`) |
-| RAR4 filter reached *through* a PPMd escape | `UnsupportedFeatureException`; the generic VM can run any program, but the filter bytes arriving via the PPMd symbol stream are not wired into it. Rare |
+| RAR4 filter reached *through* a PPMd escape (code 3) | `UnsupportedFeatureException`; the generic VM can run any program, but the filter bytes arriving via the PPMd symbol stream are not wired into it. No rar-6.24 fixture emits it (filters go on the LZSS path). Rare |
+| RAR4 mid-file PPMd→LZSS switch inside a *solid* run | `UnsupportedFeatureException`; the shared solid-PPMd loop has no LZSS path, so it rejects cleanly (doubly rare). The non-solid switch decodes |
 | RAR 1.5 (unpack v15), and the RAR 2.0/2.6 multimedia/**audio** block | `UnsupportedFeatureException`. No correct permissive reference — v15: `rardecode` returns `ErrUnsupportedDecoder`; audio: `rardecode`'s predictor mis-decodes it vs unrar. Only the GPL unrar has either. Store decodes at any version |
 | Encrypted entry, no password | `EncryptedArchiveException` at `openRead` (listing works) |
 | Wrong RAR5 password | `InvalidPasswordException` (reliable 8-byte check value) |

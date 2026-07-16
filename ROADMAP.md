@@ -130,7 +130,7 @@ order of attack:
 | R5 | RAR4 PPMd (variant H) — the finale; large, no corpus coverage | ✅ (public-domain Ppmd7 model + RAR range decoder; byte-exact vs unrar/CRC from 82 B to 2.6 MB, order 2–63, mem 1–8 MB, non-solid **and solid**, on VM/dart2js/dart2wasm; fuzz-hardened. Only a mid-file PPMd→method-29 switch stays a typed error — see R8) |
 | R6 | Custom (non-standard) RAR4 **RarVM** filter programs — a generic bytecode interpreter | ✅ (`rar4_vm.dart`: full pseudo-x86 VM adapted from the BSD Go `rardecode` `vm.go`/`filters.go`; standard set keeps its native fast path. Byte-exact by running the 4 standard programs — real RarVM bytecode — through the VM to the same `unrar`-checked fixtures, on VM/dart2js/dart2wasm; hand-assembled op-coverage test + fuzz-hardened. Filter-through-PPMd stays a typed error) |
 | R7 | RAR4 **`-hp` encrypted headers** (read) | ✅ (per-block `salt[8]·AES-128-CBC(header)` with the RAR3 SHA-1 KDF; byte-exact vs `unrar`/CRC on VM/dart2js/dart2wasm, fuzz-hardened; wrong password → `InvalidPasswordException` via the 16-bit header CRC. Fixtures authored with rar 6.24. Multi-volume `-hp` threads the password but is unverified — no split fixture) |
-| R8 | Mid-file **PPMd→method-29 (LZSS) block switch** (escape code 0) | ⬜ (the last PPMd gap; `rardecode`'s unified decode loop shows the range-decoder→Huffman hand-off) |
+| R8 | Mid-file **PPMd→method-29 (LZSS) block switch** (escape code 0) | ✅ (the switch decodes: the range decoder reads whole bytes through the shared bit-reader, so `_parseCodes` reads the block boundary the same way for either method — no read-ahead to undo. Byte-exact vs `unrar` on `ppmd_switch.rar` (VM/dart2js/dart2wasm), fuzz-hardened. Still typed errors: a filter *through* a PPMd escape (code 3) and a *solid*-run mid-file switch — no rar-6.24 fixture emits either, doubly rare) |
 | R9 | **RAR 1.5 / 2.0** legacy unpack methods (v15/v20, incl. RAR2 multimedia/audio) | ✅ for **RAR 2.0 (v20) LZ**: byte-exact vs `unrar` on VM/dart2js/dart2wasm, fuzz-hardened; fixtures authored with DOS RAR 2.50 under DOSBox. v26 shares the v20 decoder but is untested (no fixture). Typed errors (no permissive reference — only GPL unrar): **v15** (RAR 1.5; `rardecode` returns `ErrUnsupportedDecoder`), the **multimedia/audio** block (`rardecode`'s decoder mis-decodes it vs `unrar`), and **solid v20 continuations** (run start still decodes; full solid-v20 decode deferred) |
 
 The BSD Go `rardecode` reader (established as a clean-room reference in R5 —
@@ -139,21 +139,23 @@ completeness track. It **lifts the license boundary** that had deferred the
 generic RarVM interpreter (R6) and RAR4 `-hp` headers (R7): those were held back
 because the only prior interpreter/`-hp` reference was the GPL unrar, and
 `rardecode` is BSD-2-Clause. R8 (mid-file PPMd↔LZSS switch) and R9 (legacy
-methods) are now reference-backed too. R6, R7, and R9 have landed; the only
-remaining item is **R8** (niche: the mid-file PPMd→method-29 hand-off, and the
-related filter-through-PPMd read). Separately, `rardecode` is a second
-*independent* implementation (not
+methods) are now reference-backed too. **R5–R9 have all landed** — the RAR
+completeness track is essentially done. What remains are the small, doubly-rare
+typed-error sub-cases with no authorable rar-6.24 fixture (a filter reached
+*through* a PPMd escape; solid-run mid-file switch; the RAR 2.x audio block;
+RAR 1.5 v15) and RAR *writing* (permanently out of scope). Separately,
+`rardecode` is a second *independent* implementation (not
 just the `unrar` black-box binary) — worth a source-level cross-read to
 re-verify the fiddly already-shipped paths (RAR5 filter math, the method-29
 offset cache, the encryption KDFs) if a bug ever surfaces. RAR *writing* stays
 permanently out of scope (§15).
 
-### R5 — remaining typed error (folded into R8)
+### R5 — remaining typed error (resolved in R8)
 
-The one RAR4 PPMd hole is a *mid-file* PPMd→method-29 (LZSS) block switch
-(escape code 0 selecting an LZSS block); wiring the PPMd↔LZSS loop hand-off is
-unimplemented, so it stays a typed error (rare — needs `-mct` auto-mode over
-alternating text/non-text content). A code-0 to another PPMd block is handled.
+The one RAR4 PPMd hole was a *mid-file* PPMd→method-29 (LZSS) block switch
+(escape code 0 selecting an LZSS block); **R8 closed it** (see the R8 section).
+Two doubly-rare sub-cases stay typed errors: a filter reached *through* a PPMd
+escape (code 3) and a mid-file switch inside a *solid* PPMd run.
 
 ### R5 — RAR4 PPMd (variant H): done (2026-07-16)
 
@@ -241,20 +243,33 @@ during the container walk in `rar4_container.dart`
 * **Deferred:** RAR4 `-hp` over a *multi-volume* set — the password is threaded
   through per-volume parsing, but no split `-hp` fixture exists to verify it.
 
-### R8 — Mid-file PPMd→method-29 (LZSS) block switch: starting notes
+### R8 — Mid-file PPMd→method-29 (LZSS) block switch: done (2026-07-16)
 
-The last PPMd gap (see R5). Escape code 0 inside a PPMd block can select a
-*method-29 (LZSS)* block mid-file; our decode loops are per-method, so the
-PPMd→LZSS hand-off throws `UnsupportedFeatureException`. (Code 0 → another PPMd
-block already works.)
+Escape code 0 inside a PPMd block reads a new block header; if it selects a
+method-29 (LZSS) block, decoding now continues in LZSS mode instead of throwing.
+Full detail in `koni_rar/doc/notes.md` (the PPMd "mid-file block switch"
+subsection).
 
-* **The hard part:** after the range decoder's read-ahead, the method-29
-  Huffman bit-reader must resume from the right stream position. `rardecode`'s
-  unified `fill()`/`readBlockHeader()` loop (one shared bit-reader, decoders
-  swapped per block) shows the structure; adopting it here means unifying the
-  PPMd and method-29 decode loops rather than calling them separately.
-* **Fixtures:** the uncommitted `-mct` auto-mode fixtures from R5 bring-up
-  (text+binary that alternates) trigger it; commit a small one. Rare in the wild.
+* **The "hard part" was not hard.** The worry was resuming the Huffman bit-reader
+  "after the range decoder's read-ahead". But the PPMd range decoder reads whole
+  bytes through the *same* shared bit-reader as the Huffman decoder, so there is
+  no read-ahead to undo: at the block boundary `_decodePpmdStep` code-0 calls
+  `_parseCodes`, which aligns to a byte, reads the block-type bit, and sets up
+  either another PPMd block or an LZSS table block (flipping `_ppmdActive`); the
+  main loop then dispatches on it. This one change also subsumes the code-0→PPMd
+  path, and the reverse LZSS→PPMd switch already worked (method-29 symbol-256 →
+  `_parseCodes`). Exactly `rardecode`'s unified `fill()`/`readBlockHeader()`
+  structure.
+* **Fixture:** authored `ppmd_switch.rar` with rar 6.24 — `-ma4 -m5 -mc:1t` over
+  ~62 KB of natural-ish text (forces a PPMd block boundary) + a repetitive binary
+  block (rar's `-mct` auto-mode picks the general/LZSS method for it) + a short
+  text tail. Verified: the switch actually fires (reverting the fix makes it
+  throw), byte-exact vs `unrar` on VM/dart2js/dart2wasm, and fuzz-hardened.
+* **Still typed errors** (no rar-6.24 fixture emits either; doubly rare): a
+  filter reached *through* a PPMd escape (code 3 — rar applies filters on the
+  LZSS path, not inside a PPMd block, so this could not be authored to verify),
+  and a mid-file switch inside a *solid* PPMd run (the shared solid loop has no
+  LZSS path and rejects it cleanly).
 
 ### R9 — RAR 1.5 / 2.0 legacy unpack methods
 

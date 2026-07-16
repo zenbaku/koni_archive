@@ -7,9 +7,11 @@
 /// unrar or GPL source was consulted. RarVM filters are handled by
 /// [Rar4Filters] (the standard delta/x86/RGB/audio programs natively, any other
 /// program on the generic interpreter in `rar4_vm.dart`); **PPMd (variant H)**
-/// blocks are decoded by [Ppmd7Model] (see `rar4_ppmd.dart`). A filter reached
-/// *through* a PPMd escape stays a [FormatException] the reader maps to a typed
-/// error (the filter bytes arrive via the PPMd symbol stream, unwired).
+/// blocks are decoded by [Ppmd7Model] (see `rar4_ppmd.dart`), including a
+/// mid-file PPMd→method-29 (LZSS) block switch — the block boundary is read the
+/// same way for either method (`_parseCodes`). A filter reached *through* a PPMd
+/// escape, and a mid-file switch inside a *solid* PPMd run, stay a
+/// [FormatException] the reader maps to a typed error.
 ///
 /// Malformed input throws [FormatException].
 library;
@@ -310,6 +312,15 @@ final class Rar4Decoder {
     }
     final mask = output.length - 1;
     while (!_decodePpmdStep(bits, mask, output.length)) {
+      if (!_ppmdActive) {
+        // A mid-file PPMd→method-29 (LZSS) switch inside a *solid* PPMd run:
+        // the shared PPMd loop here has no LZSS path, and continuing would
+        // decode LZSS bytes as PPMd symbols. Reject cleanly (doubly rare: solid
+        // + `-mct` auto-switch). The non-solid path handles the switch.
+        throw const FormatException(
+          'RAR4 solid PPMd-to-LZSS mid-file block switch is not supported',
+        );
+      }
       if (writePtr > end) {
         throw const FormatException('RAR4 solid PPMd file overran its size');
       }
@@ -384,20 +395,15 @@ final class Rar4Decoder {
     switch (_ppmdSymbol()) {
       case 0:
         // End of this PPMd block; a new block header follows in the stream
-        // (`rardecode`'s endOfBlock → readBlockHeader). Read its block-type
-        // bit: another PPMd block carries the model over and decoding
-        // continues; a switch to a method-29 (LZSS) block mid-file would need
-        // the Huffman bit-reader to pick up where the range decoder's read-
-        // ahead left off, which is not implemented — a typed error (rare; needs
-        // `-mct` auto-mode over content that alternates text and non-text).
-        bits.alignToByte();
-        if (bits.read(1) == 0) {
-          _ppmdActive = false;
-          throw const FormatException(
-            'RAR4 PPMd-to-LZSS mid-file block switch is not supported',
-          );
-        }
-        _parsePpmdBlock(bits);
+        // (`rardecode`'s endOfBlock → readBlockHeader). Read it the same way any
+        // block boundary is read — [_parseCodes] aligns to a byte, reads the
+        // block-type bit, and sets up either another PPMd block (model carried
+        // over) or a method-29 (LZSS) table block, flipping [_ppmdActive]. The
+        // range decoder read whole bytes through the shared [bits], so the LZSS
+        // decoder resumes from the aligned position with no look-ahead to undo
+        // (mirroring `rardecode`'s unified `fill()`/`readBlockHeader()` loop).
+        // The caller's decode loop then dispatches on [_ppmdActive].
+        _parseCodes(bits);
         return false;
       case 2:
         return true; // end of PPMd data

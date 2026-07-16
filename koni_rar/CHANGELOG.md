@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- **RAR4 mid-file PPMd→method-29 (LZSS) block switch (R8)** — a `-mct` auto-mode
+  archive that flips compression method mid-file (PPMd escape code 0 selecting an
+  LZSS block) now decodes; it was a typed error before. The fix is small: the
+  PPMd range decoder reads whole bytes through the *same* shared bit-reader as
+  the Huffman decoder, so at the block boundary the decoder just aligns to a byte
+  and reads the block-type bit (`_parseCodes`), and the LZSS decoder resumes from
+  there — no range-decoder read-ahead to undo (mirroring the BSD Go `rardecode`'s
+  unified `fill()`/`readBlockHeader()` loop). Byte-exact vs `unrar` on a fixture
+  that starts in PPMd and switches to LZSS mid-file (`ppmd_switch.rar`, authored
+  with rar 6.24), on VM + dart2js + dart2wasm; fuzz-hardened. Still typed errors
+  (no rar-6.24 fixture emits them, doubly rare): a filter reached *through* a
+  PPMd escape (code 3), and a mid-file switch inside a *solid* PPMd run.
+
 - **RAR4 generic RarVM filter interpreter (R6)** — any method-29 filter program
   now decodes, not just the four fingerprinted standard ones (delta, x86 E8/E9,
   RGB, audio), which previously left a non-standard program a typed error.

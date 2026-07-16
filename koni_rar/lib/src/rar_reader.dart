@@ -28,10 +28,11 @@ final class _VolumeSegment {
 /// `RarFormat.openReader`. RAR5 handles store + methods 1–5 (solid and
 /// non-solid); RAR4 handles store + method-29 (solid and non-solid) with the
 /// RarVM filters (the standard set natively, any other program on a generic
-/// interpreter), and PPMd variant H (`-mct`, solid and non-solid); RAR 2.0/2.6
-/// (unpack v20/v26) LZ also decodes. A mid-file PPMd→method-29 block switch, a
-/// filter reached through PPMd, RAR 1.5 (v15), and the RAR 2.x audio block
-/// surface as typed errors (see `doc/notes.md`).
+/// interpreter), and PPMd variant H (`-mct`, solid and non-solid, incl. a
+/// mid-file PPMd→method-29 block switch); RAR 2.0/2.6 (unpack v20/v26) LZ also
+/// decodes. A filter reached through a PPMd escape, a solid-PPMd mid-file
+/// switch, RAR 1.5 (v15), and the RAR 2.x audio block surface as typed errors
+/// (see `doc/notes.md`).
 final class RarReader extends ArchiveReader {
   RarReader._(
     this.format,
@@ -273,10 +274,10 @@ final class RarReader extends ArchiveReader {
     try {
       decoded = await _decodeToBytes(index, header, entry.path);
     } on FormatException catch (e) {
-      // A decoder feature we deliberately defer (custom RarVM programs, the
-      // mid-file PPMd→method-29 block switch) surfaces as an unsupported-
-      // feature error, not corruption (§8/§9), so one such entry never
-      // implies the archive is damaged.
+      // A decoder feature we deliberately defer (a filter reached through a
+      // PPMd escape, a solid-PPMd mid-file block switch) surfaces as an
+      // unsupported-feature error, not corruption (§8/§9), so one such entry
+      // never implies the archive is damaged.
       if (e.message.contains('not supported')) {
         throw UnsupportedFeatureException(
           e.message,

@@ -14,11 +14,11 @@ method-29 (v2.9/v3+) LZSS+Huffman codec, **solid and non-solid**, including
 the **RarVM standard filters** (see `rar4_filters.dart`). This is what the
 real-world CBR corpus uses (`-m0` store, `-m3`/`-m5` method-29, and the
 delta filter on 37 pages of one volume). **PPMd variant H** ("text
-compression", `-mct`) is also decoded — see the PPMd section below. **Solid PPMd runs** decode too (see the PPMd section). The
-following RAR4 features stay **typed errors**: a mid-file PPMd→method-29 block
-switch and a filter reached *through* a PPMd escape (both implementation-scoped
-— the BSD `rardecode` reader shows the path, but the PPMd↔LZSS loop hand-off /
-PPMd-stream filter read are unwired). *Non-standard* RarVM filter programs now
+compression", `-mct`) is also decoded — see the PPMd section below. **Solid PPMd runs** decode too, and a **mid-file PPMd→method-29
+(LZSS) block switch** now decodes (R8; see the PPMd section). The following RAR4
+features stay **typed errors**: a filter reached *through* a PPMd escape and a
+mid-file switch inside a *solid* PPMd run (both implementation-scoped and doubly
+rare — no rar-6.24 fixture emits them). *Non-standard* RarVM filter programs
 decode on the generic interpreter (R6).
 File encryption (`-p`) is supported on both
 versions, and header encryption (`-hp`) reads with a password on both
@@ -250,15 +250,14 @@ than method-29's LZSS — decode speed, not compression, is the trade the format
 makes.
 
 **Branch coverage:** the committed fixtures exercise literals, rescale/glue,
-model restart, the code-4/code-5 LZ escapes, and (via `solid_ppmd.rar`) the
-code-2 end-of-file marker and cross-file model/escape carry-over. The remaining
-shipped branches — code-0 (mid-file block switch), code-3 (PPMd-embedded
-filter), and the `default` escape-as-literal case — are **not** reachable from a
-committed fixture (`-mct+` never emits filters, and rar keeps one block per file
-for normal content, even at 2.6 MB). code-0→LZSS was confirmed to fire (and
-throw its typed error) during bring-up on an `-mct` auto-mode stream
-(uncommitted for size); code-0→PPMd and code-3/default are 1–3-line mirrors of
-`rardecode`/libarchive dispatch, verified by inspection.
+model restart, the code-4/code-5 LZ escapes, (via `solid_ppmd.rar`) the code-2
+end-of-file marker and cross-file model/escape carry-over, and (via
+`ppmd_switch.rar`, R8) the code-0 **mid-file block switch** — both a code-0 to
+another PPMd block and a code-0 to a method-29 (LZSS) block. code-3
+(PPMd-embedded filter) and the `default` escape-as-literal case remain
+un-fixtured (`-mct` never emits a filter *inside* a PPMd block — rar applies
+filters on the general/LZSS path — and the `default` case is a 1-line mirror of
+the `rardecode`/libarchive dispatch, verified by inspection).
 
 **Solid PPMd** decodes whole (`decompressSolidPpmdFile` per member, sharing one
 model/escape/window across the run; `rar_reader.dart` `_decodeSolidPpmdRun`).
@@ -273,14 +272,30 @@ Verified byte-exact vs unrar/CRC on 2–5-file runs, a 1-byte member, and
 2×730 KB members, on VM/dart2js/dart2wasm (`solid_ppmd.rar`, and larger runs
 verified locally).
 
-**Still a typed error** (reference-bounded, not difficulty-bounded): a *mid-file*
-PPMd→method-29(LZSS) block switch (escape code `0` selecting an LZSS block).
-`rardecode` handles it by resuming the shared Huffman bit-reader where the range
-decoder's read-ahead left off; wiring that PPMd↔LZSS hand-off into this decoder's
-loop is unimplemented, so it stays an `UnsupportedFeatureException`. A code-0 to
-another *PPMd* block is handled (the model carries over). This case needs `-mct`
-auto-mode over content that alternates text and non-text; normal PPMd content
-(even a single 2.6 MB file) never emits it.
+**Mid-file PPMd→method-29 (LZSS) block switch — done (R8).** A PPMd escape
+code `0` reads a new block header; if it selects a method-29 (LZSS) block, the
+decode continues in LZSS mode. The hand-off is trivial because the PPMd range
+decoder reads whole bytes through the *same* shared bit-reader as the Huffman
+decoder: at the block boundary [_parseCodes] aligns to a byte and reads the
+block-type bit, and the LZSS decoder resumes from there — no range-decoder
+read-ahead to undo (this is exactly `rardecode`'s unified `fill()`/
+`readBlockHeader()` structure; the earlier worry about resuming "where the
+read-ahead left off" was unfounded — the encoder accounts for the flush). The
+unified block-header read (`_decodePpmdStep` code-0 → `_parseCodes`) subsumes
+the code-0→PPMd path too, and the reverse LZSS→PPMd switch already worked via the
+method-29 symbol-256 → `_parseCodes` path. Verified byte-exact vs unrar on
+`ppmd_switch.rar` (an `-mct` auto-mode stream that starts in PPMd and switches to
+LZSS mid-file) on VM/dart2js/dart2wasm; fuzz-hardened. Needs `-mct` over content
+that alternates text and non-text; normal PPMd content (even a single 2.6 MB
+file) never emits it.
+
+**Still typed errors** (no committed fixture — `-mct` won't emit either from
+rar 6.24): (1) a filter reached *through* a PPMd escape (code `3`) — the filter
+bytes would arrive as PPMd-decoded symbols rather than the LZSS bitstream, and
+the (unified) filter read is unwired for that source; (2) a mid-file switch
+inside a *solid* PPMd run — `decompressSolidPpmdFile`'s loop has no LZSS path,
+so it rejects the switch cleanly rather than decode LZSS bytes as PPMd. Both are
+doubly rare.
 
 ## RAR4 solid runs
 
