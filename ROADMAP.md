@@ -4,7 +4,7 @@ Tracking document for the milestones behind each release. Update the Status
 column as work lands. (Older `§N` references in code comments point at the
 original design spec, kept as section breadcrumbs.)
 
-Last updated: 2026-07-15 · Statuses: ⬜ not started · 🟨 in progress · ✅ done
+Last updated: 2026-07-16 · Statuses: ⬜ not started · 🟨 in progress · ✅ done
 
 ---
 
@@ -127,38 +127,157 @@ order of attack:
 | R2 | RAR5 `-hp` encrypted-header **read** | ✅ (per-block IV + block-key CBC headers; byte-exact vs rar 7.x on VM/dart2js/dart2wasm; wrong/no-password typed errors) |
 | R3 | Solid RAR4 | ✅ (persistent tables/offset-cache/window across the run; byte-exact vs unrar on VM/dart2js/dart2wasm; fuzz-hardened) |
 | R4 | Multi-volume (RAR4 + RAR5) | ✅ (`ArchiveReadOptions.nextVolume` resolver; split files reassembled across volumes; store + compressed, both versions, byte-exact vs unrar on VM/dart2js/dart2wasm) |
-| R5 | RAR4 PPMd (variant H) — the finale; large, no corpus coverage | ⬜ (next session) |
+| R5 | RAR4 PPMd (variant H) — the finale; large, no corpus coverage | ✅ (public-domain Ppmd7 model + RAR range decoder; byte-exact vs unrar/CRC from 82 B to 2.6 MB, order 2–63, mem 1–8 MB, non-solid **and solid**, on VM/dart2js/dart2wasm; fuzz-hardened. Only a mid-file PPMd→method-29 switch stays a typed error — see R8) |
+| R6 | Custom (non-standard) RAR4 **RarVM** filter programs — a generic bytecode interpreter | ⬜ (unblocked: the BSD Go `rardecode` `vm.go` is a clean-room reference, so no longer license-bounded) |
+| R7 | RAR4 **`-hp` encrypted headers** (read) | ⬜ (RAR3/4 header crypto; `rardecode` supports it — reference available) |
+| R8 | Mid-file **PPMd→method-29 (LZSS) block switch** (escape code 0) | ⬜ (the last PPMd gap; `rardecode`'s unified decode loop shows the range-decoder→Huffman hand-off) |
+| R9 | **RAR 1.5 / 2.0** legacy unpack methods (v15/v20, incl. RAR2 multimedia/audio) | ✅ for **RAR 2.0 (v20) LZ**: byte-exact vs `unrar` on VM/dart2js/dart2wasm, fuzz-hardened; fixtures authored with DOS RAR 2.50 under DOSBox. v26 shares the v20 decoder but is untested (no fixture). Typed errors (no permissive reference — only GPL unrar): **v15** (RAR 1.5; `rardecode` returns `ErrUnsupportedDecoder`), the **multimedia/audio** block (`rardecode`'s decoder mis-decodes it vs `unrar`), and **solid v20 continuations** (run start still decodes; full solid-v20 decode deferred) |
 
-Custom (non-standard) RarVM programs stay a typed error by *license* (only the
-GPL unrar describes a generic interpreter), not by difficulty.
+The BSD Go `rardecode` reader (established as a clean-room reference in R5 —
+it, unlike libarchive, implements the whole RAR family) reopens the RAR
+completeness track. It **lifts the license boundary** that had deferred the
+generic RarVM interpreter (R6) and RAR4 `-hp` headers (R7): those were held back
+because the only prior interpreter/`-hp` reference was the GPL unrar, and
+`rardecode` is BSD-2-Clause. R8 (mid-file PPMd↔LZSS switch) and R9 (legacy
+methods) are now reference-backed too. Suggested order by effort/value: R7
+(cheap, contained), R6 (highest impact, largest — a full VM), R9 (breadth), R8
+(niche). Separately, `rardecode` is a second *independent* implementation (not
+just the `unrar` black-box binary) — worth a source-level cross-read to
+re-verify the fiddly already-shipped paths (RAR5 filter math, the method-29
+offset cache, the encryption KDFs) if a bug ever surfaces. RAR *writing* stays
+permanently out of scope (§15).
 
-### R5 — RAR4 PPMd (variant H): starting notes
+### R5 — remaining typed error (folded into R8)
 
-Full RAR reading is the goal, so PPMd is **in scope** — it is the last gap,
-deferred only for size, not permanently. What a future session needs to know:
+The one RAR4 PPMd hole is a *mid-file* PPMd→method-29 (LZSS) block switch
+(escape code 0 selecting an LZSS block); wiring the PPMd↔LZSS loop hand-off is
+unimplemented, so it stays a typed error (rare — needs `-mct` auto-mode over
+alternating text/non-text content). A code-0 to another PPMd block is handled.
 
-* **Current state:** a hard stub. `rar4_decoder.dart` `_parseCodes` reads the
-  block-type bit and, when it is PPMd, throws
-  `FormatException('RAR4 PPMd blocks are not supported')`, which the reader maps
-  to a typed `UnsupportedFeatureException` (one PPMd entry never bricks the
-  archive). No PPMd decoder exists.
-* **What it is:** RAR4 uses **PPMd variant H** (Dmitry Shkarin's PPMII) — the
-  same variant 7-Zip carries for RAR compatibility. A range/arithmetic decoder
-  + an order-N context model with SEE (secondary escape estimation), a
-  suffix-linked context tree, and a bespoke sub-allocator (glue/expand/restart).
-  Multi-hundred lines, notoriously fiddly, and subject to the same dart2js
-  32-bit-arithmetic traps as the LZMA/RAR codecs (`-p chrome -c dart2js,dart2wasm`
-  is mandatory, not optional).
-* **Reference / provenance:** libarchive's BSD `rar.c` **does** include PPMd var.H
-  (it uses `archive_ppmd7.c`) — an approved clean-room reference (unlike the
-  GPL unrar). Confirm `rar.c` / `archive_ppmd7.c` cover variant H before relying
-  on them; record in `doc/references.md`.
-* **No corpus oracle:** the manga corpus never triggers PPMd (RAR picks it for
-  *text*, and comics are images), so there is no local ground truth. Author a
-  PPMd v4 fixture with **rar 6.24** (rar 7.x cannot author v4) — force PPMd via
-  RAR's method/`-mc` switches over highly text-like input — commit it to
-  `test/fixtures/rar_static/` (like the other v4 fixtures), and verify byte-exact
-  vs `unrar`. This is the only RAR gap with no existing test oracle.
+### R5 — RAR4 PPMd (variant H): done (2026-07-16)
+
+PPMd variant H (Dmitry Shkarin's PPMII, RAR's `-mct` "text compression") now
+decodes. `rar4_ppmd.dart` ports the **public-domain** Ppmd7 codec (Igor Pavlov,
+via libarchive's `archive_ppmd7.c`) — a range decoder, an order-N context model
+with SEE, a suffix-linked context tree, and a unit sub-allocator — with RAR's
+range-decoder variant and escape-char dispatch adapted from libarchive's BSD
+`rar.c`. Full detail in `koni_rar/doc/notes.md` ("RAR4 PPMd"); provenance in
+`doc/references.md` + `NOTICE`.
+
+* **Verified:** byte-exact vs `unrar`/CRC-32 from 82 B to 2.6 MB, order 2–63,
+  memory 1–8 MB, non-solid and solid, on VM + dart2js + dart2wasm
+  (`test/rar4_ppmd_web_test.dart`); fuzz-hardened (corrupt input → typed errors
+  only, 100k+ iterations). Fixtures authored with **rar 6.24** live in
+  `test/fixtures/rar_static/ppmd_rar4*.rar` and `solid_ppmd.rar` (the manga
+  corpus never triggers PPMd, so these are the only oracle). This decoder even
+  handles a stream libarchive 3.7.4 itself fails.
+* **Solid PPMd** was closed after web research surfaced the BSD Go `rardecode`
+  reader, which handles solid RAR (libarchive does not): each solid file is a
+  PPMd block ending with an escape-code-2 marker, and the shared model + escape
+  symbol carry across files (the escape resets only on flag 0x40). Verified on
+  2–5-file runs incl. a 1-byte and 2×730 KB members.
+* **Remaining typed error:** a *mid-file* PPMd→method-29 (LZSS) block switch
+  (escape code 0 → an LZSS block); the PPMd↔LZSS loop hand-off is unimplemented.
+  A code-0 to another PPMd block is handled. Rare — needs `-mct` auto-mode over
+  alternating text/non-text content.
+
+### R6 — Custom (non-standard) RAR4 RarVM filter programs: starting notes
+
+Today `rar4_filters.dart` recognizes only the four **standard** RarVM programs
+(delta, x86 E8/E9, RGB, audio) by fingerprint and runs hand-written
+implementations; any other filter program is a typed error. R6 replaces that
+with a **generic RarVM interpreter** so *any* method-29 filter decodes.
+
+* **What it is:** RAR3/4's filters are little bytecode programs for a pseudo-x86
+  VM (8 registers, a 256 KB address space, ~40 opcodes: mov/cmp/add/sub/xor/
+  mul/div, shifts, conditional jumps, call/ret, push/pop/pusha/popa, movzx/
+  movsx). A file's `read_filter` record carries a compiled program; the decoder
+  runs it over each filtered output region. Standard filters are just the
+  common programs — a generic interpreter subsumes the fingerprint dispatch.
+* **Provenance (the unblock):** deferred until now **by license** — the only
+  interpreter reference was the GPL unrar. The BSD Go `rardecode` `vm.go` is a
+  clean-room generic RarVM interpreter (BSD-2-Clause), so R6 is now
+  license-clear (adapt structure; keep the BSD notice in `NOTICE`, attribution
+  in `references.md`). Update the stale "by license" wording in
+  `references.md`/`notes.md`/`rar-provenance.md` when this lands.
+* **Fixtures / oracle:** author RAR4 archives whose data trips a *non-standard*
+  program (harder than the standard filters — needs input the compressor
+  filters with a bespoke program; may require crafted content or specific `-mc`
+  modes) with rar 6.24, verify byte-exact vs `unrar`. Keep the standard-filter
+  fingerprints as a fast path or drop them once the VM is byte-exact on the
+  existing `filter_*.rar` fixtures. dart2js/dart2wasm 32-bit traps apply.
+* **Scope note:** the *standard*-filter fast path already covers what the manga
+  corpus emits; R6 is a completeness play for archives from other tools.
+
+### R7 — RAR4 `-hp` encrypted headers (read): starting notes
+
+RAR4 file-data decryption (`-p`, P3-5) already works; `-hp` (encrypted *headers*)
+is still a typed error. R7 reads it with a password.
+
+* **What it is:** with `-hp`, the block headers themselves are AES-encrypted
+  (the same RAR3 SHA-1 KDF + AES-128-CBC as file data, salted). The reader must
+  detect the encrypted-header archive, derive the key from the password, and
+  decrypt each header before parsing — mirroring the RAR5 `-hp` path (R2) but
+  with RAR3 crypto (already implemented in `rar_crypto.dart`).
+* **Provenance:** `rardecode` supports RAR3/4 `-hp` (BSD reference); the RAR5
+  `-hp` reader (R2) is the structural analogue on our side. Contained scope.
+* **Fixtures:** `rar a -ma4 -hpsecret …` with rar 6.24; wrong/missing-password
+  cases must stay typed errors (RAR4 has no password check value, so a wrong
+  password surfaces as a checksum/parse error — same policy as P3-5).
+
+### R8 — Mid-file PPMd→method-29 (LZSS) block switch: starting notes
+
+The last PPMd gap (see R5). Escape code 0 inside a PPMd block can select a
+*method-29 (LZSS)* block mid-file; our decode loops are per-method, so the
+PPMd→LZSS hand-off throws `UnsupportedFeatureException`. (Code 0 → another PPMd
+block already works.)
+
+* **The hard part:** after the range decoder's read-ahead, the method-29
+  Huffman bit-reader must resume from the right stream position. `rardecode`'s
+  unified `fill()`/`readBlockHeader()` loop (one shared bit-reader, decoders
+  swapped per block) shows the structure; adopting it here means unifying the
+  PPMd and method-29 decode loops rather than calling them separately.
+* **Fixtures:** the uncommitted `-mct` auto-mode fixtures from R5 bring-up
+  (text+binary that alternates) trigger it; commit a small one. Rare in the wild.
+
+### R9 — RAR 1.5 / 2.0 legacy unpack methods
+
+koni_rar decodes method-29 (unpack v29, RAR 2.9/3.x) — the format essentially
+every modern `.rar` uses. Older archives declare unpack version 15 (RAR 1.5),
+20 (RAR 2.0), or 26 (RAR 2.6), which use different LZ/Huffman schemes and, for
+v20/v26, a multimedia/audio filter. R9 adds **v20/v26 LZ** decoding
+(done 2026-07-16).
+
+* **Container:** the v1.5 container was already parsed but discarded the
+  unpack-version byte and hardcoded v29; it now preserves it
+  (`Rar5FileHeader.unpackVersion`, distinct from the `version` family marker so
+  RAR4/RAR5 decoder dispatch is untouched).
+* **Decoder:** `rar20_decoder.dart` (`Rar20Decoder`) — v20/v26 LZSS with the
+  main/offset/length Huffman tables, adapted from the BSD `rardecode`
+  (`decode20.go`/`decode20_lz.go`). The bit-reader and canonical Huffman decoder
+  were factored into a shared `rar_bits.dart` (`Bits`/`Huffman`) reused by the
+  method-29 and v20 decoders; the LZ base tables are the standard RAR tables.
+* **Fixtures — the unblock:** no tool on the build machine authors v20 (rar ≥3
+  writes v29; rar 2.x is 32-bit i386 that Rosetta 2 can't run), and no permissive
+  test corpus exists. Solved by running **DOS RAR 2.50** (rarlab `rar250.exe`,
+  extracted with `unrar`) under **DOSBox** (`brew install dosbox`, headless via
+  `SDL_VIDEODRIVER=dummy`); `unrar` is the byte-exact oracle. Verified byte-exact
+  on VM + dart2js + dart2wasm (`test/rar2_web_test.dart`,
+  `rar_static/rar2_*.rar`); fuzz-hardened.
+* **v26 (RAR 2.6):** routes to the same decoder (`rardecode` maps `case 20, 26`
+  together) but is **untested** — DOS RAR 2.50 authors only v20, so there is no
+  v26 fixture to verify against.
+* **Typed errors (reference-bounded):** the **multimedia/audio** block —
+  `rardecode`'s audio predictor mis-decodes it (verified: rardecode itself fails
+  the audio fixture's CRC vs `unrar`), so no correct permissive reference exists;
+  **v15 (RAR 1.5)** — `rardecode` returns `ErrUnsupportedDecoder`, libarchive is
+  v29-only (only the GPL unrar has either); and **solid v20 continuations** — a
+  solid run's first file decodes via the non-solid path, but continuations would
+  misroute to the method-29 solid path, so they are rejected cleanly (full
+  solid-v20 decode deferred: doubly rare). Store (method 0) is version-agnostic
+  and decodes at any version.
+* **Value:** breadth — vintage `.rar` files. Rare in practice (the manga corpus
+  and any modern archive are v29/v50).
 
 ## Deferred backlog (typed errors today; candidates for post-Phase-1)
 

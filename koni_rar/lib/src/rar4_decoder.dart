@@ -5,9 +5,10 @@
 /// base tables follow libarchive's BSD `archive_read_support_format_rar.c`
 /// (Tim Kientzle, Andres Mejia — see `doc/references.md` and `NOTICE`); no
 /// unrar or GPL source was consulted. The RarVM standard filters (delta,
-/// x86, RGB, audio) are handled by [Rar4Filters]; PPMd (variant H) and
-/// custom VM programs are **not** implemented — a stream that uses them
-/// throws a [FormatException] the reader maps to a typed error.
+/// x86, RGB, audio) are handled by [Rar4Filters]; **PPMd (variant H)** blocks
+/// are decoded by [Ppmd7Model] (see `rar4_ppmd.dart`). A *custom* (non-standard)
+/// VM program — including one reached through a PPMd escape — stays a
+/// [FormatException] the reader maps to a typed error.
 ///
 /// Malformed input throws [FormatException].
 library;
@@ -15,6 +16,8 @@ library;
 import 'dart:typed_data';
 
 import 'rar4_filters.dart';
+import 'rar4_ppmd.dart';
+import 'rar_bits.dart';
 
 const int _mainCodeSize = 299;
 const int _offsetCodeSize = 60;
@@ -23,97 +26,6 @@ const int _lengthCodeSize = 28;
 const int _tableSize =
     _mainCodeSize + _offsetCodeSize + _lowOffsetCodeSize + _lengthCodeSize;
 const int _precodeSymbols = 20;
-
-/// MSB-first bit reader over a byte buffer (RAR bit order).
-final class _Bits {
-  _Bits(this._data);
-
-  final Uint8List _data;
-  int _pos = 0; // absolute bit position
-
-  bool has(int n) => _pos + n <= _data.length * 8;
-
-  int _byteAt(int i) => i < _data.length ? _data[i] : 0;
-
-  /// Peeks [n] bits (1–16) MSB-first.
-  int peek(int n) {
-    final byteIndex = _pos >> 3;
-    final bitOffset = _pos & 7;
-    var acc = _byteAt(byteIndex);
-    acc = acc * 256 + _byteAt(byteIndex + 1);
-    acc = acc * 256 + _byteAt(byteIndex + 2);
-    // 3 bytes cover bitOffset (≤7) + n (≤16) = ≤23 bits.
-    final drop = 24 - bitOffset - n;
-    return (acc ~/ _pow2[drop]) % _pow2[n];
-  }
-
-  int read(int n) {
-    final v = peek(n);
-    _pos += n;
-    return v;
-  }
-
-  void consume(int n) => _pos += n;
-
-  /// Discards bits up to the next byte boundary.
-  void alignToByte() => _pos = (_pos + 7) & ~7;
-}
-
-final List<int> _pow2 = List<int>.generate(25, (i) => 1 << i);
-
-/// Canonical Huffman decoder (RAR's `create_code` order): codes assigned in
-/// increasing length, then symbol order, MSB-first. Decodes via a flat
-/// lookup table indexed by the next `maxLength` bits.
-final class _Huffman {
-  _Huffman(Uint8List lengths, int count) {
-    var maxLen = 0;
-    for (var i = 0; i < count; i++) {
-      final l = lengths[i] & 0xF;
-      if (l > maxLen) maxLen = l;
-    }
-    if (maxLen == 0) {
-      // Empty code: decode always fails (a valid stream won't use it).
-      _maxLength = 1;
-      _table = Int32List(2)..fillRange(0, 2, -1);
-      return;
-    }
-    _maxLength = maxLen;
-    _table = Int32List(1 << maxLen)..fillRange(0, 1 << maxLen, -1);
-
-    var code = 0;
-    for (var len = 1; len <= maxLen; len++) {
-      for (var sym = 0; sym < count; sym++) {
-        if ((lengths[sym] & 0xF) != len) continue;
-        // Fill every table slot whose top `len` bits equal this code. A
-        // code beyond 2^len means the lengths over-subscribe the tree —
-        // impossible for a valid table, reachable via mutated input (§7).
-        if (code >= (1 << len)) {
-          throw const FormatException('over-subscribed RAR4 Huffman table');
-        }
-        final shift = maxLen - len;
-        final base = code << shift;
-        final entry = (len << 16) | sym;
-        for (var i = 0; i < (1 << shift); i++) {
-          _table[base + i] = entry;
-        }
-        code++;
-      }
-      code <<= 1;
-    }
-  }
-
-  late final int _maxLength;
-  late final Int32List _table;
-
-  int decode(_Bits bits) {
-    final entry = _table[bits.peek(_maxLength)];
-    if (entry < 0) {
-      throw const FormatException('invalid RAR4 Huffman code');
-    }
-    bits.consume(entry >> 16);
-    return entry & 0xFFFF;
-  }
-}
 
 /// RAR4 method-29 decoder. Reuses [output] as a power-of-two LZ window
 /// (index with `& mask`); the reader slices the decoded region out.
@@ -138,10 +50,10 @@ final class Rar4Decoder {
       _lowOffsetCode != null &&
       _lengthCode != null;
 
-  _Huffman? _mainCode;
-  _Huffman? _offsetCode;
-  _Huffman? _lowOffsetCode;
-  _Huffman? _lengthCode;
+  Huffman? _mainCode;
+  Huffman? _offsetCode;
+  Huffman? _lowOffsetCode;
+  Huffman? _lengthCode;
   final Uint8List _lengthTable = Uint8List(_tableSize);
 
   final List<int> _oldOffset = [0, 0, 0, 0];
@@ -149,6 +61,16 @@ final class Rar4Decoder {
   int _lastLength = 0;
   int _lastLowOffset = 0;
   int _lowOffsetRepeats = 0;
+
+  // PPMd variant H state. `_ppmdActive` tracks whether the current block is a
+  // PPMd block (set by `_parseCodes` from the block-type bit). The model and
+  // its memory size persist across blocks/files (a solid run or a mid-file
+  // block switch reuses them); the range decoder is re-initialised per block.
+  Ppmd7Model? _ppmd;
+  PpmdRarRangeDecoder? _ppmdRange;
+  bool _ppmdActive = false;
+  int _ppmdEscape = 2;
+  int _ppmdMemSize = 0;
 
   final Rar4Filters _filters = Rar4Filters();
 
@@ -197,7 +119,7 @@ final class Rar4Decoder {
       throw const FormatException('RAR4 file exceeds declared output size');
     }
     _filters.reset();
-    final bits = _Bits(packed);
+    final bits = Bits(packed);
     if (parseTable) {
       _parseCodes(bits); // run start / non-solid: read the table block
     } else if (!hasTables) {
@@ -208,6 +130,10 @@ final class Rar4Decoder {
     final mask = output.length - 1;
 
     while (writePtr < target) {
+      if (_ppmdActive) {
+        if (_decodePpmdStep(bits, mask, target)) break; // PPMd end-of-data
+        continue;
+      }
       if (!bits.has(1)) {
         throw const FormatException('truncated RAR4 stream');
       }
@@ -348,11 +274,176 @@ final class Rar4Decoder {
     }
   }
 
-  void _parseCodes(_Bits bits) {
+  /// Decodes one file of a solid RAR4 **PPMd** run from its own [packed] block
+  /// into the shared window, appending from the current [writePtr]. Reuse the
+  /// same decoder across the run's files: the PPMd model and the escape symbol
+  /// persist (the RAR-block escape char is only reset by flag 0x40, so a
+  /// continuation inherits it), while the range decoder re-initialises per
+  /// block. Unlike method-29, a solid PPMd file is *not* decoded to a byte
+  /// count — it runs to its end-of-data marker (escape code 2), whose symbols
+  /// update the shared model, so skipping them would desync it for the next
+  /// file. A stored/empty member in the run does not call this — its raw bytes
+  /// are appended to the window directly, between PPMd files.
+  ///
+  /// [unpackedSize] is the file's declared output size; a valid block reaches
+  /// its escape-code-2 marker exactly there, so it bounds the decode loop
+  /// against corrupt input that never emits the marker (which would otherwise
+  /// spin filling the window forever).
+  ///
+  /// Structure adapted from the BSD Go `rardecode` reader (see
+  /// `doc/references.md`); the model is the same public-domain Ppmd7. Returns
+  /// the file's `[start, end)` window bounds.
+  ({int start, int end}) decompressSolidPpmdFile(
+    Uint8List packed,
+    int unpackedSize,
+  ) {
+    final bits = Bits(packed);
+    _parseCodes(bits); // this file's block header
+    if (!_ppmdActive) {
+      throw const FormatException('RAR4 solid PPMd run is not PPMd');
+    }
+    final start = writePtr;
+    final end = start + unpackedSize;
+    if (end > output.length) {
+      throw const FormatException('RAR4 solid PPMd run exceeds window');
+    }
+    final mask = output.length - 1;
+    while (!_decodePpmdStep(bits, mask, output.length)) {
+      if (writePtr > end) {
+        throw const FormatException('RAR4 solid PPMd file overran its size');
+      }
+    }
+    return (start: start, end: writePtr);
+  }
+
+  /// Parses a PPMd (variant H) block header and sets up the model + range
+  /// decoder. Follows libarchive `parse_codes`' PPMd branch: a 7-bit flags
+  /// field, an optional memory byte (flag 0x20 → MB), an optional escape byte
+  /// (flag 0x40), and, when 0x20 is set, a fresh model of the given max order.
+  /// Flag 0x20 clear reuses the model left by an earlier block, re-initialising
+  /// only the range decoder over the new byte stream.
+  void _parsePpmdBlock(Bits bits) {
+    final flags = bits.read(7);
+    if (flags & 0x20 != 0) {
+      _ppmdMemSize = (bits.read(8) + 1) << 20;
+    }
+    // The escape symbol persists across blocks: flag 0x40 sets a new one,
+    // otherwise the previous value carries over (it defaults to 2). This matters
+    // for solid runs — a continuation block clears 0x40 and inherits the first
+    // block's escape (libarchive resets it to 2 here, but libarchive never
+    // decodes a solid RAR, so it never exercises the carry-over; the Go
+    // `rardecode` reader, which does handle solid, persists it).
+    if (flags & 0x40 != 0) {
+      _ppmdEscape = bits.read(8);
+    }
+
+    final range = PpmdRarRangeDecoder(() => bits.read(8));
+
+    if (flags & 0x20 != 0) {
+      var maxOrder = (flags & 0x1F) + 1;
+      if (maxOrder > 16) maxOrder = 16 + (maxOrder - 16) * 3;
+      if (maxOrder == 1) {
+        throw const FormatException('invalid RAR4 PPMd max order');
+      }
+      if (_ppmdMemSize == 0) {
+        throw const FormatException('invalid RAR4 PPMd memory size');
+      }
+      final model = Ppmd7Model();
+      if (!model.alloc(_ppmdMemSize)) {
+        throw const FormatException('RAR4 PPMd allocation failed');
+      }
+      if (!range.init()) {
+        throw const FormatException('RAR4 PPMd range decoder init failed');
+      }
+      model.init(maxOrder);
+      if (flags & 0x40 != 0) model.initEsc = _ppmdEscape;
+      _ppmd = model;
+    } else {
+      if (_ppmd == null) {
+        throw const FormatException('RAR4 PPMd continuation without a model');
+      }
+      if (!range.init()) {
+        throw const FormatException('RAR4 PPMd range decoder init failed');
+      }
+    }
+    _ppmdRange = range;
+  }
+
+  /// Decodes one PPMd symbol/action into the window. Follows libarchive's
+  /// escape-char dispatch (`read_data_compressed`): a non-escape symbol is a
+  /// literal; an escape introduces a control code — 0 starts a new table
+  /// block, 2 ends the PPMd data, 4/5 are LZ matches, and anything else emits
+  /// the escape symbol itself. Returns true on end-of-data (code 2).
+  bool _decodePpmdStep(Bits bits, int mask, int target) {
+    final sym = _ppmdSymbol();
+    if (sym != _ppmdEscape) {
+      output[writePtr++ & mask] = sym;
+      return false;
+    }
+    switch (_ppmdSymbol()) {
+      case 0:
+        // End of this PPMd block; a new block header follows in the stream
+        // (`rardecode`'s endOfBlock → readBlockHeader). Read its block-type
+        // bit: another PPMd block carries the model over and decoding
+        // continues; a switch to a method-29 (LZSS) block mid-file would need
+        // the Huffman bit-reader to pick up where the range decoder's read-
+        // ahead left off, which is not implemented — a typed error (rare; needs
+        // `-mct` auto-mode over content that alternates text and non-text).
+        bits.alignToByte();
+        if (bits.read(1) == 0) {
+          _ppmdActive = false;
+          throw const FormatException(
+            'RAR4 PPMd-to-LZSS mid-file block switch is not supported',
+          );
+        }
+        _parsePpmdBlock(bits);
+        return false;
+      case 2:
+        return true; // end of PPMd data
+      case 3:
+        // A RarVM filter reached through PPMd. libarchive does not parse these,
+        // and a *custom* program is license-bounded regardless; the reader maps
+        // this to a typed UnsupportedFeatureException.
+        throw const FormatException(
+          'RAR4 PPMd embedded filters are not supported',
+        );
+      case 4:
+        var offset = 0;
+        for (var i = 2; i >= 0; i--) {
+          offset |= _ppmdSymbol() << (i * 8);
+        }
+        _copy(_ppmdSymbol() + 32, offset + 2, mask, target);
+        return false;
+      case 5:
+        _copy(_ppmdSymbol() + 4, 1, mask, target);
+        return false;
+      default:
+        output[writePtr++ & mask] = sym;
+        return false;
+    }
+  }
+
+  /// Decodes one PPMd model symbol, mapping the model's own [PpmdError] and any
+  /// out-of-range access on corrupt model state to a typed [FormatException]
+  /// (the reader turns it into a `CorruptArchiveException`) — never an untyped
+  /// crash.
+  int _ppmdSymbol() {
+    try {
+      return _ppmd!.decodeSymbol(_ppmdRange!);
+    } on PpmdError catch (e) {
+      throw FormatException('RAR4 PPMd: ${e.message}');
+    } on RangeError {
+      throw const FormatException('RAR4 PPMd: corrupt model state');
+    }
+  }
+
+  void _parseCodes(Bits bits) {
     bits.alignToByte();
     final isPpmd = bits.read(1) != 0;
+    _ppmdActive = isPpmd;
     if (isPpmd) {
-      throw const FormatException('RAR4 PPMd blocks are not supported');
+      _parsePpmdBlock(bits);
+      return;
     }
     // "Keep table" bit: 0 resets the length table to zero.
     if (bits.read(1) == 0) {
@@ -374,7 +465,7 @@ final class Rar4Decoder {
         }
       }
     }
-    final precode = _Huffman(precodeLengths, _precodeSymbols);
+    final precode = Huffman(precodeLengths, _precodeSymbols);
 
     // The main length table: precode symbols delta-encode it (mod 16),
     // with 16/17 = repeat-previous runs and 18/19 = zero runs.
@@ -400,11 +491,11 @@ final class Rar4Decoder {
       }
     }
 
-    _mainCode = _Huffman(
+    _mainCode = Huffman(
       Uint8List.sublistView(_lengthTable, 0, _mainCodeSize),
       _mainCodeSize,
     );
-    _offsetCode = _Huffman(
+    _offsetCode = Huffman(
       Uint8List.sublistView(
         _lengthTable,
         _mainCodeSize,
@@ -412,7 +503,7 @@ final class Rar4Decoder {
       ),
       _offsetCodeSize,
     );
-    _lowOffsetCode = _Huffman(
+    _lowOffsetCode = Huffman(
       Uint8List.sublistView(
         _lengthTable,
         _mainCodeSize + _offsetCodeSize,
@@ -420,7 +511,7 @@ final class Rar4Decoder {
       ),
       _lowOffsetCodeSize,
     );
-    _lengthCode = _Huffman(
+    _lengthCode = Huffman(
       Uint8List.sublistView(
         _lengthTable,
         _mainCodeSize + _offsetCodeSize + _lowOffsetCodeSize,

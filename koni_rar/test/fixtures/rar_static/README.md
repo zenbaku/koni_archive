@@ -17,6 +17,21 @@ deletes them.
 | `filter_rgb.rar` | rar 6.24, `-ma4 -m5 -mm` over `rgbimg.bmp` (correlated-channel BMP) — trips the **RGB** filter (kind 3) plus a delta block |
 | `filter_audio.rar` | rar 6.24, `-ma4 -m5` over `a_audio.raw` (16-bit stereo PCM sine) — trips the **audio** filter (kind 4) |
 | `solid_rar4.rar` | rar 6.24, `-ma4 -m3 -s` over five text files sharing a vocabulary — a **solid** run where later files reference earlier ones through the shared window |
+| `ppmd_rar4.rar` | rar 6.24, `-ma4 -m5 -mc16:1t+` over repeated sentences (18771 B) — forces **PPMd variant H** ("text compression"); exercises literals, rescale/glue, and the PPMd LZ escape (code 4) in a 1 MB model |
+| `ppmd_rar4_runs.rar` | rar 6.24, `-ma4 -m5 -mc32:1t+` over 324600 B of long repeated runs — a **PPMd** stream that leans on the distance-1 (code 5) and distance (code 4) escapes. Note: libarchive 3.7.4's own RAR reader fails this stream (`Internal error extracting RAR file`); `unrar` and this decoder both decode it |
+| `solid_ppmd.rar` | rar 6.24, `-ma4 -m5 -mct+ -s` over three text files — a **solid PPMd** run. The first member decodes; a continuation is a typed `UnsupportedFeatureException` (the cross-file PPMd model transition is defined only by the GPL unrar — libarchive supports no solid RAR at all) |
+| `rar2_lz.rar` | **DOS RAR 2.50**, `-m3` over prose (15361 B) — **RAR 2.0 (unpack v20)** LZ block; literal + match mix |
+| `rar2_lz_repeat.rar` | **DOS RAR 2.50**, `-m3` over 128200 B of a repeated 16-byte pattern — v20 LZ, match-heavy (short/reused offsets) |
+| `rar2_audio.rar` | **DOS RAR 2.50**, `-m5 -mm` over 16-bit PCM — a v20 **multimedia/audio** block, which is a typed `UnsupportedFeatureException` (no correct permissive reference; `rardecode`'s audio decoder mis-decodes it) |
+| `rar2_solid.rar` | **DOS RAR 2.50**, `-m3 -s` over two text files — a **solid** v20 run. The run's first file decodes; a continuation is a typed `UnsupportedFeatureException` (full solid-v20 decode is deferred) |
+
+The `rar2_*.rar` fixtures need **DOS RAR 2.50** — no modern tool writes unpack
+version 20 (rar 7.x/6.24 only write v29/v50, and rar 2.x is a 32-bit i386 binary
+Rosetta 2 can't run). To regenerate: download `https://www.rarlab.com/rar/rar250.exe`
+(a RAR SFX), extract `RAR.EXE` with `unrar x rar250.exe RAR.EXE`, then run it under
+DOSBox (`brew install dosbox`; headless with `SDL_VIDEODRIVER=dummy dosbox -conf
+<conf> -exit`, a `[autoexec]` that mounts the work dir and runs `rar a -m3 out.rar
+in.txt`). `unrar` (any modern version) reads v20 and is the byte-exact oracle.
 
 The `filter_*.rar` archives are the CI regression guard for the RAR4 RarVM
 standard filters (`rar4_filters_test.dart` decodes them byte-exact on

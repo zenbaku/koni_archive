@@ -13,11 +13,14 @@ RAR4 (`Rar!\x1A\x07\x00`, M10): the v1.5 container + store and the
 method-29 (v2.9/v3+) LZSS+Huffman codec, **solid and non-solid**, including
 the **RarVM standard filters** (see `rar4_filters.dart`). This is what the
 real-world CBR corpus uses (`-m0` store, `-m3`/`-m5` method-29, and the
-delta filter on 37 pages of one volume). The following RAR4 features are
-**deferred as typed errors**: PPMd variant H and *custom* (non-standard) VM
-filter programs — a license-bounded boundary, not a difficulty one: the
-only interpreter reference is GPL unrar, and the standard filters are the
-ones real archives emit. File encryption (`-p`) is supported on both
+delta filter on 37 pages of one volume). **PPMd variant H** ("text
+compression", `-mct`) is also decoded — see the PPMd section below. **Solid PPMd runs** decode too (see the PPMd section). The
+following RAR4 features stay **typed errors**: *custom* (non-standard) VM
+filter programs (license-bounded — the only reference is GPL unrar), and a
+mid-file PPMd→method-29 block switch (implementation-scoped — the BSD
+`rardecode` reader shows the path, but the PPMd↔LZSS loop hand-off is
+unimplemented).
+File encryption (`-p`) is supported on both
 versions and RAR5 header encryption (`-hp`) reads with a password (see
 below). **Multi-volume sets read** (both versions) when the caller supplies
 the other volumes via `ArchiveReadOptions.nextVolume` (see below). RAR4
@@ -74,9 +77,51 @@ new table blocks, not sub-headers). Codes assign in RAR's `create_code`
 order (length, then symbol); the decoder uses a flat lookup table sized to
 the longest code (≤15 bits). The length/offset base tables are the
 standard v29 tables. As with RAR5, the output buffer is the power-of-two
-LZ window. Symbol 257 reads a RarVM filter (see below); PPMd blocks still
-throw a `FormatException` the reader maps to `UnsupportedFeatureException`,
-so a PPMd entry never bricks the rest of the archive.
+LZ window. Symbol 257 reads a RarVM filter (see below); a PPMd block (the
+block-type bit set) hands off to the PPMd decoder (see the PPMd section).
+
+The MSB-first bit reader and the canonical Huffman decoder live in
+`rar_bits.dart` (`Bits`/`Huffman`), shared with the v20 decoder below.
+
+## RAR 2.0 / 2.6 decompressor — R9
+
+`rar20_decoder.dart` (`Rar20Decoder`): older `.rar` archives declare unpack
+version 20 (RAR 2.0) or 26 (RAR 2.6) — a different LZSS+Huffman scheme from v29.
+v26 routes to the same decoder (`rardecode` maps `case 20, 26` together) but is
+**untested** — DOS RAR 2.50 authors only v20, so there is no v26 fixture.
+The container preserves the raw unpack-version byte as
+`Rar5FileHeader.unpackVersion` (distinct from the `version` family marker, so
+RAR4/RAR5 decoder dispatch is untouched); the reader routes v20/v26 compressed
+files here, v29 to `rar4_decoder.dart`, and store (version-agnostic) straight
+through.
+
+Each block starts with an *audio* bit and a *keep-table* bit, then a code-length
+table read via a 19-symbol pre-code (delta nibbles; 16 = repeat, 17/18 = zero
+runs — no 0xF escape, unlike v29). A non-audio block builds three Huffman codes
+(main 298, offset 48, length 28) and decodes: symbols <256 are literals, 256
+reuses the previous offset+length, 257–260 take a length with an offset from the
+4-entry history, 261–268 are short offsets, 269 ends the block, and 270+ are
+normal matches (length index + a separate offset symbol). The LZ base tables are
+the standard RAR tables (shared with v29, first 48 offset slots). Structure
+adapted from the BSD `rardecode` (`decode20.go`/`decode20_lz.go`); byte-exact vs
+`unrar` on VM/dart2js/dart2wasm (`test/rar2_web_test.dart`).
+
+Fixtures can't be authored by any modern tool (rar ≥3 writes v29; rar 2.x is a
+32-bit i386 binary Rosetta 2 can't run) — they were made with **DOS RAR 2.50**
+under **DOSBox** (see `rar_static/README.md`), with `unrar` as the oracle.
+
+**Typed errors (reference-bounded):** the **multimedia/audio** block mode — the
+BSD `rardecode`'s audio predictor mis-decodes it (verified: `rardecode` itself
+fails the audio fixture's CRC against `unrar`), so no correct permissive
+reference exists; and **unpack version 15** (RAR 1.5), which `rardecode` rejects
+outright (`ErrUnsupportedDecoder`) and libarchive never implemented. Only the GPL
+unrar has either — the same license boundary as the custom RarVM interpreter.
+
+A **solid** v20 run is also a typed error on continuation files: the run's first
+file (a non-solid header) decodes via the normal path, but a continuation would
+misroute to the method-29 solid path, so it is rejected cleanly. Full solid-v20
+decode is deferred (doubly rare: vintage + solid; `rar_static/rar2_solid.rar` is
+the fixture).
 
 ## RAR4 RarVM standard filters
 
@@ -107,6 +152,88 @@ on the reader's default CRC-32 verify as their backstop (a wrong result throws
 `ChecksumMismatchException`, never silent corruption) rather than a dedicated
 fixture. The delta arithmetic matches RAR5's `_delta`; the E8/E9 arithmetic
 mirrors RAR5's `_e8e9`.
+
+## RAR4 PPMd (variant H) — R5
+
+RAR's "text compression" (`-mct`) is **PPMd variant H** — Dmitry Shkarin's
+PPMII, the same variant 7-Zip carries. `rar4_ppmd.dart` is a clean-room port
+of the **public-domain** Ppmd7 codec (Igor Pavlov 2010, from the LZMA SDK, as
+vendored by libarchive's `archive_ppmd7.c`): a unit sub-allocator, a
+suffix-linked context tree, SEE (secondary escape estimation), and
+`Ppmd7_DecodeSymbol`. The C code addresses model nodes as 32-bit offsets into
+a byte pool (`Base`), and the `CPpmd7_Context`/`CPpmd_State` structs alias (a
+one-symbol context overlays its state on `SummFreq`+`Stats`) — the port keeps
+that representation exactly (a `Uint8List` pool read through a little-endian
+`ByteData`), because the free-list/glue logic and the aliasing depend on it.
+All range-coder arithmetic is masked to 32 bits so dart2js (doubles, exact
+only to 2^53) matches the VM and native C.
+
+The **RAR range decoder** (`PpmdRarRangeDecoder`) is RAR's variant, not
+7-Zip's: no leading zero byte on init, `Bottom = 0x8000`, and `Decode`/
+`DecodeBit` work in `Low`/`Range` space. A PPMd block header (parsed in
+`rar4_decoder.dart` `_parsePpmdBlock`, following libarchive's `parse_codes`)
+is a 7-bit flags field, an optional memory byte (flag `0x20` → MB), and an
+optional escape byte (flag `0x40`); `0x20` set allocates a fresh model of the
+given order, `0x20` clear reuses the model, re-initialising only the range
+decoder. Decoding follows libarchive's escape-char dispatch: a non-escape
+symbol is a literal; an escape introduces a control code — `0` a new table
+block, `2` end-of-data, `4`/`5` LZ matches (distance from three PPMd symbols +
+2, or distance 1), and the `3` (RarVM filter) case stays a typed error. The
+model's own `PpmdError` and any out-of-range access on corrupt state both map
+to a typed `FormatException` (never an untyped crash) — fuzz-verified over
+100k+ mutated iterations.
+
+Reference / provenance: the model is public-domain Ppmd7; the RAR glue is
+libarchive's BSD `rar.c`. **No unrar or GPL source was consulted** (`rar.c`
+carries PPMd via the same public-domain codec). Verified byte-exact against
+`unrar`/CRC-32 across a battery from 82 B to 2.6 MB, order 2–63, memory
+1–8 MB, on VM + dart2js + dart2wasm (`test/rar4_ppmd_web_test.dart`,
+`rar_static/ppmd_rar4*.rar`). The manga corpus never triggers PPMd (RAR picks
+it for text, and comics are images), so these authored fixtures are the only
+ground truth. Notably libarchive 3.7.4 *fails* the `ppmd_rar4_runs` stream
+(`Internal error extracting RAR file`) where this decoder and `unrar` succeed.
+
+**Benchmark (§13.2):** PPMd never appears in the manga corpus (RAR picks it for
+text, comics are images), so there is no page-flip / random-access bench like
+M8/M10. The hot path is instead measured synthetically as sequential decode
+throughput: ~5.5 MB/s uncompressed on a 2.6 MB order-63 / 1 MB-memory stream,
+~2.4 MB/s on a 600 KB order-16 / 8 MB stream (Dart VM, warm). PPMd is
+inherently a per-symbol context model, so this is expected to be much slower
+than method-29's LZSS — decode speed, not compression, is the trade the format
+makes.
+
+**Branch coverage:** the committed fixtures exercise literals, rescale/glue,
+model restart, the code-4/code-5 LZ escapes, and (via `solid_ppmd.rar`) the
+code-2 end-of-file marker and cross-file model/escape carry-over. The remaining
+shipped branches — code-0 (mid-file block switch), code-3 (PPMd-embedded
+filter), and the `default` escape-as-literal case — are **not** reachable from a
+committed fixture (`-mct+` never emits filters, and rar keeps one block per file
+for normal content, even at 2.6 MB). code-0→LZSS was confirmed to fire (and
+throw its typed error) during bring-up on an `-mct` auto-mode stream
+(uncommitted for size); code-0→PPMd and code-3/default are 1–3-line mirrors of
+`rardecode`/libarchive dispatch, verified by inspection.
+
+**Solid PPMd** decodes whole (`decompressSolidPpmdFile` per member, sharing one
+model/escape/window across the run; `rar_reader.dart` `_decodeSolidPpmdRun`).
+Each solid file is its own PPMd block ending with an escape-code-2 marker whose
+symbols update the shared model — so the run is decoded to that marker, not to a
+byte count, and the marker is consumed to keep the model in sync for the next
+file. The RAR-block escape symbol carries across files (flag 0x40 sets it,
+otherwise it persists — a continuation inherits the first block's escape).
+libarchive supports no solid RAR at all, so the solid *control flow* was adapted
+from the BSD Go `rardecode` reader; the model stays the public-domain Ppmd7.
+Verified byte-exact vs unrar/CRC on 2–5-file runs, a 1-byte member, and
+2×730 KB members, on VM/dart2js/dart2wasm (`solid_ppmd.rar`, and larger runs
+verified locally).
+
+**Still a typed error** (reference-bounded, not difficulty-bounded): a *mid-file*
+PPMd→method-29(LZSS) block switch (escape code `0` selecting an LZSS block).
+`rardecode` handles it by resuming the shared Huffman bit-reader where the range
+decoder's read-ahead left off; wiring that PPMd↔LZSS hand-off into this decoder's
+loop is unimplemented, so it stays an `UnsupportedFeatureException`. A code-0 to
+another *PPMd* block is handled (the model carries over). This case needs `-mct`
+auto-mode over content that alternates text and non-text; normal PPMd content
+(even a single 2.6 MB file) never emits it.
 
 ## RAR4 solid runs
 

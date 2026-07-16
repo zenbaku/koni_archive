@@ -56,6 +56,7 @@ final class Rar5FileHeader {
     required this.dataSize,
     required this.method,
     required this.version,
+    this.unpackVersion = 0,
     required this.solid,
     required this.windowSize,
     required this.crc32,
@@ -91,8 +92,16 @@ final class Rar5FileHeader {
   /// Compression method (0 = store, 1–5 = compressed).
   final int method;
 
-  /// Compression version (50 = RAR5).
+  /// Compression *family* marker used to pick the decoder: 29 = RAR4
+  /// (method-29 family, container v1.5), 50 = RAR5. Distinct from
+  /// [unpackVersion], which is the raw per-file algorithm version.
   final int version;
+
+  /// RAR4 raw unpack-version byte from the file header (15 = RAR 1.5, 20 =
+  /// RAR 2.0, 26 = RAR 2.6, 29 = RAR 2.9/3.x). koni_rar decodes v29 (and
+  /// version-agnostic store); other compressed versions are a typed error.
+  /// 0 for RAR5 (which uses [method] instead).
+  final int unpackVersion;
 
   /// Whether the file uses the solid flag (references earlier files).
   final bool solid;

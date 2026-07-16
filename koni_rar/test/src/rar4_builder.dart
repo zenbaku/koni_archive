@@ -8,9 +8,19 @@ import 'dart:typed_data';
 
 import 'package:koni_archive_core/koni_archive_core.dart';
 
-/// Builds a minimal RAR4 archive with the given stored `path -> content`
-/// entries.
-Uint8List buildRar4Store(Map<String, String> files) {
+/// Builds a minimal RAR4 archive with the given `path -> content` entries.
+///
+/// [unpackVersion] is the raw unpack-version byte written to each file header
+/// (default 20). [method] is the raw method byte (default 0x30 = store); pass a
+/// compressed value like 0x33 to synthesize a header the reader must reject
+/// when [unpackVersion] is not 29 (the data is still written verbatim, so a
+/// compressed header is only meaningful for exercising header dispatch).
+Uint8List buildRar4Store(
+  Map<String, String> files, {
+  int unpackVersion = 20,
+  int method = 0x30,
+  bool solid = false,
+}) {
   final out = BytesBuilder(copy: false);
   out.add([0x52, 0x61, 0x72, 0x21, 0x1A, 0x07, 0x00]); // signature
 
@@ -23,22 +33,27 @@ Uint8List buildRar4Store(Map<String, String> files) {
         ..add([0x00, 0x00, 0x00, 0x00]); // posav
   out.add(_withHeaderCrc(main.takeBytes()));
 
+  var fileIndex = 0;
   for (final MapEntry(key: name, value: content) in files.entries) {
     final nameBytes = utf8.encode(name);
     final data = utf8.encode(content);
     final headerSize = 7 + 25 + nameBytes.length;
+    // In a solid run the first file is the run start (solid flag clear); every
+    // later file carries the solid flag (0x10).
+    final fhFlags = solid && fileIndex > 0 ? 0x10 : 0x00;
+    fileIndex++;
     final body =
         BytesBuilder(copy: false)
           ..add([0x74]) // FILE_HEAD
-          ..add([0x00, 0x00]) // flags
+          ..add(_le16(fhFlags)) // flags
           ..add(_le16(headerSize))
           ..add(_le32(data.length)) // pack size
           ..add(_le32(data.length)) // unpacked size
           ..add([0x00]) // host os = MS-DOS
           ..add(_le32(Crc32.compute(Uint8List.fromList(data))))
           ..add(_le32(0)) // file time
-          ..add([20]) // unpack version
-          ..add([0x30]) // method 0x30 = store
+          ..add([unpackVersion]) // unpack version (15/20/26/29…)
+          ..add([method]) // method 0x30 = store, 0x31–0x35 = compressed
           ..add(_le16(nameBytes.length))
           ..add(_le32(0)) // attributes
           ..add(nameBytes);

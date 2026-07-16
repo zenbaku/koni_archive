@@ -126,7 +126,7 @@ Rar5FileHeader _parseFileHeader(
   final hostOs = r.readUint8();
   final crc = r.readUint32le();
   final dosTime = r.readUint32le();
-  r.readUint8(); // unpack version
+  final unpackVersion = r.readUint8();
   final method = r.readUint8();
   final nameSize = r.readUint16le();
   final attributes = r.readUint32le();
@@ -179,7 +179,10 @@ Rar5FileHeader _parseFileHeader(
     dataSize: packedTotal,
     // 0x30 store → 0; 0x31–0x35 → 1–5.
     method: method == 0x30 ? 0 : method - 0x30,
-    version: 29, // RAR4 method-29 family (distinct from RAR5's 50)
+    version:
+        29, // RAR4 family marker (decoder dispatch; distinct from RAR5's 50)
+    unpackVersion: unpackVersion, // raw byte: 15/20/26/29/36
+
     solid: flags & _fhdSolid != 0,
     windowSize: windowSize,
     crc32: crc,

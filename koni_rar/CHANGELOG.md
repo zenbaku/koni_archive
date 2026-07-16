@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+- **RAR 2.0** (unpack version 20) **LZ** decoding — vintage `.rar` files now read
+  (previously a misleading corruption error). `rar20_decoder.dart` is a
+  clean-room LZSS+Huffman decoder adapted from the BSD Go `rardecode`
+  (`decode20.go`/`decode20_lz.go`); the container now preserves the real
+  unpack-version byte (`unpackVersion`, separate from the RAR4/RAR5 family
+  marker), and the shared bit-reader/Huffman were factored into `rar_bits.dart`.
+  Byte-exact vs `unrar` on VM + dart2js + dart2wasm; fuzz-hardened. Fixtures were
+  authored with DOS RAR 2.50 under DOSBox (no modern tool writes v20). Store
+  decodes at any version. **v26** (RAR 2.6) routes to the same decoder but is
+  untested (DOS RAR 2.50 authors only v20). Reference-bounded typed errors: RAR
+  1.5 (unpack v15), the RAR 2.x multimedia/**audio** block (no correct permissive
+  reference — only the GPL unrar), and *solid* v20 continuations (the run's first
+  file still decodes) — all raise `UnsupportedFeatureException`.
+
+- **RAR4 PPMd (variant H)** — RAR's `-mct` "text compression" — now decodes
+  (previously a typed error). `rar4_ppmd.dart` ports the public-domain Ppmd7
+  codec (Igor Pavlov, via libarchive's `archive_ppmd7.c`): a range decoder, an
+  order-N context model with SEE, a suffix-linked context tree, and a unit
+  sub-allocator, with RAR's range-decoder variant and escape-char dispatch
+  adapted from libarchive's BSD `rar.c`. No unrar or GPL source was consulted.
+  All range-coder arithmetic is masked to 32 bits, so decoding is byte-exact on
+  VM + dart2js + dart2wasm. Verified vs `unrar`/CRC-32 from 82 B to 2.6 MB,
+  order 2–63, memory 1–8 MB; fuzz-hardened (corrupt input → typed errors only).
+  **Solid** PPMd runs decode too: the run shares one model, escape symbol, and
+  window across its files, each a PPMd block ending with an escape-code-2 marker
+  (control flow adapted from the BSD Go `rardecode` reader, which libarchive —
+  with no solid-RAR support — cannot supply; the model stays the same
+  public-domain Ppmd7). Verified byte-exact vs unrar on 2–5-file runs incl. a
+  1-byte and 2×730 KB members. One case stays a typed error: a *mid-file*
+  PPMd→method-29 block switch (rare; needs `-mct` auto-mode over alternating
+  text/non-text content).
+
 - **Multi-volume RAR** sets (both RAR4 and RAR5) now read, when the caller
   supplies the other volumes via the new `ArchiveReadOptions.nextVolume`
   resolver (volume 1 is the source passed to the reader; later volumes are

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:koni_archive_core/koni_archive_core.dart';
 
+import 'rar20_decoder.dart';
 import 'rar4_container.dart';
 import 'rar4_decoder.dart';
 import 'rar5_container.dart';
@@ -26,8 +27,10 @@ final class _VolumeSegment {
 /// Reader for RAR5 and RAR4 archives (and CBR comics). Created via
 /// `RarFormat.openReader`. RAR5 handles store + methods 1–5 (solid and
 /// non-solid); RAR4 handles store + method-29 (solid and non-solid) with the
-/// RarVM standard filters. PPMd and custom (non-standard) VM filter programs
-/// surface as typed errors (see `doc/notes.md`).
+/// RarVM standard filters, and PPMd variant H (`-mct`, solid and non-solid);
+/// RAR 2.0/2.6 (unpack v20/v26) LZ also decodes. Custom (non-standard) VM filter
+/// programs, a mid-file PPMd→method-29 block switch, RAR 1.5 (v15), and the RAR
+/// 2.x audio block surface as typed errors (see `doc/notes.md`).
 final class RarReader extends ArchiveReader {
   RarReader._(
     this.format,
@@ -239,6 +242,23 @@ final class RarReader extends ArchiveReader {
     if (header.isDirectory) {
       return const Stream<Uint8List>.empty();
     }
+    // koni_rar decodes RAR4 *compressed* data of unpack version 20/26 (RAR
+    // 2.0/2.6) and 29 (RAR 2.9/3.x). Version 15 (RAR 1.5) has no clean-room
+    // reference and is rejected cleanly here — a typed error, not the confusing
+    // corruption that misrouting it to the method-29 decoder would cause. Store
+    // (method 0) is version-agnostic raw data and decodes at any version.
+    if (header.version == 29 &&
+        header.method != 0 &&
+        header.unpackVersion != 29 &&
+        header.unpackVersion != 20 &&
+        header.unpackVersion != 26) {
+      throw UnsupportedFeatureException(
+        'RAR unpack version ${header.unpackVersion} is not supported '
+        '(RAR 2.0/2.6/2.9/3.x and store decode)',
+        format: 'rar',
+        entryPath: entry.path,
+      );
+    }
     if (header.unpackedSize > _maxFileSize) {
       throw CorruptArchiveException(
         'file claims implausible size ${header.unpackedSize}',
@@ -258,9 +278,10 @@ final class RarReader extends ArchiveReader {
     try {
       decoded = await _decodeToBytes(index, header, entry.path);
     } on FormatException catch (e) {
-      // A decoder feature we deliberately defer (RarVM filters, PPMd)
-      // surfaces as an unsupported-feature error, not corruption (§8/§9),
-      // so one such entry never implies the archive is damaged.
+      // A decoder feature we deliberately defer (custom RarVM programs, the
+      // mid-file PPMd block switch, encrypted headers) surfaces as an
+      // unsupported-feature error, not corruption (§8/§9), so one such entry
+      // never implies the archive is damaged.
       if (e.message.contains('not supported')) {
         throw UnsupportedFeatureException(
           e.message,
@@ -344,14 +365,30 @@ final class RarReader extends ArchiveReader {
             : header.windowSize,
       );
       final output = Uint8List(windowLen);
-      if (header.version == 29) {
-        Rar4Decoder(output).decompressFile(data, header.unpackedSize);
-      } else {
+      if (header.version != 29) {
         Rar5Decoder(output).decompressFile(data, header.unpackedSize);
+      } else if (header.unpackVersion == 20 || header.unpackVersion == 26) {
+        Rar20Decoder(output).decompressFile(data, header.unpackedSize);
+      } else {
+        Rar4Decoder(output).decompressFile(data, header.unpackedSize);
       }
       return Uint8List.sublistView(output, 0, header.unpackedSize);
     }
 
+    // A *solid* RAR 2.0/2.6 run shares cross-file state the method-29 solid
+    // path does not model; decoding a continuation there would misread v20 data
+    // as method-29 and surface as corruption. Reject it cleanly instead (the
+    // run's first file — a non-solid header — still decodes via the path above).
+    // Full solid-v20 decode is deferred (doubly rare: vintage + solid).
+    if (header.version == 29 &&
+        (header.unpackVersion == 20 || header.unpackVersion == 26)) {
+      throw UnsupportedFeatureException(
+        'solid RAR 2.0/2.6 (unpack version ${header.unpackVersion}) '
+        'continuations are not supported',
+        format: 'rar',
+        entryPath: entryPath,
+      );
+    }
     // Solid runs share cross-file state, so decode from the run start into a
     // shared window and keep every file's output (a later or repeat read is a
     // slice). RAR4 carries persistent Huffman tables + repeated-offset cache
@@ -446,6 +483,15 @@ final class RarReader extends ArchiveReader {
       runStart--;
     }
 
+    // A solid PPMd run shares one PPMd model across its members and cannot be
+    // reframed per file the way method-29 is (each file is its own PPMd block
+    // ending with an escape-code-2 marker whose symbols keep the shared model
+    // in sync, and the block escape char carries across files). Decode the
+    // whole run at once.
+    if (await _isSolidPpmdRun(runStart)) {
+      return _decodeSolidPpmdRun(index, runStart);
+    }
+
     // (Re)build the run if the decoder is not positioned to continue.
     if (_solidRar4Decoder == null || _solidRar4NextIndex != runStart) {
       _solidRar4Decoder = Rar4Decoder(
@@ -487,6 +533,63 @@ final class RarReader extends ArchiveReader {
       // drop it so the next read rebuilds the run from scratch.
       _solidRar4Decoder = null;
       rethrow;
+    }
+    return _solidRar4Outputs[index]!;
+  }
+
+  /// Whether the solid run beginning at [runStart] is PPMd: peeks the first
+  /// compressed member's first data byte, whose top bit is the block-type flag
+  /// (data starts byte-aligned, and `_parseCodes` reads that bit first).
+  Future<bool> _isSolidPpmdRun(int runStart) async {
+    for (var i = runStart; i < _headers.length; i++) {
+      if (i > runStart && !_headers[i].solid) break;
+      final h = _headers[i];
+      if (h.method == 0 || h.isDirectory) continue;
+      final data = await _readData(i, h);
+      return data.isNotEmpty && (data[0] & 0x80) != 0;
+    }
+    return false;
+  }
+
+  /// Decodes a solid RAR4 PPMd run whole and caches every member's output.
+  /// One [Rar4Decoder] carries the shared PPMd model, escape symbol, and window
+  /// across the run; each compressed member is decoded from its own block via
+  /// [Rar4Decoder.decompressSolidPpmdFile] (run-to-marker, not to a byte count),
+  /// and a stored/empty member's raw bytes are appended to the window between
+  /// PPMd files so later matches can still reference them.
+  Future<Uint8List> _decodeSolidPpmdRun(int index, int runStart) async {
+    var runEnd = runStart;
+    while (runEnd + 1 < _headers.length && _headers[runEnd + 1].solid) {
+      runEnd++;
+    }
+    final decoder = Rar4Decoder(Uint8List(_solidRar4WindowSize(runStart)));
+    // This run supersedes any in-flight method-29 solid decoder.
+    _solidRar4Decoder = null;
+    _solidRar4NextIndex = runEnd + 1;
+
+    for (var i = runStart; i <= runEnd; i++) {
+      final h = _headers[i];
+      if (h.method == 0 || h.isDirectory) {
+        final start = decoder.writePtr;
+        final decrypted = await _readData(i, h);
+        final raw =
+            h.isEncrypted && decrypted.length > h.unpackedSize
+                ? Uint8List.sublistView(decrypted, 0, h.unpackedSize)
+                : decrypted;
+        decoder.output.setRange(start, start + raw.length, raw);
+        decoder.writePtr += raw.length;
+        _solidRar4Outputs[i] = Uint8List.fromList(
+          Uint8List.sublistView(decoder.output, start, decoder.writePtr),
+        );
+      } else {
+        final slice = decoder.decompressSolidPpmdFile(
+          await _readData(i, h),
+          h.unpackedSize,
+        );
+        _solidRar4Outputs[i] = Uint8List.fromList(
+          Uint8List.sublistView(decoder.output, slice.start, slice.end),
+        );
+      }
     }
     return _solidRar4Outputs[index]!;
   }
