@@ -102,7 +102,7 @@ void main() {
       await source.close();
     });
 
-    test('format: forces a format, skipping detection (§5)', () async {
+    test('format: forces a format, skipping detection', () async {
       final format = _StubFormat(
         [_file('a', 1)],
         {
@@ -129,7 +129,7 @@ void main() {
     });
   });
 
-  group('entry lookup (§4)', () {
+  group('entry lookup', () {
     test('entries keeps duplicates in index order; entry() is last-wins, '
         'exact, case-sensitive', () async {
       final first = _file('dup.txt', 1);
@@ -148,7 +148,7 @@ void main() {
     });
   });
 
-  group('reading (§4)', () {
+  group('reading', () {
     test('openRead streams chunks; openReadPath is sugar', () async {
       final archive = await _openStub(
         _StubFormat(
@@ -218,7 +218,7 @@ void main() {
       await archive.close();
     });
 
-    test('readBytes enforces maxSize with a typed error (§7)', () async {
+    test('readBytes enforces maxSize with a typed error', () async {
       final archive = await _openStub(
         _StubFormat(
           [_file('bomb', 1000)],
@@ -240,7 +240,7 @@ void main() {
       await archive.close();
     });
 
-    test('mid-decode errors arrive through the stream, typed (§9)', () async {
+    test('mid-decode errors arrive through the stream, typed', () async {
       final archive = await _openStub(
         _StubFormat(
           [_file('bad', 10)],
@@ -264,7 +264,7 @@ void main() {
     });
   });
 
-  group('close (§4)', () {
+  group('close', () {
     test('is idempotent and closes reader + source', () async {
       final source = MemoryByteSource(_stubBytes);
       final format = _StubFormat([_file('a', 1)], {});
@@ -322,7 +322,7 @@ void main() {
     });
   });
 
-  group('virtual filesystem view (§4)', () {
+  group('virtual filesystem view', () {
     Future<Archive> vfsArchive() => _openStub(
       _StubFormat([_file('b/x.txt', 1), _file('a/y/z.txt', 1), _dir('a')], {}),
     );

@@ -10,7 +10,7 @@ import 'package:koni_codecs/koni_codecs.dart';
 import 'package:test/test.dart';
 
 /// Interop DoD: our deflate output must decompress with the platform zlib
-/// (`dart:io`'s raw ZLibCodec) — the real check that we emit standard
+/// (`dart:io`'s raw ZLibCodec), the real check that we emit standard
 /// deflate, not just something our own inflate happens to accept.
 void main() {
   Uint8List zlibInflate(Uint8List raw) =>
@@ -39,7 +39,7 @@ void main() {
 
   test('our deflate wrapped in gzip decodes with the platform gzip', () {
     // Frame our raw deflate as a gzip member and let dart:io's GZipCodec
-    // (native zlib) decode it — proves bit-stream compatibility end to end.
+    // (native zlib) decode it, proves bit-stream compatibility end to end.
     final payload = Uint8List.fromList(utf8.encode('koni archive ' * 2000));
     final deflate = const DeflateEncoder().convert(payload);
     final crc = _crc32(payload);

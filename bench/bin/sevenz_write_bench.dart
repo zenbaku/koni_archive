@@ -1,4 +1,4 @@
-// 7z-write benchmarks (P2-4a, §10): end-to-end archive
+// 7z-write benchmarks (P2-4a): end-to-end archive
 // creation through SevenZWriter. package:archive has no 7z support, so times
 // are absolute, not ratios.
 //
@@ -8,7 +8,7 @@
 // page-flip target), and many small deflated files (the container-overhead
 // case). Note the memory line: 7z writing buffers the compressed streams
 // until close() by construction (the leading signature header references the
-// trailing header) — reported here, not asserted.
+// trailing header), reported here, not asserted.
 
 import 'dart:io';
 import 'dart:typed_data';

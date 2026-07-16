@@ -11,13 +11,13 @@ import 'zip_crypto.dart';
 /// `ZipWriteFormat.openWriter`.
 ///
 /// Streams each entry with a data descriptor (general-purpose flag bit 3),
-/// so the CRC and compressed size need not be known before the data — the
+/// so the CRC and compressed size need not be known before the data; the
 /// central directory (written at [close]) carries the authoritative values.
 /// Stored and deflate (default) methods; ZIP64 structures are emitted when
 /// a size, offset, or the entry count exceeds the 32-bit / 16-bit limits.
 ///
 /// When [ArchiveWriteOptions.password] is set, file and symlink entries are
-/// encrypted with **WinZip AES-256 (AE-2)** — method 99 with the real
+/// encrypted with **WinZip AES-256 (AE-2)**: method 99 with the real
 /// method in the 0x9901 extra, a per-entry salt, PBKDF2-HMAC-SHA1 keys, and
 /// an HMAC-SHA1 authentication tag (so the CRC field is zeroed, as AE-2
 /// requires). Directory entries carry no data and stay unencrypted.
@@ -188,7 +188,7 @@ final class ZipWriter extends ArchiveWriter {
           ..u16(headerMethod)
           ..u16(dosTime)
           ..u16(dosDate)
-          ..u32(0) // crc — in the descriptor (and zeroed for AE-2)
+          ..u32(0) // crc: in the descriptor (and zeroed for AE-2)
           ..u32(zip64 ? _u32Max : 0) // compressed size
           ..u32(zip64 ? _u32Max : 0) // uncompressed size
           ..u16(nameBytes.length)
@@ -346,7 +346,7 @@ final class ZipWriter extends ArchiveWriter {
 
   /// The 0x9901 WinZip AES extra field (11 bytes): header id, 7-byte data
   /// size, AE vendor version, the "AE" vendor id, the strength byte, and the
-  /// real compression method — identical bytes for the local and central
+  /// real compression method, identical bytes for the local and central
   /// records (see `WinZipAesParams.fromExtra`, the read-side inverse).
   static Uint8List _aesExtraField(WinZipAesParams p) =>
       (_ByteWriter()

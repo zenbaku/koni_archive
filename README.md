@@ -1,13 +1,13 @@
 # koni_archive
 
-Read and write archives in pure Dart — ZIP, TAR, gzip, 7z, and RAR — through
+Read and write archives in pure Dart (ZIP, TAR, gzip, 7z, and RAR) through
 one API, on every platform Dart targets. No native code, no FFI, no shelling
 out to `unzip` or `7z`.
 
 It treats an archive as a random-access filesystem you stream out of: list the
 entries, then pull the ones you want without holding the whole archive (or
 even a whole entry) in memory. That makes it a good fit for comic and ebook
-readers, which is where it started — open a CBZ, glob the pages, and decode
+readers, which is where it started: open a CBZ, glob the pages, and decode
 them one at a time.
 
 ```dart
@@ -23,8 +23,8 @@ await archive.close();
 
 ## What it does
 
-- **Reads** ZIP, TAR, gzip (including `.tar.gz`), 7z, and RAR — CBZ, CBT, CB7,
-  and CBR comics included.
+- **Reads** ZIP, TAR, gzip (including `.tar.gz`), 7z, and RAR (CBZ, CBT, CB7,
+  and CBR comics included).
 - **Writes** ZIP, TAR, and 7z, the last with a pure-Dart LZMA/LZMA2 encoder.
 - **Encrypts, both ways.** Decrypts ZIP (zipcrypto and WinZip AES), 7z
   (AES-256, encrypted headers included), and RAR5/RAR4; writes encrypted ZIP
@@ -32,11 +32,11 @@ await archive.close();
 - **Streams from anywhere.** Bounded memory for any entry size, plus an
   `HttpRangeByteSource` that reads a page out of a remote archive over HTTP
   without downloading the rest.
-- **Runs where Dart runs** — the VM, Flutter, and the web under both dart2js
+- **Runs where Dart runs**: the VM, Flutter, and the web under both dart2js
   and dart2wasm.
 
-Every reader and writer is tested against the reference tools — `unzip`,
-`bsdtar`, `7zz`, `rar`, and liblzma for the LZMA codecs — fuzzed in CI, and
+Every reader and writer is tested against the reference tools (`unzip`,
+`bsdtar`, `7zz`, `rar`, and liblzma for the LZMA codecs), fuzzed in CI, and
 checked byte-for-byte against a corpus of real comic archives. RAR is
 read-only; writing RAR is out of scope.
 
@@ -49,7 +49,7 @@ Most applications depend only on `koni_archive`, the facade.
 
 | Package | What it is |
 | --- | --- |
-| [`koni_archive`](koni_archive/) | The facade: `Archive.open()`, every format registered — the package most apps use |
+| [`koni_archive`](koni_archive/) | The facade: `Archive.open()`, every format registered (the package most apps use) |
 | [`koni_archive_core`](koni_archive_core/) | Shared types: `ByteSource`, the entry model, exceptions, checksums, format detection |
 | [`koni_codecs`](koni_codecs/) | Compression codecs (deflate, LZMA/LZMA2, both directions) and crypto primitives, usable on their own |
 | [`koni_tar`](koni_tar/) | TAR reader and writer (ustar, PAX, GNU) |
@@ -77,11 +77,11 @@ dart run tool/run_tests.dart --platform chrome --compiler dart2wasm
 ```
 
 Test fixtures are generated once by `tool/generate_fixtures.dart` on a machine
-that has the reference tools, then committed — CI never needs the tools
+that has the reference tools, then committed, so CI never needs the tools
 itself. The conformance suite compares against a private corpus of real
 archives; it reads the corpus path from `KONI_ARCHIVE_CORPUS_DIR` and skips
 when that isn't set.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Each package carries its own copy.
+MIT. See [LICENSE](LICENSE). Each package carries its own copy.

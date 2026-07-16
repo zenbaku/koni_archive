@@ -1,5 +1,5 @@
-/// Browser sugar for the koni_archive facade — explicit opt-in import for
-/// the web (§2), compiling under both dart2js and dart2wasm. Re-exports the
+/// Browser sugar for the koni_archive facade: explicit opt-in import for
+/// the web, compiling under both dart2js and dart2wasm. Re-exports the
 /// platform-neutral facade, so a web program needs only this one import.
 library;
 

@@ -7,7 +7,7 @@ import 'package:koni_archive/io.dart';
 import 'package:test/test.dart';
 
 /// A bare `.gz` through the facade: single-entry archive, name from FNAME,
-/// streaming decode with verification (§8).
+/// streaming decode with verification.
 void main() {
   const gz = '../koni_gzip/test/fixtures/gzip/hello.txt.gz';
 
@@ -24,7 +24,7 @@ void main() {
     );
   });
 
-  test('a .tar.gz presents as the inner TAR (§8 layering, M6)', () async {
+  test('a .tar.gz presents as the inner TAR (layering, M6)', () async {
     final archive = await openArchiveFile(
       '../koni_gzip/test/fixtures/gzip/tarball.tar.gz',
     );

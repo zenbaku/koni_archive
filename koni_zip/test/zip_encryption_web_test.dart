@@ -1,7 +1,7 @@
 // Web-runnable subset of the ZIP decryption tests: small encrypted
 // fixtures are embedded as base64 (no dart:io), so the traditional-cipher
 // 32-bit key schedule and the AES pipeline are exercised on dart2js and
-// dart2wasm — not only the VM. The primitives have their own web coverage
+// dart2wasm, not only the VM. The primitives have their own web coverage
 // in koni_codecs; this pins the ZIP glue end to end.
 library;
 

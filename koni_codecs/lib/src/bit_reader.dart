@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 
-/// Least-significant-bit-first bit cursor over a byte buffer — the bit order
+/// Least-significant-bit-first bit cursor over a byte buffer, the bit order
 /// DEFLATE (RFC 1951) uses.
 ///
-/// Codecs are archive-agnostic (§6.4), so on malformed input this class
-/// throws [FormatException] — the `dart:convert` idiom — and the archive
+/// Codecs are archive-agnostic, so on malformed input this class
+/// throws [FormatException] (the `dart:convert` idiom) and the archive
 /// layer translates that into its typed exception hierarchy.
 final class BitReader {
   /// Creates a reader over `bytes[start..end)`, positioned at the first
@@ -33,7 +33,7 @@ final class BitReader {
   /// Reads [count] bits (0–24), LSB-first: the first bit read is the least
   /// significant bit of the result.
   ///
-  /// Throws [FormatException] on over-read — truncated input, in codec
+  /// Throws [FormatException] on over-read: truncated input, in codec
   /// terms.
   int readBits(int count) {
     if (count < 0 || count > 24) {
@@ -66,7 +66,7 @@ final class BitReader {
   ///
   /// Returns a view over the underlying buffer when possible (no copy).
   /// Throws [FormatException] on over-read and [StateError] if unaligned
-  /// (programmer error — call [alignToByte] first).
+  /// (programmer error: call [alignToByte] first).
   Uint8List readAlignedBytes(int count) {
     if (count < 0) {
       throw ArgumentError.value(count, 'count', 'must be non-negative');

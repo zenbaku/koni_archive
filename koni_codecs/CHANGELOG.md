@@ -15,16 +15,16 @@
 ## 0.5.0 (2026-07-15)
 
 - P3-1: cryptographic primitives for the Phase 3 decryption work, in the
-  new `package:koni_codecs/crypto.dart` entrypoint — AES-128/192/256 (T-table,
+  new `package:koni_codecs/crypto.dart` entrypoint: AES-128/192/256 (T-table,
   encrypt + decrypt), CBC and the WinZip little-endian CTR mode, SHA-1,
   SHA-256, HMAC, and PBKDF2. Zero-dependency, standards-defined
   (FIPS-197, SP 800-38A, FIPS 180-4, RFC 2104/8018), vector-tested, and
   dart2js/dart2wasm-exact. Not constant-time (archive reading, not a TLS
-  stack) — documented as such.
+  stack), documented as such.
 
 ## 0.4.0 (2026-07-15)
 
-- P2-4b: LZMA/LZMA2 compression — `LzmaEncoder`, `Lzma2Encoder`, and the
+- P2-4b: LZMA/LZMA2 compression: `LzmaEncoder`, `Lzma2Encoder`, and the
   carry-aware `RangeEncoder`, the encode direction of the M8 decoders
   (identical probability-model layout, lockstep updates). Hash-chain match
   finder over an input-scaled table with rep-distance matches and a
@@ -38,12 +38,12 @@
   decoders; ratio lands within ~1 point of liblzma preset 6 on repo docs
   (bench recorded).
 
-- P2-3: `DeflateEncoder` (raw DEFLATE, RFC 1951) — the compression
+- P2-3: `DeflateEncoder` (raw DEFLATE, RFC 1951), the compression
   counterpart of `InflateDecoder`, added for the ZIP writer. Greedy LZ77
   (hash-chain matching) with fixed-Huffman blocks, ≤ 32 KiB blocks (bounded
   memory, no cross-block matches). dart:convert `Converter` idiom (one-shot
   or `startChunkedConversion`) over the resumable `RawDeflater` engine.
-  Output is universally decodable — differential-tested against `dart:io`
+  Output is universally decodable, differential-tested against `dart:io`
   zlib and Info-ZIP `unzip`, not just our own inflater. Ratio improvements
   (lazy matching, dynamic Huffman) are deferred; correctness and portability
   (VM/dart2js/dart2wasm) come first. Bench recorded in bench/results/.
@@ -55,7 +55,7 @@
 ## 0.2.0 (2026-07-15)
 
 - M8: LZMA (`LzmaDecoder`), LZMA2 (`Lzma2Decoder`), and branch filters
-  (`deltaDecode`, `bcjX86Decode`) — implemented from the public-domain
+  (`deltaDecode`, `bcjX86Decode`), implemented from the public-domain
   LZMA specification, differential-tested against liblzma (CPython
   vectors), chunk-driven with buffer-backed windows.
 
@@ -71,9 +71,9 @@
     trailing-garbage tolerance.
   - Resumable engines (`RawInflater`, `RawGzipDecoder`) exported for
     framing layers.
-- M1: `BitReader` — LSB-first (DEFLATE bit order) bit cursor over byte
+- M1: `BitReader`, LSB-first (DEFLATE bit order) bit cursor over byte
   buffers, with byte alignment and aligned whole-byte reads. Malformed
   input throws `FormatException` (the package's documented error idiom;
   see `doc/notes.md`).
-- M0: package scaffolding — pub workspace membership, shared strict lints,
+- M0: package scaffolding: pub workspace membership, shared strict lints,
   CI matrix (VM on Linux/macOS/Windows; web via dart2js and dart2wasm).

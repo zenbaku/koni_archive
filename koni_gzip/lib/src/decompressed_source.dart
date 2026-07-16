@@ -3,17 +3,17 @@ import 'dart:typed_data';
 import 'package:koni_archive_core/koni_archive_core.dart';
 import 'package:koni_codecs/koni_codecs.dart';
 
-/// A [ByteSource] presenting the *decompressed* content of a gzip container
-/// — what makes layered formats (`.tar.gz`) possible (§8).
+/// A [ByteSource] presenting the *decompressed* content of a gzip container,
+/// what makes layered formats (`.tar.gz`) possible.
 ///
-/// ## Cost model (documented per §8)
+/// ## Cost model
 ///
 /// gzip has no random access: a read at offset N sequentially decodes
 /// everything up to N **and caches all decoded bytes in memory** for later
 /// reads. Peak memory is therefore up to the decompressed size of the
 /// region touched so far. This is the Phase-1 strategy; a zran-style seek
-/// index is deferred (§15). For the intended use — reading a `.tar.gz`
-/// whose TAR reader walks forward — decode work is effectively sequential
+/// index is deferred. For the intended use (reading a `.tar.gz`
+/// whose TAR reader walks forward) decode work is effectively sequential
 /// and each byte is decoded once.
 ///
 /// [length] comes from the trailing ISIZE field: exact for single-member

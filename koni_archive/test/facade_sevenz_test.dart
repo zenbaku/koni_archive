@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'package:koni_archive/io.dart';
 import 'package:test/test.dart';
 
-/// The CB7 flagship flow (§1/§8) through the facade against a real
+/// The CB7 flagship flow through the facade against a real
 /// 7zz-generated solid archive.
 void main() {
   const cb7 = '../koni_sevenz/test/fixtures/sevenz/synthetic_comic.cb7';
@@ -20,7 +20,7 @@ void main() {
     expect(pages, hasLength(3));
     expect(pages.first.compression.name, 'lzma2');
 
-    // Page-flip with preload (§4): the solid block decodes once, then the
+    // Page-flip with preload: the solid block decodes once, then the
     // LRU cache serves every page.
     final contents = await Future.wait([
       for (final page in pages) archive.readBytes(page, maxSize: 1 << 20),

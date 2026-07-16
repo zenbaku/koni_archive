@@ -1,7 +1,7 @@
 // Generates committed test fixture archives using locally installed
 // reference tools (zip, tar, 7zz, rar, gzip, …).
 //
-// Policy (§11): fixtures are produced by reference tools on the
+// Policy: fixtures are produced by reference tools on the
 // owner's machine and committed; CI never needs the tools, only the committed
 // archives. Each run records the version of every tool used in a
 // `fixtures_manifest.json` next to the generated fixtures, so provenance is
@@ -11,7 +11,7 @@
 //   dart run tool/generate_fixtures.dart [--only <set-id>,<set-id>]
 //
 // Fixture sets are registered in [fixtureSets]; each format milestone adds
-// its own set (M2: tar, M3/M5: zip, M4: gzip, M8: 7z, M9/M10: rar — including
+// its own set (M2: tar, M3/M5: zip, M4: gzip, M8: 7z, M9/M10: rar, including
 // the synthetic CBZ/CBR/CB7 fixtures with dummy page images).
 
 import 'dart:async';
@@ -46,7 +46,7 @@ final List<FixtureSet> fixtureSets = [
 ];
 
 /// RAR fixtures (M9/M10): RAR5 store/compressed/solid, encrypted, RAR4,
-/// and a synthetic CBR comic. Uses the proprietary `rar` tool (§11).
+/// and a synthetic CBR comic. Uses the proprietary `rar` tool.
 final class RarFixtureSet implements FixtureSet {
   @override
   String get id => 'rar';
@@ -122,7 +122,7 @@ final class RarFixtureSet implements FixtureSet {
       // deferral (doc/notes.md), so this stays a typed-error fixture.
       await rarUp('encrypted_headers.rar', ['-m0', '-hpsecret'], ['hello.txt']);
       // NOTE: the encrypted RAR4 fixtures (enc_rar4*.rar, P3-5) are NOT
-      // generated here — rar 7.x removed -ma4 and cannot author v4. They
+      // generated here; rar 7.x removed -ma4 and cannot author v4. They
       // were authored once with rar 6.24 and committed as static fixtures
       // (see koni_rar/doc/notes.md). v4 *detection* is covered synthetically.
       await rarUp('synthetic_comic.cbr', ['-m3'], ['comic']);
@@ -235,7 +235,7 @@ final class SevenZFixtureSet implements FixtureSet {
         ],
         ['nested/deep/data.bin'],
       );
-      // Deferred codecs -> typed errors (§8).
+      // Deferred codecs -> typed errors.
       await sevenZip('ppmd.7z', ['-m0=PPMd'], ['hello.txt']);
       await sevenZip(
         'bcj2.7z',
@@ -447,7 +447,7 @@ final class ZipFixtureSet implements FixtureSet {
         ['hello.txt', 'nested/deep/data.bin'],
       );
 
-      // WinZip AES (method 99) — Info-ZIP zip(1) cannot author these, so
+      // WinZip AES (method 99): Info-ZIP zip(1) cannot author these, so
       // 7zz does. It writes AE-2 (HMAC-authenticated, CRC field zeroed);
       // the AE-1 CRC-verify branch is covered by an in-test byte patch.
       Future<void> sevenZipAes(
@@ -481,7 +481,7 @@ final class ZipFixtureSet implements FixtureSet {
       await zipUp('synthetic_comic.cbz', ['-0'], comicMembers);
       await zipUp('synthetic_comic_deflated.cbz', ['-9'], comicMembers);
 
-      // Archive comment pushes the EOCD away from EOF (§5).
+      // Archive comment pushes the EOCD away from EOF.
       await TarFixtureSet._run(
         'zip',
         ['-X', '-0', '-z', '$out/comment.zip', 'hello.txt'],
@@ -497,7 +497,7 @@ final class ZipFixtureSet implements FixtureSet {
         ...File('$out/stored_basic.zip').readAsBytesSync(),
       ]);
 
-      // The canonical 22-byte empty archive (spec-defined EOCD only —
+      // The canonical 22-byte empty archive (spec-defined EOCD only;
       // Info-ZIP zip(1) refuses to create archives with no members).
       File(
         '$out/empty.zip',

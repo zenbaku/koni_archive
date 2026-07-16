@@ -9,16 +9,16 @@ import 'sevenz_crypto.dart';
 /// Chunk size for source reads and for slicing decoded folders out.
 const int _readChunkSize = 64 * 1024;
 
-/// Default cap for the decoded solid-block LRU cache (§8): what makes CB7
+/// Default cap for the decoded solid-block LRU cache: what makes CB7
 /// page-flipping usable. The most recently decoded folder is always kept,
 /// even when it alone exceeds the cap.
 const int _folderCacheCap = 64 * 1024 * 1024;
 
-/// Sanity cap for the (possibly compressed) header block (§7).
+/// Sanity cap for the (possibly compressed) header block.
 const int _maxHeaderSize = 64 * 1024 * 1024;
 
-/// Sanity cap for a single decoded folder (§7): a forged unpack size must
-/// not OOM the process. Real solid blocks — even whole-volume CB7s — sit
+/// Sanity cap for a single decoded folder: a forged unpack size must
+/// not OOM the process. Real solid blocks (even whole-volume CB7s) sit
 /// far below this; revisit if a legitimate archive ever hits it.
 const int _maxFolderSize = 1024 * 1024 * 1024;
 
@@ -55,7 +55,7 @@ final class SevenZReader extends ArchiveReader {
   final Expando<int> _indexOf = Expando<int>();
   bool _closed = false;
 
-  // ---- solid-block cache (§8) ----
+  // ---- solid-block cache ----
   final Map<int, Uint8List> _folderCache = <int, Uint8List>{};
   int _folderCacheBytes = 0;
 
@@ -64,8 +64,8 @@ final class SevenZReader extends ArchiveReader {
   final Map<String, Uint8List> _keyCache = <String, Uint8List>{};
 
   /// Parses the signature header and the (often LZMA-compressed) archive
-  /// header. Opening therefore decodes the header block — the documented
-  /// §4 caveat for 7z — but no entry content.
+  /// header. Opening therefore decodes the header block, the documented
+  /// caveat for 7z, but no entry content.
   static Future<SevenZReader> parse(
     ArchiveFormat format,
     ByteSource source,
@@ -133,7 +133,7 @@ final class SevenZReader extends ArchiveReader {
     var header = ByteReader(headerBytes);
     var id = readSevenZipNumber(header);
     if (id == SevenZId.encodedHeader) {
-      // The header itself is folder-compressed (usually LZMA, §8).
+      // The header itself is folder-compressed (usually LZMA).
       final streams = SevenZStreamsInfo.read(header);
       if (streams.folders.length != 1) {
         throw InvalidHeaderException(
@@ -359,7 +359,7 @@ final class SevenZReader extends ArchiveReader {
       return const Stream<Uint8List>.empty();
     }
     // Entry-scoped failures (unsupported codec, encryption) surface here,
-    // never at open (§9).
+    // never at open.
     final folder = _streams!.folders[location.$1];
     _checkFolderSupported(folder);
     if (_options.password == null && _folderIsEncrypted(folder)) {
@@ -415,7 +415,7 @@ final class SevenZReader extends ArchiveReader {
     }
   }
 
-  /// Returns the decoded output of a folder, through the LRU cache (§8).
+  /// Returns the decoded output of a folder, through the LRU cache.
   Future<Uint8List> _cachedFolder(int folderIndex, String entryPath) async {
     final cached = _folderCache.remove(folderIndex);
     if (cached != null) {

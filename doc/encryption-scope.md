@@ -1,6 +1,6 @@
-# Phases 3 & 4 — Encryption/password support: scope
+# Phases 3 & 4: Encryption/password support
 
-Status: **Phase 3 (read) complete** (0.5.0). **Phase 4 (write) complete** —
+Status: **Phase 3 (read) complete** (0.5.0). **Phase 4 (write) complete**;
 see the "Phase 4" section at the end. First item of the deferred backlog
 (`ROADMAP.md`), promoted to phases. Follows the standing constraints: pure
 Dart, zero runtime deps in shared packages, VM + dart2js + dart2wasm, typed
@@ -20,17 +20,17 @@ errors, interop with reference tools is the definition of done.
 
 **Not** in this phase (deferred, typed errors where reachable):
 
-- **Write-side encryption** (ZIP AES, 7z AES). Deferred out of Phase 3 —
+- **Write-side encryption** (ZIP AES, 7z AES). Deferred out of Phase 3,
   now done in **Phase 4** (see the section at the end of this doc).
 - **ZIP "strong encryption"** (SES, flag bit 6: DES/3DES/RC2/RC4 PKWARE
-  scheme) — patent-encumbered legacy, vanishingly rare in the wild. Typed
+  scheme): patent-encumbered legacy, vanishingly rare in the wild. Typed
   error naming it.
 - **RAR5 encrypted headers** (`-hp`): now **supported** (post-0.6.0). Each
   header block carries a clear 16-byte IV and is AES-256-CBC-decrypted under
   a block key from the crypt header; file *data* stays encrypted only by its
-  own per-file record (the block key covers headers, not data — an earlier
+  own per-file record (the block key covers headers, not data; an earlier
   "doubly-encrypted" guess was wrong). See `koni_rar/doc/notes.md`.
-- **RAR4 encrypted headers** (`rar -ma4 -hp`): still a typed error — the RAR3
+- **RAR4 encrypted headers** (`rar -ma4 -hp`): still a typed error; the RAR3
   SHA-1 KDF layout differs, and rar 7.x can't author a v4 fixture for it.
 - Key files, certificates, any non-password credential.
 
@@ -38,12 +38,12 @@ errors, interop with reference tools is the definition of done.
 
 One new field, one new exception:
 
-- `ArchiveReadOptions.password` (`String?`). Supplied at open; used lazily —
+- `ArchiveReadOptions.password` (`String?`). Supplied at open; used lazily:
   opening an encrypted archive without a password still lists entries
   wherever headers are plaintext, and only `openRead` of an encrypted entry
   throws. Encrypted *headers* (7z `-mhe`, RAR5 `-hp`) need the password at
   `Archive.open`.
-- `InvalidPasswordException extends EncryptedArchiveException` — thrown where
+- `InvalidPasswordException extends EncryptedArchiveException`: thrown where
   the format carries an explicit password check. Reliability varies by
   format and is documented on the exception:
   - RAR5: 8-byte check value → practically certain.
@@ -59,12 +59,12 @@ Password → bytes per format (documented on `password`): ZIP takes the
 UTF-8 bytes (historically "whatever the local codepage was"; UTF-8 is the
 modern, ASCII-compatible choice), 7z and RAR4 take UTF-16LE, RAR5 takes
 UTF-8. Non-ASCII passwords on legacy zipcrypto archives made with OEM
-codepages may not match — documented lossiness, same spirit as entry-name
-encoding (§8).
+codepages may not match (documented lossiness, same spirit as entry-name
+encoding).
 
 ## Where the code lives
 
-- **`koni_codecs/lib/src/crypto/`** — primitives, reusable and
+- **`koni_codecs/lib/src/crypto/`**: primitives, reusable and
   archive-agnostic, consistent with the package's "algorithms, zero deps"
   role: AES block cipher (128/192/256, encrypt+decrypt), CBC (decrypt now,
   encrypt exists for tests/future write side), the WinZip-style CTR
@@ -77,7 +77,7 @@ encoding (§8).
   PBKDF2 keys + check value + hash-key CRC transform; RAR4 iterated-SHA-1
   KDF).
 
-Derived keys are cached per reader keyed by (salt, iteration count) — RAR
+Derived keys are cached per reader keyed by (salt, iteration count): RAR
 archives reuse one salt across files, 7z reuses one across folders, so each
 archive pays for its KDF once, not per entry.
 
@@ -85,26 +85,26 @@ archive pays for its KDF once, not per entry.
 
 - **Authentication**: WinZip AE verifies the HMAC-SHA1 over the ciphertext
   (10-byte truncation) at end of stream; RAR5 verifies the (possibly
-  hash-key-tweaked) CRC as before. zipcrypto and 7z-AES have no MAC —
+  hash-key-tweaked) CRC as before. zipcrypto and 7z-AES have no MAC;
   integrity there is only the existing CRC checks. None of this is an
   authenticated-encryption guarantee and the dartdoc says so.
 - **Not constant-time, no key zeroization.** This is archive reading, not a
   TLS stack; Dart gives no control over copies the GC makes. Recorded as an
   explicit non-goal.
-- All existing §7 guards (bomb caps, size sanity, fuzz invariant) apply
-  unchanged — decryption sits *under* them, and encrypted fixtures join the
+- All existing guards (bomb caps, size sanity, fuzz invariant) apply
+  unchanged; decryption sits *under* them, and encrypted fixtures join the
   fuzz pools.
 
 ## Provenance
 
 AES (FIPS-197), modes (SP 800-38A), SHA (FIPS-180-4), HMAC (RFC 2104),
-PBKDF2 (RFC 8018) — public standards, vector-tested against their own
+PBKDF2 (RFC 8018), all public standards, vector-tested against their own
 published test vectors. ZIP: APPNOTE 6.3 + the public WinZip AE-2
 specification. 7z: public-domain 7-Zip/LZMA SDK documentation (same basis
 as M8/P2-4). RAR5: the official RarLab technote documents the encryption
 record, KDF, and check values. RAR4's KDF is not officially documented; the
 clean-room references are the ISC-licensed `rarfile` Python library and
-published forensic descriptions — same standard as the BSD `libarchive`
+published forensic descriptions, the same standard as the BSD `libarchive`
 references already recorded in `koni_rar/doc/rar-provenance.md` (updated in
 P3-5). Still no unrar/GPL sources, ever.
 
@@ -116,7 +116,7 @@ P3-5). Still no unrar/GPL sources, ever.
 | P3-2 | ZIP: zipcrypto + WinZip AE, password API in core | Fixtures authored by `zip`/`7zz` decrypt byte-identical; wrong/missing password typed |
 | P3-3 | 7z: AES coder in the chain + encrypted headers | `7zz -p` / `-mhe` fixtures decrypt; solid folders + header case covered |
 | P3-4 | RAR5: file decryption, tweaked CRCs (headers deferred) | `rar -p` fixtures decrypt (store, compressed, solid); `-hp` stays a typed error |
-| P3-5 | RAR4: salted file data | Round-trip against our own RAR4 builder **and** `unrar x` extracts what the builder authors (rar 7.x cannot author v4 — the builder is the fixture source, unrar is the local interop gate) |
+| P3-5 | RAR4: salted file data | Round-trip against our own RAR4 builder **and** `unrar x` extracts what the builder authors (rar 7.x cannot author v4; the builder is the fixture source, unrar is the local interop gate) |
 
 Release: lockstep **0.5.0** when P3-5 lands (git-only, same policy as 0.4.0).
 
@@ -128,13 +128,13 @@ size-preserving in-place filters". An encrypted folder is
 assumption. P3-3 generalizes `_decodeFolder` to walk the bind-pair chain
 with an explicit buffer per coder output (sizes all come from
 `folder.unpackSizes`, so the bomb caps are unchanged). This is a refactor of
-decode plumbing only — no header-model changes.
+decode plumbing only; no header-model changes.
 
 ---
 
-# Phase 4 — Encryption/password support (write side): scope
+# Phase 4: Encryption/password support (write side)
 
-Status: **complete** — scoped and landed 2026-07-15, lockstep with the
+Status: **complete**, scoped and landed 2026-07-15, lockstep with the
 0.5.0-series (git-only). Reuses the Phase 3 primitives verbatim (encryption
 is serialization + one encrypt step + a salt/IV source, not new crypto).
 
@@ -153,32 +153,32 @@ encryption; AES-256 is the only strength emitted.
 
 **Not** in this phase (deferred, typed errors or plaintext-with-reject):
 
-- **ZIP traditional zipcrypto (write)** — deliberately skipped. It is weak
+- **ZIP traditional zipcrypto (write)**: deliberately skipped. It is weak
   (a 96-bit stream cipher with a known-plaintext weakness) and nothing needs
   to *author* it; we only *read* it for legacy archives. WinZip AES is the
   one write scheme.
-- **ZIP AES-128/192 (write)** — only AES-256 is emitted. The read side still
+- **ZIP AES-128/192 (write)**: only AES-256 is emitted. The read side still
   decrypts all three strengths.
-- **TAR** — no standard encryption exists; `TarWriteFormat.openWriter`
+- **TAR**: no standard encryption exists; `TarWriteFormat.openWriter`
   throws `UnsupportedCompressionException` on a non-null password rather than
   silently writing plaintext.
 - Write-side RAR (permanently out of scope), key files, certificates.
 
 ## How it maps onto the writers
 
-- **ZIP (P4-1)** — per file/symlink entry: a fresh random salt (16 bytes for
+- **ZIP (P4-1)**: per file/symlink entry: a fresh random salt (16 bytes for
   AES-256), PBKDF2-HMAC-SHA1/1000 → aesKey ‖ macKey ‖ 2-byte verifier;
   compress, then AES-CTR (little-endian counter) encrypt the compressed
   bytes, streaming HMAC-SHA1 over the ciphertext. Entry body =
   `salt ‖ verifier ‖ ciphertext ‖ 10-byte MAC`; method 99 with the real
   method in the 0x9901 extra; the recorded compressed size counts the whole
   envelope. Directories carry no data and stay plaintext.
-- **7z (P4-2)** — each content folder becomes a two-coder chain
+- **7z (P4-2)**: each content folder becomes a two-coder chain
   `compressor → AES-256-CBC` (one bind pair; the single packed stream feeds
   AES, inferred). The compressed stream is zero-padded to a 16-byte block
   boundary; the AES coder's declared output size stays the *unpadded*
   compressed length, so the reader trims the padding before the compressor
-  runs (the only thing that keeps a padded Copy folder honest — Copy has no
+  runs (the only thing that keeps a padded Copy folder honest; Copy has no
   end marker). Key derivation is the iterated-SHA-256 KDF with no salt (key
   per archive) and a fresh 16-byte IV per folder (2^19 rounds, 7-Zip's
   default). Empty files and directories have no folder and stay unencrypted.

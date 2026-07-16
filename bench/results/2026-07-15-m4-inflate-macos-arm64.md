@@ -20,10 +20,10 @@ Produced by `dart run --no-enable-asserts bench/bin/inflate_bench.dart`.
   refresh at flush time instead of per-byte double writes, then an
   inflate_fast-style hot loop with local-cached bit state) brought it to
   561 MiB/s while keeping all 49 codec tests green.
-- package:archive decodes into one whole-output pre-allocated buffer — the
+- package:archive decodes into one whole-output pre-allocated buffer, the
   output *is* the window, no flushing, unbounded memory. koni_codecs is a
-  chunk-driven state machine with bounded memory regardless of stream size
-  (§6.4/§11); the remaining ~1.5x is largely that structural difference.
+  chunk-driven state machine with bounded memory regardless of stream size;
+  the remaining ~1.5x is largely that structural difference.
 - Context for the flagship use case: a 512 KiB CBZ page decodes in ~1 ms.
 - dart:io's native zlib is unavailable on the web, which is a Phase-1
-  target (§1) — it is shown as a reference ceiling, not a baseline.
+  target; it is shown as a reference ceiling, not a baseline.

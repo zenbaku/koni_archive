@@ -151,7 +151,7 @@ void main() {
       expect(decodeTarString(bytes, 0, 32), '日本');
     });
 
-    test('falls back to Latin-1 for invalid UTF-8 (never throws, §7)', () {
+    test('falls back to Latin-1 for invalid UTF-8 (never throws)', () {
       final bytes = Uint8List(8);
       bytes[0] = 0xE9; // é in Latin-1; invalid alone in UTF-8
       bytes[1] = 0x74; // t

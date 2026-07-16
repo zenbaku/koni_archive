@@ -12,7 +12,7 @@ import 'rar_crypto.dart';
 /// Chunk size for slicing decoded output.
 const int _readChunkSize = 64 * 1024;
 
-/// Cap on a single decoded file / solid run (§7).
+/// Cap on a single decoded file / solid run.
 const int _maxFileSize = 1024 * 1024 * 1024;
 
 /// One volume's slice of a multi-volume file's packed data.
@@ -83,7 +83,7 @@ final class RarReader extends ArchiveReader {
 
   /// Parses the container (RAR5 or RAR4, per [isRar4]). Headers are
   /// plaintext unless whole-archive encryption is used; O(entry count), no
-  /// content decode (§4).
+  /// content decode.
   static Future<RarReader> parse(
     ArchiveFormat format,
     ByteSource source,
@@ -145,8 +145,8 @@ final class RarReader extends ArchiveReader {
           // Continuation of the file split across the volume boundary.
           segments.last.add(_VolumeSegment(src, h.dataOffset, h.dataSize));
           // The final segment (splitAfter == false) carries the authoritative
-          // full-file CRC — earlier occurrences store only their segment's CRC
-          // — so adopt its header for the merged entry.
+          // full-file CRC; earlier occurrences store only their segment's CRC,
+          // so adopt its header for the merged entry.
           if (!h.splitAfter) headers[headers.length - 1] = h;
         } else {
           headers.add(h);
@@ -240,7 +240,7 @@ final class RarReader extends ArchiveReader {
     }
     // koni_rar decodes RAR4 *compressed* data of unpack version 20/26 (RAR
     // 2.0/2.6) and 29 (RAR 2.9/3.x). Version 15 (RAR 1.5) has no clean-room
-    // reference and is rejected cleanly here — a typed error, not the confusing
+    // reference and is rejected cleanly here, a typed error, not the confusing
     // corruption that misrouting it to the method-29 decoder would cause. Store
     // (method 0) is version-agnostic raw data and decodes at any version.
     if (header.version == 29 &&
@@ -276,7 +276,7 @@ final class RarReader extends ArchiveReader {
     } on FormatException catch (e) {
       // A decoder feature we deliberately defer (a filter reached through a
       // PPMd escape, a solid-PPMd mid-file block switch) surfaces as an
-      // unsupported-feature error, not corruption (§8/§9), so one such entry
+      // unsupported-feature error, not corruption, so one such entry
       // never implies the archive is damaged.
       if (e.message.contains('not supported')) {
         throw UnsupportedFeatureException(
@@ -297,7 +297,7 @@ final class RarReader extends ArchiveReader {
       // reveals nothing about the plaintext); tweak the computed CRC the
       // same way before comparing. The tweak is gated by the record's "use
       // MAC" flag, which is set independently of the per-file password check
-      // — `-hp` file records tweak the CRC without carrying a check value.
+      // (`-hp` file records tweak the CRC without carrying a check value).
       final enc = header.encryption;
       if (enc != null && enc.useMac) {
         actual = _rar5Keys(enc, entry.path).tweakCrc(actual);
@@ -353,7 +353,7 @@ final class RarReader extends ArchiveReader {
 
     if (!header.solid) {
       // The LZ window must be a power of two (indices use `& mask`), and
-      // big enough that the whole file fits without wrapping — so no byte
+      // big enough that the whole file fits without wrapping, so no byte
       // is overwritten before it is read out.
       final windowLen = _pow2Ceil(
         header.unpackedSize > header.windowSize
@@ -374,7 +374,7 @@ final class RarReader extends ArchiveReader {
     // A *solid* RAR 2.0/2.6 run shares cross-file state the method-29 solid
     // path does not model; decoding a continuation there would misread v20 data
     // as method-29 and surface as corruption. Reject it cleanly instead (the
-    // run's first file — a non-solid header — still decodes via the path above).
+    // run's first file, a non-solid header, still decodes via the path above).
     // Full solid-v20 decode is deferred (doubly rare: vintage + solid).
     if (header.version == 29 &&
         (header.unpackVersion == 20 || header.unpackVersion == 26)) {
@@ -425,7 +425,7 @@ final class RarReader extends ArchiveReader {
       final h = _headers[i];
       if (h.method == 0 || h.isDirectory) {
         // A stored or empty member inside a solid run: append raw. Encrypted
-        // data carries AES padding — append only the declared bytes.
+        // data carries AES padding; append only the declared bytes.
         final decrypted = await _readData(i, h);
         final raw =
             h.isEncrypted && decrypted.length > h.unpackedSize

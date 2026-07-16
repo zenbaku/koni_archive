@@ -1,4 +1,4 @@
-/// Thrown when the HTTP transport or the server's range support fails —
+/// Thrown when the HTTP transport or the server's range support fails;
 /// distinct from an `ArchiveException`, which signals a malformed *archive*.
 ///
 /// Catching `ArchiveException` does **not** catch this: a network error or a

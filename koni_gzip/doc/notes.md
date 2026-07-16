@@ -1,19 +1,19 @@
-# koni_gzip — implementation notes
+# koni_gzip: implementation notes
 
-Decisions made where the spec left room (recorded per §13.3).
+Decisions made where the gzip format left room.
 
-## Single-entry model (§8)
+## Single-entry model
 
 A bare `.gz` opens as a one-entry archive. The entry name comes from the
 FNAME field when present, else from the source name with a trailing `.gz`
-dropped (`ByteSource.name` — a file path or browser File name), else
+dropped (`ByteSource.name`, a file path or browser File name), else
 `data`. FNAME is attacker-controlled and goes through `normalizeEntryPath`
-like every other path (§7).
+like every other path.
 
 ## Sizes and laziness
 
 Opening reads only the member header (first bytes) and the trailer (last
-8 bytes) — no decompression (§4). `uncompressedSize` is the final ISIZE
+8 bytes); no decompression. `uncompressedSize` is the final ISIZE
 field: exact for single-member files under 4 GiB (ISIZE is mod 2^32);
 for multi-member files it reflects only the last member. Real integrity
 does not depend on it: each member's CRC-32/ISIZE is verified during
@@ -22,15 +22,15 @@ whole container length (framing included).
 
 ## Multi-member files
 
-Decoded as one concatenated stream — gzip(1) semantics. The entry is named
+Decoded as one concatenated stream, gzip(1) semantics. The entry is named
 by the first member's header.
 
 ## Error translation
 
-Codec errors are `FormatException` (§6.4); the reader maps messages
+Codec errors are `FormatException`; the reader maps messages
 containing "mismatch" to `ChecksumMismatchException`, "truncated" to
 `UnexpectedEofException`, and everything else to
-`CorruptArchiveException` — all carrying gzip/entry context.
+`CorruptArchiveException`, all carrying gzip/entry context.
 
 ## tar.gz layering (M6)
 
@@ -38,15 +38,15 @@ containing "mismatch" to `ChecksumMismatchException`, "truncated" to
 *decompressed* content via `GzipDecompressedByteSource`; the first match
 reads the inner archive (the facade layers TAR, so `.tar.gz`/`.tgz`
 presents as the inner TAR and `Archive.format` reports `tar`). Dependency
-rules (§2) forbid koni_gzip from importing koni_tar, which is why the
+rules forbid koni_gzip from importing koni_tar, which is why the
 composition happens in the facade and the mechanism here is generic.
 
-**Cost model (§8):** gzip has no random access. A read at offset N decodes
+**Cost model:** gzip has no random access. A read at offset N decodes
 sequentially up to N and caches *all* decoded bytes in memory; later reads
 (including backwards seeks) are served from the cache. Peak memory ≈ the
-decompressed bytes touched so far — for a TAR walk that means the whole
+decompressed bytes touched so far; for a TAR walk that means the whole
 inner tarball by the time the last entry is read. A zran-style seek index
-is deferred (§15). Only head-sniffing formats belong in `layeredFormats`:
+is deferred. Only head-sniffing formats belong in `layeredFormats`:
 a probe that reads near EOF (like ZIP's) would decode the entire container
 during detection.
 

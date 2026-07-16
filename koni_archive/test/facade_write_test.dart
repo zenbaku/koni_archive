@@ -5,7 +5,8 @@ import 'package:koni_archive/koni_archive.dart';
 import 'package:test/test.dart';
 
 /// Minimal write format proving `Archive.create` drives the write SPI end
-/// to end (real formats — TAR at P2-2, ZIP at P2-3 — plug in the same way).
+/// to end (real formats such as TAR at P2-2 and ZIP at P2-3 plug in the same
+/// way).
 final class _LineWriteFormat extends ArchiveWriteFormat {
   const _LineWriteFormat();
 

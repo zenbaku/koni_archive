@@ -17,11 +17,11 @@ Produced by `dart run --no-enable-asserts bench/bin/zip_bench.dart`.
 
 ## Reading the numbers
 
-- **list**: 1.4x faster — one bulk central-directory read + a linear parse.
+- **list**: 1.4x faster. One bulk central-directory read + a linear parse.
 - **page read**: package:archive does not verify checksums; with
-  verification disabled the two are equal within noise (both ~0.1 ms —
+  verification disabled the two are equal within noise (both ~0.1 ms;
   ratios at that scale are noise). The default-path cost is CRC-32 over the
-  512 KiB page (~300 MiB/s single-table implementation) — the price of §7's
+  512 KiB page (~300 MiB/s single-table implementation), the price of
   verify-by-default. A sliced (multi-table) CRC-32 is the obvious future
   optimization if verified reads ever dominate a profile.
 - Random access held: reading page 57 never touched the other 119 pages.

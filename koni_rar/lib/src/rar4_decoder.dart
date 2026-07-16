@@ -3,12 +3,12 @@
 ///
 /// Clean-room per `doc/rar-provenance.md`; layout and the length/offset
 /// base tables follow libarchive's BSD `archive_read_support_format_rar.c`
-/// (Tim Kientzle, Andres Mejia — see `doc/references.md` and `NOTICE`); no
+/// (Tim Kientzle, Andres Mejia; see `doc/references.md` and `NOTICE`); no
 /// unrar or GPL source was consulted. RarVM filters are handled by
 /// [Rar4Filters] (the standard delta/x86/RGB/audio programs natively, any other
 /// program on the generic interpreter in `rar4_vm.dart`); **PPMd (variant H)**
 /// blocks are decoded by [Ppmd7Model] (see `rar4_ppmd.dart`), including a
-/// mid-file PPMd→method-29 (LZSS) block switch — the block boundary is read the
+/// mid-file PPMd→method-29 (LZSS) block switch; the block boundary is read the
 /// same way for either method (`_parseCodes`). A filter reached *through* a PPMd
 /// escape, and a mid-file switch inside a *solid* PPMd run, stay a
 /// [FormatException] the reader maps to a typed error.
@@ -108,7 +108,7 @@ final class Rar4Decoder {
   ///
   /// A non-solid file (or a solid run's first file) begins with its own
   /// Huffman table block ([parseTable] true). A solid *continuation* file
-  /// carries no table block — it reuses the tables, repeated-offset cache,
+  /// carries no table block; it reuses the tables, repeated-offset cache,
   /// and window left by the previous file in the run, so pass [parseTable]
   /// false and reuse the same decoder instance.
   void decompressFile(
@@ -283,9 +283,9 @@ final class Rar4Decoder {
   /// persist (the RAR-block escape char is only reset by flag 0x40, so a
   /// continuation inherits it), while the range decoder re-initialises per
   /// block. Unlike method-29, a solid PPMd file is *not* decoded to a byte
-  /// count — it runs to its end-of-data marker (escape code 2), whose symbols
+  /// count; it runs to its end-of-data marker (escape code 2), whose symbols
   /// update the shared model, so skipping them would desync it for the next
-  /// file. A stored/empty member in the run does not call this — its raw bytes
+  /// file. A stored/empty member in the run does not call this; its raw bytes
   /// are appended to the window directly, between PPMd files.
   ///
   /// [unpackedSize] is the file's declared output size; a valid block reaches
@@ -341,7 +341,7 @@ final class Rar4Decoder {
     }
     // The escape symbol persists across blocks: flag 0x40 sets a new one,
     // otherwise the previous value carries over (it defaults to 2). This matters
-    // for solid runs — a continuation block clears 0x40 and inherits the first
+    // for solid runs; a continuation block clears 0x40 and inherits the first
     // block's escape (libarchive resets it to 2 here, but libarchive never
     // decodes a solid RAR, so it never exercises the carry-over; the Go
     // `rardecode` reader, which does handle solid, persists it).
@@ -383,7 +383,7 @@ final class Rar4Decoder {
 
   /// Decodes one PPMd symbol/action into the window. Follows libarchive's
   /// escape-char dispatch (`read_data_compressed`): a non-escape symbol is a
-  /// literal; an escape introduces a control code — 0 starts a new table
+  /// literal; an escape introduces a control code: 0 starts a new table
   /// block, 2 ends the PPMd data, 4/5 are LZ matches, and anything else emits
   /// the escape symbol itself. Returns true on end-of-data (code 2).
   bool _decodePpmdStep(Bits bits, int mask, int target) {
@@ -396,7 +396,7 @@ final class Rar4Decoder {
       case 0:
         // End of this PPMd block; a new block header follows in the stream
         // (`rardecode`'s endOfBlock → readBlockHeader). Read it the same way any
-        // block boundary is read — [_parseCodes] aligns to a byte, reads the
+        // block boundary is read; [_parseCodes] aligns to a byte, reads the
         // block-type bit, and sets up either another PPMd block (model carried
         // over) or a method-29 (LZSS) table block, flipping [_ppmdActive]. The
         // range decoder read whole bytes through the shared [bits], so the LZSS
@@ -434,7 +434,7 @@ final class Rar4Decoder {
 
   /// Decodes one PPMd model symbol, mapping the model's own [PpmdError] and any
   /// out-of-range access on corrupt model state to a typed [FormatException]
-  /// (the reader turns it into a `CorruptArchiveException`) — never an untyped
+  /// (the reader turns it into a `CorruptArchiveException`); never an untyped
   /// crash.
   int _ppmdSymbol() {
     try {

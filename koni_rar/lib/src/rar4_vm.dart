@@ -5,7 +5,7 @@
 /// region. The four *standard* programs (delta, x86 E8/E8E9, RGB, audio) are
 /// recognized by fingerprint and run by hand-written filters in
 /// `rar4_filters.dart` for speed; this interpreter runs *any* program,
-/// including non-standard ones from other tools — the case that was a typed
+/// including non-standard ones from other tools; the case that was a typed
 /// error before.
 ///
 /// The VM is a little pseudo-x86: 8 registers, a 256 KiB byte address space,
@@ -13,7 +13,7 @@
 /// register-indirect / base+index / direct operands. Clean-room per
 /// `doc/rar-provenance.md`: structure and opcode/flag semantics are adapted
 /// from the BSD-2-Clause Go `rardecode` `vm.go` (and the filter glue in its
-/// `filters.go`) — see `doc/references.md` and `NOTICE`. No unrar or GPL
+/// `filters.go`); see `doc/references.md` and `NOTICE`. No unrar or GPL
 /// source was consulted.
 ///
 /// All arithmetic is masked to 32 bits so the result is byte-identical on the
@@ -71,7 +71,7 @@ final List<int> _pow2 = () {
 int _u32(int n) => n & 0xFFFFFFFF;
 
 /// 32-bit multiply with wraparound, split into 16-bit halves so no
-/// intermediate exceeds 2^53 (dart2js precision) — `mul` is the only VM op
+/// intermediate exceeds 2^53 (dart2js precision); `mul` is the only VM op
 /// whose product can overflow.
 int _mul32(int a, int b) {
   final aLo = a & 0xFFFF;
@@ -489,7 +489,7 @@ class RarVm {
 // --- Bytecode decoding (readCommands / decodeArg / fixJumpOp). ---
 
 /// The opcode table: (supports byte mode, operand count, is a jump). The order
-/// is load-bearing — it is the opcode numbering the bytestream encodes.
+/// is load-bearing; it is the opcode numbering the bytestream encodes.
 const List<(bool, int, bool)> _ops = [
   (true, 2, false), // 0 mov
   (true, 2, false), // 1 cmp
@@ -609,7 +609,7 @@ _Arg _fixJumpOp(_Arg op, int here) {
 
 /// MSB-first bit reader over a program buffer, with RAR's variable-length
 /// number encoding (`readUint32`). A read past the end sets [eof] and yields
-/// 0 — the reference's EOF-terminates-the-program behavior.
+/// 0; the reference's EOF-terminates-the-program behavior.
 class _VmBits {
   _VmBits(this._b, this._pos);
 

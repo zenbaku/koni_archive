@@ -13,7 +13,7 @@ final class RarFormat extends ArchiveFormat {
   @override
   String get name => 'rar';
 
-  /// Detection (§5): `52 61 72 21 1A 07 01 00` (v5) or
+  /// Detection: `52 61 72 21 1A 07 01 00` (v5) or
   /// `52 61 72 21 1A 07 00` (v4) at offset 0.
   @override
   Future<bool> matches(ByteSource source) async {

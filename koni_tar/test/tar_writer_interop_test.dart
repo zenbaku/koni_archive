@@ -122,7 +122,7 @@ void main() {
 String? _findTar() {
   // Windows bundles bsdtar as tar.exe, but its handling of UTF-8 entry names
   // on the Windows filesystem/console codepage differs from the Unix `tar`
-  // this interop check targets — an entry like `日本語/ページ001.txt` doesn't
+  // this interop check targets; an entry like `日本語/ページ001.txt` doesn't
   // land under that exact name. The archive bytes we write are the same on
   // every platform and are validated against GNU tar (Linux) and bsdtar
   // (macOS) in CI, so skip the extraction check on Windows rather than assert

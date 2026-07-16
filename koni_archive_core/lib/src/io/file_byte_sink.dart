@@ -6,7 +6,7 @@ import '../exceptions.dart';
 
 /// A [ByteSink] that appends to a file on disk (`dart:io`; VM/Flutter-native
 /// only). Writes are serialized internally, so sequential `add` calls need
-/// not be awaited individually — though awaiting bounds memory.
+/// not be awaited individually, though awaiting bounds memory.
 final class FileByteSink implements ByteSink {
   FileByteSink._(this._file);
 

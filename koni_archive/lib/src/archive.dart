@@ -13,24 +13,24 @@ import 'package:path/path.dart' as p;
 
 /// Registry pre-populated with every built-in format, in detection order.
 ///
-/// This is where the facade registers built-ins *explicitly* (§5 — no
+/// This is where the facade registers built-ins *explicitly* (no
 /// import-side-effect registration): each format milestone adds its
 /// descriptor here. [Archive.open] uses this registry unless the caller
 /// passes their own; add third-party formats either by registering into
 /// this instance or by building a custom [ArchiveFormatRegistry].
 ///
-/// Detection order (§5): precise-magic formats belong before TAR, whose v7
+/// Detection order: precise-magic formats belong before TAR, whose v7
 /// fallback is a heuristic checksum probe.
 final ArchiveFormatRegistry builtInFormats = ArchiveFormatRegistry([
   const ZipFormat(),
   const SevenZFormat(),
   const RarFormat(),
-  // A .tar.gz sniffs as the inner TAR (§8 layering).
+  // A .tar.gz sniffs as the inner TAR.
   const GzipFormat(layeredFormats: [TarFormat()]),
   const TarFormat(),
 ]);
 
-/// An opened archive, presented as a read-only virtual filesystem (§1):
+/// An opened archive, presented as a read-only virtual filesystem:
 /// callers stream files out of it and never need to know which format is
 /// underneath.
 ///
@@ -41,7 +41,7 @@ final ArchiveFormatRegistry builtInFormats = ArchiveFormatRegistry([
 /// [readBytes] is an explicit whole-entry convenience.
 ///
 /// Decompression is CPU-bound: Flutter apps should wrap whole-entry reads
-/// in `Isolate.run` (entries are immutable and isolate-transferable, §6) —
+/// in `Isolate.run` (entries are immutable and isolate-transferable);
 /// on the web, where isolates don't exist, calls run inline.
 final class Archive {
   Archive._(this._reader, this._source);
@@ -54,16 +54,16 @@ final class Archive {
   /// Opens [source], auto-detecting its format against [registry]
   /// (default: [builtInFormats]).
   ///
-  /// Parses container metadata eagerly — O(entry count), no content
-  /// decompression (§4; per-format caveats such as 7z's compressed header
+  /// Parses container metadata eagerly: O(entry count), no content
+  /// decompression (per-format caveats such as 7z's compressed header
   /// block are documented in each format package). On success the archive
   /// owns [source] and closes it in [close]; on failure the source is left
   /// open and usable (retry with an explicit `format:`, or close it
   /// yourself).
   ///
-  /// [format] is the §5 escape hatch: it skips detection and forces a
+  /// [format] is the escape hatch: it skips detection and forces a
   /// format. Callers should never normally need it. [options] tunes reader
-  /// behavior (e.g. `verifyChecksums: false`, §7).
+  /// behavior (e.g. `verifyChecksums: false`).
   ///
   /// Throws [UnsupportedFormatException] when no registered format matches.
   static Future<Archive> open(
@@ -94,7 +94,7 @@ final class Archive {
   );
 
   /// Creates a writer that appends a new archive of [format] to [sink]
-  /// (Phase 2) — the write counterpart of [open].
+  /// (Phase 2), the write counterpart of [open].
   ///
   /// Writing names the format explicitly (there is nothing to auto-detect).
   /// Synchronous: opening a writer does no I/O. Add entries with
@@ -110,29 +110,29 @@ final class Archive {
   /// The detected (or forced) format of this archive.
   ArchiveFormat get format => _reader.format;
 
-  /// All entries in archive index order, duplicates included (§4).
+  /// All entries in archive index order, duplicates included.
   List<ArchiveEntry> get entries => _reader.entries;
 
   /// Whether [close] has been called.
   bool get isClosed => _closed;
 
   // Path -> entry map; built lazily. Map literal iteration order makes the
-  // *last* entry with a given path win (§4).
+  // *last* entry with a given path win.
   late final Map<String, ArchiveEntry> _byPath = {
     for (final entry in _reader.entries) entry.path: entry,
   };
 
-  /// Looks up an entry by exact, case-sensitive normalized path (§4).
+  /// Looks up an entry by exact, case-sensitive normalized path.
   ///
   /// Duplicate paths resolve last-wins; returns null when absent. This
-  /// resolves *stored* entries only — implicit directories synthesized for
+  /// resolves *stored* entries only; implicit directories synthesized for
   /// the VFS view (see [directories]) are not returned here.
   ArchiveEntry? entry(String path) => _byPath[path];
 
   /// Whether a stored entry with exactly this path exists. See [entry].
   bool exists(String path) => _byPath.containsKey(path);
 
-  /// Streams the decoded content of [entry] — the primary read API (§4).
+  /// Streams the decoded content of [entry], the primary read API.
   ///
   /// The stream is single-subscription with bounded memory use regardless
   /// of entry size. Multiple entry streams may be open simultaneously (e.g.
@@ -142,13 +142,13 @@ final class Archive {
   /// with [ArchiveClosedException].
   ///
   /// Entry-scoped problems (unsupported compression, encrypted entry) throw
-  /// typed exceptions here — the rest of the archive stays readable (§9).
+  /// typed exceptions here; the rest of the archive stays readable.
   Stream<Uint8List> openRead(ArchiveEntry entry) {
     _checkOpen();
     return _OpenEntryStream(this, entry).stream;
   }
 
-  /// [openRead] by path — sugar over [entry] (§4).
+  /// [openRead] by path, sugar over [entry].
   ///
   /// Throws [EntryNotFoundException] when no entry has this exact path.
   Stream<Uint8List> openReadPath(String path) {
@@ -166,7 +166,7 @@ final class Archive {
 
   /// Collects [openRead] into one buffer.
   ///
-  /// [maxSize] bounds the decoded size (decompression-bomb protection, §7):
+  /// [maxSize] bounds the decoded size (decompression-bomb protection):
   /// exceeding it cancels the decode and throws
   /// [SizeLimitExceededException]. Prefer [openRead] for anything large.
   Future<Uint8List> readBytes(ArchiveEntry entry, {int? maxSize}) async {
@@ -187,7 +187,7 @@ final class Archive {
 
   /// Closes the archive: errors in-flight entry streams with
   /// [ArchiveClosedException], releases reader resources, and closes the
-  /// underlying [ByteSource]. Idempotent (§4).
+  /// underlying [ByteSource]. Idempotent.
   Future<void> close() async {
     if (_closed) return;
     _closed = true;
@@ -209,7 +209,7 @@ final class Archive {
   }
 
   // ---------------------------------------------------------------------
-  // Virtual-filesystem view (§4): last-wins per path, with implicit
+  // Virtual-filesystem view: last-wins per path, with implicit
   // directory entries synthesized (many ZIPs omit them).
   // ---------------------------------------------------------------------
 
@@ -235,9 +235,9 @@ final class Archive {
     return root;
   }
 
-  /// The VFS view, in depth-first pre-order (§4 `walk()`).
+  /// The VFS view, in depth-first pre-order (`walk()`).
   ///
-  /// Order (documented per §4): each directory precedes its contents;
+  /// Order (documented): each directory precedes its contents;
   /// siblings are visited in code-unit order of their names; the archive
   /// root itself is not emitted. One node per unique path (duplicates
   /// resolve last-wins); implicit parent directories missing from the
@@ -268,7 +268,7 @@ final class Archive {
       walk().where((e) => e.type == ArchiveEntryType.directory);
 
   /// VFS entries whose path matches [pattern]
-  /// (`package:glob` syntax, case-sensitive, `/`-separated — e.g.
+  /// (`package:glob` syntax, case-sensitive, `/`-separated, e.g.
   /// `ch01/*.webp` or `**.jpg`), in [walk] order.
   Iterable<ArchiveEntry> glob(String pattern) {
     final matcher = Glob(pattern, context: p.url, caseSensitive: true);

@@ -3,9 +3,9 @@ import 'exceptions.dart';
 import 'read_options.dart';
 import 'reader.dart';
 
-/// Descriptor for one archive format: how to detect it and how to open it
-/// (§5). Format packages implement one of these; third parties can implement
-/// their own and register it — the format set is open, never a closed enum.
+/// Descriptor for one archive format: how to detect it and how to open it.
+/// Format packages implement one of these; third parties can implement
+/// their own and register it: the format set is open, never a closed enum.
 abstract class ArchiveFormat {
   /// Const-constructable so format descriptors can be compile-time constants.
   const ArchiveFormat();
@@ -16,17 +16,17 @@ abstract class ArchiveFormat {
 
   /// Whether [source] looks like this format.
   ///
-  /// Must return `false` — not throw — for input that simply isn't this
+  /// Must return `false` (not throw) for input that simply isn't this
   /// format. May read wherever it needs (magic bytes are not always at
   /// offset 0: ZIP detection scans backward from EOF, TAR magic is at
-  /// offset 257, §5), but should read as little as possible: detection runs
+  /// offset 257), but should read as little as possible: detection runs
   /// against every registered format in turn. An [ArchiveException] escaping
   /// this method (e.g. [UnexpectedEofException] from a source shorter than a
   /// probe) is treated by the registry as "does not match".
   Future<bool> matches(ByteSource source);
 
   /// Opens [source] as this format, eagerly parsing container metadata
-  /// (O(entry count), no content decode, §4), honoring [options].
+  /// (O(entry count), no content decode), honoring [options].
   ///
   /// Called by the driver after [matches], or directly when the caller
   /// forces a format. Throws a typed [ArchiveException] if the source is not
@@ -37,8 +37,8 @@ abstract class ArchiveFormat {
   );
 }
 
-/// Ordered, mutable registry of [ArchiveFormat]s — what makes koni_archive
-/// an ecosystem (§5): new formats plug in without touching core.
+/// Ordered, mutable registry of [ArchiveFormat]s, what makes koni_archive
+/// an ecosystem: new formats plug in without touching core.
 ///
 /// The facade owns a registry pre-populated with the built-in formats;
 /// callers can build their own to add formats or restrict the set.
@@ -77,10 +77,10 @@ final class ArchiveFormatRegistry {
   }
 
   /// Detects the format of [source] and opens it: the detection driver
-  /// (§14 M1) behind `Archive.open`.
+  /// (M1) behind `Archive.open`.
   ///
-  /// [format] forces a specific format, skipping detection (the §5 escape
-  /// hatch — callers should never normally need it). Throws
+  /// [format] forces a specific format, skipping detection (the escape
+  /// hatch, callers should never normally need it). Throws
   /// [UnsupportedFormatException] when no registered format matches. Does
   /// not take ownership of [source]: on failure the source remains open and
   /// usable.

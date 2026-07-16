@@ -67,7 +67,7 @@ Uint8List tarHeader({
 }
 
 /// Writes [value] into a numeric field as GNU base-256 (big-endian two's
-/// complement, marker bit set). Pure arithmetic — bitwise shifts on
+/// complement, marker bit set). Pure arithmetic; bitwise shifts on
 /// negative/large ints are not portable to dart2js.
 void putBase256(Uint8List block, int at, int len, int value) {
   var v = value;

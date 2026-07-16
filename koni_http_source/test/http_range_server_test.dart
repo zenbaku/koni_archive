@@ -11,7 +11,7 @@ import 'package:koni_zip/koni_zip.dart';
 import 'package:test/test.dart';
 
 /// End-to-end over a real `dart:io` [HttpServer] with genuine `Range`
-/// support, driven through the `package:http` transport — the real-transport
+/// support, driven through the `package:http` transport, the real-transport
 /// gate for [HttpRangeByteSource.open] (the fake-fetcher test covers the
 /// range/EOF logic cross-platform).
 

@@ -1,11 +1,11 @@
-// Web-runnable RAR 2.0 (unpack version 20) decoding (R9). Real v20 fixtures —
-// authored with DOS RAR 2.50 under DOSBox (no modern tool writes v20) — inlined
+// Web-runnable RAR 2.0 (unpack version 20) decoding (R9). Real v20 fixtures,
+// authored with DOS RAR 2.50 under DOSBox (no modern tool writes v20), inlined
 // as base64 so the shared bit-reader/Huffman and the v20 LZ path run on dart2js
 // and dart2wasm, not just the VM. Reading verifies CRC-32 by default, so a
 // decode that completes is byte-exact (also checked vs unrar locally). The same
 // archives live in test/fixtures/rar_static/ for the fuzz smoke test.
 //
-// Regenerate: DOS RAR 2.50 (rarlab rar250.exe) under DOSBox —
+// Regenerate: DOS RAR 2.50 (rarlab rar250.exe) under DOSBox:
 //   rar a -m3 rar2_lz_repeat.rar REPEAT.TXT
 //   rar a -m5 -mm rar2_audio.rar AUDS.RAW   (multimedia/audio block)
 // See doc/notes.md ("RAR 2.0 / 2.6").
@@ -18,7 +18,7 @@ import 'package:koni_archive_core/koni_archive_core.dart';
 import 'package:koni_rar/koni_rar.dart';
 import 'package:test/test.dart';
 
-// DOS RAR 2.50 -m3 over 128200 bytes of a repeated 16-byte pattern — LZ block
+// DOS RAR 2.50 -m3 over 128200 bytes of a repeated 16-byte pattern; LZ block
 // (literals then matches). Trips the v20 main/offset/length Huffman and the
 // short-offset and reused-offset paths.
 final _lzRepeat = base64.decode(
@@ -34,7 +34,7 @@ final _lzRepeat = base64.decode(
   'Tx88f08fPH9PHzx/Tx88f08fPH9PHzx/Tx88f08fPH9PHzx/Tx88f08fPH9PH/Pr2A==',
 );
 
-// DOS RAR 2.50 -m5 -mm over 3000 bytes of 16-bit PCM — a multimedia/audio
+// DOS RAR 2.50 -m5 -mm over 3000 bytes of 16-bit PCM, a multimedia/audio
 // block. The RAR 2.x audio predictor has no correct permissive reference
 // (rardecode's mis-decodes it, verified vs unrar), so it is a typed error.
 final _audio = base64.decode(

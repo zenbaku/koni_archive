@@ -9,13 +9,13 @@ import '../exceptions.dart';
 /// A [ByteSource] over a browser [web.Blob] (or `File`, which extends Blob).
 ///
 /// Reads use `Blob.slice(...).arrayBuffer()`, which browsers execute
-/// independently per call — true pread semantics, so a reader can fetch
+/// independently per call, true pread semantics, so a reader can fetch
 /// several entries' bytes concurrently. Works under both dart2js and
 /// dart2wasm.
 final class BlobByteSource implements ByteSource {
   /// Creates a source over [blob]. A browser `File` (from an
   /// `<input type=file>` or drag-and-drop) is a Blob and works directly;
-  /// pass its `name` as [name] if entry-name derivation matters (§8 gzip).
+  /// pass its `name` as [name] if entry-name derivation matters.
   BlobByteSource(web.Blob blob, {this.name}) : _blob = blob, length = blob.size;
 
   final web.Blob _blob;

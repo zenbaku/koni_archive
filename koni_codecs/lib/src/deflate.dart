@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-/// DEFLATE (RFC 1951) compression as a synchronous, chunk-driven converter
-/// (§6.4) — the encoding counterpart of `InflateDecoder`.
+/// DEFLATE (RFC 1951) compression as a synchronous, chunk-driven converter,
+/// the encoding counterpart of `InflateDecoder`.
 ///
 /// Produces valid, universally decodable deflate: greedy LZ77 (hash-chain
 /// match finding) with fixed-Huffman blocks. Input is processed in ≤ 32 KiB
 /// blocks so match distances stay within the deflate window and memory
-/// stays bounded (matches do not cross block boundaries — a valid,
+/// stays bounded (matches do not cross block boundaries, a valid,
 /// conservative choice; dynamic-Huffman blocks, cross-block matching, and a
 /// stored-block fallback for incompressible input are future ratio
-/// improvements, not correctness ones — callers that store already-
+/// improvements, not correctness ones; callers that store already-
 /// compressed data, like CBZ images, sidestep the last one at the ZIP
 /// layer).
 ///
@@ -58,7 +58,7 @@ final class _DeflateSink implements ByteConversionSink {
   }
 }
 
-/// Resumable raw-DEFLATE compressor — the engine under [DeflateEncoder].
+/// Resumable raw-DEFLATE compressor, the engine under [DeflateEncoder].
 final class RawDeflater {
   /// Creates a deflater delivering compressed chunks to [onOutput].
   RawDeflater({required this.onOutput});

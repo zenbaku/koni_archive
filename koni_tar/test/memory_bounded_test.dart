@@ -10,8 +10,8 @@ import 'package:test/test.dart';
 
 import 'src/tar_builder.dart';
 
-/// A [ByteSource] that synthesizes a multi-GiB tar on the fly — no disk, no
-/// resident buffer — so the streaming-memory guarantee (§11) can be checked
+/// A [ByteSource] that synthesizes a multi-GiB tar on the fly (no disk, no
+/// resident buffer) so the streaming-memory guarantee can be checked
 /// against an entry far larger than RAM would forgive.
 final class _SyntheticHugeTar implements ByteSource {
   _SyntheticHugeTar(this.entrySize)
@@ -48,7 +48,7 @@ final class _SyntheticHugeTar implements ByteSource {
 
 void main() {
   test(
-    'streaming a 2 GiB entry keeps memory bounded (§11)',
+    'streaming a 2 GiB entry keeps memory bounded',
     () async {
       const entrySize = 2 * 1024 * 1024 * 1024; // 2 GiB
       final reader = await const TarFormat().openReader(

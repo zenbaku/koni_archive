@@ -47,7 +47,7 @@ void main() {
       final hello = byPath['hello.txt']!;
       expect(hello.type, ArchiveEntryType.file);
       expect(hello.uncompressedSize, 12);
-      expect(hello.compressedSize, isNull, reason: 'tar records none (§4)');
+      expect(hello.compressedSize, isNull, reason: 'tar records none');
       expect(hello.modified, fixedMtime);
       expect(hello.posixMode, isNotNull);
       expect(hello.posixMode! & 0x1FF, int.parse('644', radix: 8));
@@ -92,7 +92,7 @@ void main() {
       );
     });
 
-    test('symlinks are metadata only: content stream is empty (§7)', () async {
+    test('symlinks are metadata only: content stream is empty', () async {
       final reader = await openFixture('basic_ustar.tar');
       final link = reader.entries.firstWhere(
         (e) => e.type == ArchiveEntryType.symlink,
@@ -147,7 +147,7 @@ void main() {
       );
     });
 
-    test('duplicate paths are both listed in index order (§4)', () async {
+    test('duplicate paths are both listed in index order', () async {
       final reader = await openFixture('duplicate.tar');
       expect(reader.entries.map((e) => e.path), ['hello.txt', 'hello.txt']);
     });

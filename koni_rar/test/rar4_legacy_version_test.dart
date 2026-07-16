@@ -1,7 +1,7 @@
 // RAR4 legacy unpack-version handling (R9). koni_rar decodes unpack versions 20
 // and 26 (RAR 2.0/2.6, see rar2_web_test.dart) and 29 (RAR 2.9/3.x), plus
 // version-agnostic store. Version 15 (RAR 1.5) has no clean-room reference and
-// is rejected with a clear typed error — verified here with synthetic headers,
+// is rejected with a clear typed error, verified here with synthetic headers,
 // since no tool authors v15 archives.
 library;
 
@@ -86,7 +86,7 @@ void main() {
 
   test('a v29 COMPRESSED header is NOT rejected by the version gate', () async {
     // v29 routes to the method-29 decoder; here the body is not valid method-29,
-    // so it fails as corruption, not as an unsupported version — proving the
+    // so it fails as corruption, not as an unsupported version, proving the
     // gate keys on the version, not the method.
     final bytes = buildRar4Store(
       {'a.txt': 'x' * 32},

@@ -1,10 +1,11 @@
-# koni_archive (facade) — implementation notes
+# koni_archive (facade): implementation notes
 
-Decisions made where the spec left room (recorded per §13.3).
+Design decisions made where there was room to choose.
 
 ## Platform sugar is top-level functions, not statics (M1)
 
-§2 sketches `Archive.openFile(String path)` in `koni_archive/io.dart`. Dart
+One obvious shape would be `Archive.openFile(String path)` in
+`koni_archive/io.dart`. Dart
 cannot add static members to a class from another library, and defining
 `Archive` itself in an io library would drag `dart:io` into the
 platform-neutral facade. So the platform sugar is top-level:
@@ -15,14 +16,14 @@ platform-neutral facade. So the platform sugar is top-level:
 Both libraries re-export the main facade, so one import suffices per
 platform.
 
-## Built-in format registration (M1, §5)
+## Built-in format registration (M1)
 
 `builtInFormats` is a facade-level registry populated by explicit code in
 the facade (no import-side-effect registration). It is empty until format
 milestones land; `Archive.open` uses it by default and accepts a custom
 registry.
 
-## Ownership and stream lifecycle (M1, §4)
+## Ownership and stream lifecycle (M1)
 
 - On success, `Archive.open` owns the `ByteSource` and closes it in
   `close()`. On failure the source is left open and usable (`openArchiveFile`
@@ -31,14 +32,14 @@ registry.
   across format packages: in-flight streams get `ArchiveClosedException`
   and are closed; upstream subscriptions are cancelled.
 
-## VFS view semantics (M1, §4)
+## VFS view semantics (M1)
 
 - `entries` is the raw index-order list, duplicates included. `entry(path)`
   is exact-match, case-sensitive, last-wins, over **stored** entries only.
 - `walk()` / `files` / `directories` / `glob()` present the VFS view: one
   node per unique path (last-wins), implicit parent directories synthesized
   as directory entries with size 0.
-- `walk()` order (documented per §4): depth-first pre-order; each directory
+- `walk()` order (documented): depth-first pre-order; each directory
   precedes its contents; siblings in code-unit order of their names; the
   archive root itself is not emitted.
 - `glob()` uses `package:glob` with the URL path context (case-sensitive,

@@ -10,8 +10,7 @@ const int _readChunkSize = 64 * 1024;
 
 /// Sanity cap for metadata blobs a header can ask us to buffer (PAX record
 /// data, GNU long names). Real-world values are well under a block or two;
-/// 1 MiB is generous while keeping attacker-controlled allocations bounded
-/// (§7).
+/// 1 MiB is generous while keeping attacker-controlled allocations bounded.
 const int _maxMetadataSize = 1024 * 1024;
 
 /// Reader for POSIX/GNU tar archives. Created via `TarFormat.openReader`.
@@ -34,8 +33,8 @@ final class TarReader extends ArchiveReader {
   @override
   List<ArchiveEntry> get entries => _entries;
 
-  /// Walks every header block eagerly and builds the index — O(entry
-  /// count), no content reads (§4; note the caveat documented in
+  /// Walks every header block eagerly and builds the index: O(entry
+  /// count), no content reads (note the caveat documented in
   /// `doc/notes.md`: indexing a TAR inherently touches a header every 512+
   /// bytes across the whole file).
   static Future<TarReader> parse(
@@ -186,7 +185,7 @@ final class TarReader extends ArchiveReader {
         pathEscapedRoot: normalized.escapedRoot,
         type: type,
         uncompressedSize: size,
-        compressedSize: null, // tar records no compressed size (§4)
+        compressedSize: null, // tar records no compressed size
         modified: mtime,
         linkTarget:
             (type == ArchiveEntryType.symlink ||
@@ -306,7 +305,7 @@ final class TarReader extends ArchiveReader {
   static DateTime? _headerTime(int? mtime) {
     // Hostile base-256 mtimes can exceed DateTime's range; timestamps are
     // best-effort metadata, so out-of-range becomes null (fuzz invariant:
-    // no ArgumentError, §7). Bound: years 0001-9999.
+    // no ArgumentError). Bound: years 0001-9999.
     if (mtime == null || mtime < -62135596800 || mtime > 253402300799) {
       return null;
     }
@@ -333,8 +332,8 @@ final class TarReader extends ArchiveReader {
         return ArchiveEntryType.directory;
       case 0x36 /* '6' */ :
         return ArchiveEntryType.fifo;
-      case 0x37 /* '7' — contiguous file, treated as regular */ :
-      case 0x53 /* 'S' — GNU sparse (content unsupported) */ :
+      case 0x37 /* '7': contiguous file, treated as regular */ :
+      case 0x53 /* 'S': GNU sparse (content unsupported) */ :
         return ArchiveEntryType.file;
       default:
         return ArchiveEntryType.other;

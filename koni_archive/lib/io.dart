@@ -1,5 +1,5 @@
-/// `dart:io` sugar for the koni_archive facade — explicit opt-in import for
-/// VM and Flutter-native platforms (§2). Re-exports the platform-neutral
+/// `dart:io` sugar for the koni_archive facade: explicit opt-in import for
+/// VM and Flutter-native platforms. Re-exports the platform-neutral
 /// facade, so a VM program needs only this one import.
 library;
 
@@ -17,7 +17,7 @@ export 'koni_archive.dart';
 ///
 /// Sugar for [Archive.open] over a [FileByteSource]. (A static
 /// `Archive.openFile` is impossible without pulling `dart:io` into the
-/// platform-neutral main library, hence a top-level function — see
+/// platform-neutral main library, hence a top-level function; see
 /// `doc/notes.md`.) The file is closed if opening fails.
 Future<Archive> openArchiveFile(
   String path, {
@@ -43,7 +43,7 @@ Future<Archive> openArchiveFile(
 /// [path] (Phase 2), creating or truncating it.
 ///
 /// Sugar for [Archive.create] over a [FileByteSink]. Add entries, then call
-/// `close()` on the returned writer — which also flushes and closes the
+/// `close()` on the returned writer, which also flushes and closes the
 /// file. On failure to open the file, no writer is returned.
 Future<ArchiveWriter> createArchiveFile(
   String path, {

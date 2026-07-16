@@ -8,7 +8,7 @@ import 'package:test/test.dart';
 import 'src/vectors.dart';
 
 /// Decodes with input split into pieces of [chunkSize] via the chunked
-/// sink — the §6.4 contract: byte boundaries never matter.
+/// sink, the contract: byte boundaries never matter.
 Uint8List _chunkedInflate(List<int> compressed, int chunkSize) {
   final out = BytesBuilder(copy: false);
   final collector = ByteConversionSink.withCallback((bytes) => out.add(bytes));
@@ -50,7 +50,7 @@ void main() {
     });
   });
 
-  group('chunk boundaries never matter (§6.4)', () {
+  group('chunk boundaries never matter', () {
     for (final chunkSize in [1, 2, 3, 7, 64]) {
       test('dynamic vector in $chunkSize-byte chunks', () {
         expect(
@@ -117,7 +117,7 @@ void main() {
     });
 
     test('oversubscribed dynamic Huffman table', () {
-      // HLIT=257, HDIST=1, HCLEN=19; all code-length codes get length 1 —
+      // HLIT=257, HDIST=1, HCLEN=19; all code-length codes get length 1.
       // 19 codes of length 1 is grossly oversubscribed.
       final writer = _BitWriter();
       writer.bits(1, 1); // BFINAL
@@ -136,7 +136,7 @@ void main() {
 
     test('code-length repeat with no previous length', () {
       // Degenerate header where the first code-length symbol is 16
-      // (repeat-previous) — nothing to repeat.
+      // (repeat-previous), nothing to repeat.
       final writer = _BitWriter();
       writer.bits(1, 1);
       writer.bits(2, 2);
@@ -175,9 +175,9 @@ void main() {
     });
 
     test('dynamic block with a single-code (incomplete) distance tree', () {
-      // Degenerate dynamic Huffman (§11 canonical edge case):
+      // Degenerate dynamic Huffman (canonical edge case):
       //   literal tree: 'a' and 256, one bit each (complete);
-      //   distance tree: one symbol with a 1-bit code — INCOMPLETE, which
+      //   distance tree: one symbol with a 1-bit code, INCOMPLETE, which
       //   RFC 1951 explicitly allows for single-code distance trees.
       final writer = _BitWriter();
       writer.bits(1, 1); // BFINAL

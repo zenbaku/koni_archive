@@ -1,6 +1,6 @@
 // Test-only RAR4 (v1.5) store-archive builder. rar 7.x only authors v5, so
 // this hand-builds v4 container bytes (with correct CRC-16 header checksums
-// and per-file CRC-32) to exercise the RAR4 container + store path — and to
+// and per-file CRC-32) to exercise the RAR4 container + store path, and to
 // give the fuzz smoke a RAR4 seed, since the committed fixtures are all v5.
 
 import 'dart:convert';

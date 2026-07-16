@@ -39,7 +39,7 @@ void main() {
       expect(output, payload);
     });
 
-    test('chunk boundaries never matter (§6.4)', () {
+    test('chunk boundaries never matter', () {
       final alone = _b64(lzmaAloneBase64);
       final payload = _payload1();
       for (final chunkSize in [1, 3, 17, 64]) {
@@ -75,7 +75,7 @@ void main() {
         try {
           decoder.addInput(Uint8List.sublistView(bad, 13));
           decoder.setInputComplete();
-          // Corruption may also decode to wrong bytes without erroring —
+          // Corruption may also decode to wrong bytes without erroring;
           // that is what container CRCs are for. No throw is acceptable.
         } on Object catch (e) {
           error = e;
@@ -116,7 +116,7 @@ void main() {
       expect(output, payload);
     });
 
-    test('chunk boundaries never matter (§6.4)', () {
+    test('chunk boundaries never matter', () {
       final payload = _b64(payload3Base64);
       final stream = _b64(lzma2UncompressedBase64);
       for (final chunkSize in [1, 7, 100]) {

@@ -10,9 +10,9 @@ import 'package:koni_archive_core/koni_archive_core.dart';
 import 'package:koni_tar/koni_tar.dart';
 import 'package:test/test.dart';
 
-/// Corpus-driven fuzz smoke (§11): bit-flip and truncation mutations over
-/// the committed fixtures. Invariant (§7): any input either parses or
-/// throws a typed [ArchiveException] — never a RangeError, never another
+/// Corpus-driven fuzz smoke: bit-flip and truncation mutations over
+/// the committed fixtures. Invariant: any input either parses or
+/// throws a typed [ArchiveException], never a RangeError, never another
 /// error type, never a hang, never unbounded memory.
 ///
 /// Budget: `KONI_ARCHIVE_FUZZ_SECONDS` (CI sets 60; local default 5).
@@ -74,7 +74,7 @@ void main() {
           // typed: fine
         }
         // Anything else (RangeError, StateError, TypeError, …) propagates and
-        // fails the test — that is the §7 invariant.
+        // fails the test, that is the invariant.
       }
       printOnFailure('completed $iterations iterations');
     },

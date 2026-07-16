@@ -2,7 +2,7 @@
 ///
 /// RAR's compressor auto-applies a handful of *standard* filters (delta, x86
 /// E8/E8E9, RGB, audio) whose bytecode is a fixed program the decoder
-/// recognizes by fingerprint (program length + CRC-32) and runs natively —
+/// recognizes by fingerprint (program length + CRC-32) and runs natively,
 /// exactly as libarchive does, for speed. *Any other* program is run by the
 /// generic [RarVm] interpreter (`rar4_vm.dart`), so a non-standard filter from
 /// another tool decodes too (it used to be a typed error).
@@ -10,7 +10,7 @@
 /// Clean-room per `doc/rar-provenance.md`. The filter-record layout and the
 /// native filter algorithms are adapted from libarchive's BSD
 /// `archive_read_support_format_rar.c` (`read_filter` / `parse_filter` /
-/// `compile_program` / `execute_filter_*`; Tim Kientzle, Andres Mejia — see
+/// `compile_program` / `execute_filter_*`; Tim Kientzle, Andres Mejia; see
 /// `doc/references.md` and `NOTICE`); the generic VM + its global-block wiring
 /// from the BSD Go `rardecode` (`vm.go` / `filters.go`). No unrar or GPL source
 /// was consulted. The delta and E8/E8E9 arithmetic mirrors the RAR5 filters
@@ -90,7 +90,7 @@ class _Rar4Filter {
 }
 
 /// MSB-first bit reader over a filter-code byte buffer (libarchive's
-/// `memory_bit_reader`). A read past the end sets [atEof] and yields 0 — the
+/// `memory_bit_reader`). A read past the end sets [atEof] and yields 0; the
 /// same failure mode the reference relies on.
 class _MemBits {
   _MemBits(this._bytes);
@@ -346,7 +346,7 @@ class Rar4Filters {
   /// Runs a generic VM program. Input is `mem[0..blockLength)` (what [apply]
   /// loaded or chained there); the program runs in a *fresh* zeroed VM memory
   /// (so its globals and stack never see a previous filter's leftovers), and
-  /// its output region — reported through the global block — is copied back to
+  /// its output region (reported through the global block) is copied back to
   /// `mem[0..length)`, so chaining sees it at address 0.
   (int, int) _executeVm(_Rar4Filter f, Uint8List mem, int pos) {
     final program = f.prog.vm!;
@@ -359,7 +359,7 @@ class Rar4Filters {
 
     // Registers: the record's parsed set (r3=global addr, r4=len, r5=usage,
     // r7=vmSize, plus any overrides). r6 becomes the block's file offset, but
-    // only *after* the fixed global block is written — matching filters.go,
+    // only *after* the fixed global block is written, matching filters.go,
     // where global slot 6 holds the pre-offset r6 (override or 0), not the
     // offset (which lives only in the register and at vg+0x24).
     final regs = List<int>.of(f.registers);

@@ -4,8 +4,8 @@ import 'dart:typed_data';
 import 'inflate.dart';
 
 /// gzip (RFC 1952) decompression as a synchronous, chunk-driven state
-/// machine (§6.4), including **multi-member** files (concatenated streams,
-/// §8). Malformed input throws [FormatException]; the archive layer
+/// machine, including **multi-member** files (concatenated streams).
+/// Malformed input throws [FormatException]; the archive layer
 /// translates.
 ///
 /// Trailer CRC-32 and ISIZE are verified per member by default
@@ -177,7 +177,7 @@ final class GzipMemberHeader {
   );
 }
 
-/// Resumable multi-member gzip decoder — the engine under [GzipDecoder],
+/// Resumable multi-member gzip decoder, the engine under [GzipDecoder],
 /// public for the archive layer (koni_gzip), which needs chunk-driven
 /// decoding with per-member metadata.
 final class RawGzipDecoder {
@@ -198,7 +198,7 @@ final class RawGzipDecoder {
   final void Function(GzipMemberHeader header)? onMemberHeader;
 
   /// Sanity cap on a member header (FEXTRA/FNAME/FCOMMENT are
-  /// variable-length and attacker-controlled, §7).
+  /// variable-length and attacker-controlled).
   static const int _maxHeaderSize = 1024 * 1024;
 
   _GzState _state = _GzState.header;
@@ -370,7 +370,7 @@ final class RawGzipDecoder {
 enum _GzState { header, body, trailer, boundary, garbage }
 
 // ---------------------------------------------------------------------------
-// Private CRC-32 (this package has zero dependencies by policy — §2 — so it
+// Private CRC-32 (this package has zero dependencies by policy, so it
 // cannot use koni_archive_core's Crc32; the table is 1 KiB).
 // ---------------------------------------------------------------------------
 

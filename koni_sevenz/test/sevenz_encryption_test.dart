@@ -11,7 +11,7 @@ import 'package:test/test.dart';
 
 /// 7z AES-256 decryption (P3-3). Fixtures authored by 7zz with `-psecret`;
 /// see fixtures_manifest.json. 7z carries no password verifier, so a wrong
-/// password surfaces as corrupt data or a header CRC mismatch — never a
+/// password surfaces as corrupt data or a header CRC mismatch, never a
 /// clean "bad password" (and never an untyped error).
 Uint8List fixtureBytes(String name) =>
     File('test/fixtures/sevenz/$name').readAsBytesSync();
@@ -42,7 +42,7 @@ void main() {
       final reader = await open('encrypted.7z', password: 'secret');
       final entry = reader.entries.singleWhere((e) => e.isFile);
       // The data is AES-encrypted (its folder carries the AES coder), so the
-      // entry reports encrypted — independent of whether the *header* was
+      // entry reports encrypted, independent of whether the *header* was
       // encrypted (it is plaintext in this fixture).
       expect(entry.isEncrypted, isTrue);
       expect(await collect(reader, entry), helloBytes);

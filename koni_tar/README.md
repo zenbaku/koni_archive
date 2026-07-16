@@ -1,7 +1,7 @@
 # koni_tar
 
 TAR reader + writer (ustar, PAX, GNU extensions) for the
-[koni_archive](https://github.com/zenbaku/koni_archive) ecosystem — pure Dart, runs
+[koni_archive](https://github.com/zenbaku/koni_archive) ecosystem. Pure Dart, runs
 everywhere Dart runs including the web (dart2js and dart2wasm).
 
 Most applications should depend on the `koni_archive` facade, which
@@ -30,7 +30,7 @@ final reader = await registry.openReader(source);
 Reading: ustar, PAX (per-file + global), GNU long names/links, v7,
 base-256 fields, all entry types as metadata. GNU sparse entries are
 detected and throw a typed error (deferred). Writing emits ustar with PAX
-extensions where needed, from streaming input — interop-verified against
+extensions where needed, from streaming input, interop-verified against
 bsdtar. See
 [doc/features.md](doc/features.md) for the full matrix and
 [doc/notes.md](doc/notes.md) for design decisions.

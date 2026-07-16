@@ -27,7 +27,7 @@ void main() {
     });
   });
 
-  group('multi-member (§8)', () {
+  group('multi-member', () {
     final concatenated = Uint8List.fromList([...gzipNamed, ...gzipSecond]);
 
     test('decodes concatenated members into concatenated output', () {

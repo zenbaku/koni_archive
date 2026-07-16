@@ -7,7 +7,7 @@
 /// Supported: ustar (incl. path prefix), PAX extended headers (per-file and
 /// global), GNU long-name/long-link, base-256 numeric fields, v7 (magic-less)
 /// tars, and all entry types as metadata (file, directory, symlink,
-/// hardlink, FIFO, devices — represented, never materialized). GNU sparse
+/// hardlink, FIFO, devices; represented, never materialized). GNU sparse
 /// entries are detected and reading them throws a typed error (deferred;
 /// see `doc/`).
 library;

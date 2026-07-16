@@ -7,7 +7,7 @@ import '../exceptions.dart';
 /// A [ByteSource] over a file on disk (`dart:io`; VM/Flutter-native only).
 ///
 /// `dart:io`'s [RandomAccessFile] has a single seek cursor, so concurrent
-/// positional reads are serialized internally on one file handle — the
+/// positional reads are serialized internally on one file handle; the
 /// pread *semantics* of the [ByteSource] contract hold (overlapping [read]
 /// calls never interfere), reads just don't run in parallel at the OS level.
 final class FileByteSource implements ByteSource {

@@ -11,7 +11,7 @@ final class SevenZFormat extends ArchiveFormat {
   @override
   String get name => '7z';
 
-  /// Detection (§5): `37 7A BC AF 27 1C` at offset 0.
+  /// Detection: `37 7A BC AF 27 1C` at offset 0.
   @override
   Future<bool> matches(ByteSource source) async {
     if (source.length < 32) return false;

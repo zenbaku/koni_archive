@@ -10,8 +10,8 @@ import 'package:koni_codecs/koni_codecs.dart';
 import 'package:test/test.dart';
 
 /// Interop is the definition of done (per koni_sevenz/doc/writing-scope.md,
-/// P2-4b gate 1): our LZMA output must decode under liblzma — via CPython's
-/// `lzma` module — not just under our own decoder. The stream is framed as
+/// P2-4b gate 1): our LZMA output must decode under liblzma (via CPython's
+/// `lzma` module) not just under our own decoder. The stream is framed as
 /// `.lzma` (FORMAT_ALONE: props byte, u32 dict size, u64 uncompressed size),
 /// which carries everything liblzma needs. Skipped (marked) when `python3`
 /// is absent, so environments without it stay green.
@@ -62,7 +62,7 @@ void main() {
   };
 
   for (final MapEntry(key: name, value: build) in payloads.entries) {
-    test('liblzma decodes our LZMA1 stream — $name', () async {
+    test('liblzma decodes our LZMA1 stream: $name', () async {
       if (python == null) {
         markTestSkipped('no `python3` on PATH; liblzma interop skipped');
         return;

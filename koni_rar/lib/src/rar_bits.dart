@@ -77,7 +77,7 @@ final class Huffman {
       for (var sym = 0; sym < count; sym++) {
         if ((lengths[sym] & 0xF) != len) continue;
         // Fill every table slot whose top `len` bits equal this code. A code
-        // beyond 2^len means the lengths over-subscribe the tree — impossible
+        // beyond 2^len means the lengths over-subscribe the tree; impossible
         // for a valid table, reachable via mutated input.
         if (code >= (1 << len)) {
           throw const FormatException('over-subscribed RAR Huffman table');

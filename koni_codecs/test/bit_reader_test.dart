@@ -60,7 +60,7 @@ void main() {
       );
     });
 
-    test('over-read throws FormatException (codec idiom, §6.4)', () {
+    test('over-read throws FormatException (codec idiom)', () {
       final reader = BitReader(Uint8List.fromList([0xFF]));
       reader.readBits(6);
       expect(() => reader.readBits(3), throwsFormatException);

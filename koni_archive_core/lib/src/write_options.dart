@@ -19,7 +19,7 @@ final class ArchiveWriteOptions {
   /// Password to encrypt the archive with (Phase 4,
   /// `doc/encryption-scope.md`). `null` (the default) writes plaintext.
   ///
-  /// When set, every entry's content is encrypted with **AES-256** — WinZip
+  /// When set, every entry's content is encrypted with **AES-256**: WinZip
   /// AES (AE-2, method 99) for ZIP, AES-256-CBC for 7z. Encryption is
   /// whole-archive: it is not selectable per entry, mirroring how a reader
   /// supplies one [password] for the whole archive. Formats without an
@@ -38,8 +38,8 @@ final class ArchiveWriteOptions {
   /// (7z `-mhe`). Requires [password]; opening the archive then needs the
   /// password up front, not just to read an entry.
   ///
-  /// **7z only.** WinZip AES (ZIP) never encrypts the central directory —
-  /// filenames are always visible there — so the ZIP writer ignores this
+  /// **7z only.** WinZip AES (ZIP) never encrypts the central directory
+  /// (filenames are always visible there), so the ZIP writer ignores this
   /// flag. TAR rejects any password outright. Setting it without a
   /// [password] is an error (there is nothing to encrypt the header with).
   final bool encryptHeader;

@@ -21,7 +21,7 @@ void main() {
   group('synthetic headers (shapes reference tools cannot emit on demand)', () {
     test('base-256 size field is honored', () async {
       // A size just over the octal-11-digit ceiling is impractical to ship
-      // as a real fixture; encode a small size in base-256 instead — the
+      // as a real fixture; encode a small size in base-256 instead; the
       // parser cannot tell the difference.
       final content = utf8.encode('base-256 sized');
       final header = tarHeader(
@@ -59,7 +59,7 @@ void main() {
       expect(reader.entries.single.type, ArchiveEntryType.other);
     });
 
-    test('path traversal is sanitized and flagged, never raw (§7)', () async {
+    test('path traversal is sanitized and flagged, never raw', () async {
       final header = tarHeader(name: '../../etc/passwd', size: 4);
       final reader = await parse(
         tarArchive([header, tarData(utf8.encode('pwnd'))]),
@@ -143,40 +143,37 @@ void main() {
       },
     );
 
-    test(
-      'GNU sparse entries list but reading throws a typed error (§8)',
-      () async {
-        final sparseData = utf8.encode('not really sparse data');
-        final sparse = tarHeader(
-          name: 'sparse.bin',
-          typeFlag: 'S',
-          size: sparseData.length,
-        );
-        final follower = tarHeader(name: 'after.txt', size: 2);
-        final reader = await parse(
-          tarArchive([
-            sparse,
-            tarData(sparseData),
-            follower,
-            tarData(utf8.encode('ok')),
-          ]),
-        );
-        expect(reader.entries.map((e) => e.path), ['sparse.bin', 'after.txt']);
-        expect(
-          () => reader.openRead(reader.entries.first),
-          throwsA(
-            isA<UnsupportedFeatureException>()
-                .having((e) => e.entryPath, 'entryPath', 'sparse.bin')
-                .having((e) => e.message, 'message', contains('sparse')),
-          ),
-        );
-        // The rest of the archive stays readable (§9).
-        expect(await collectString(reader, reader.entries[1]), 'ok');
-      },
-    );
+    test('GNU sparse entries list but reading throws a typed error', () async {
+      final sparseData = utf8.encode('not really sparse data');
+      final sparse = tarHeader(
+        name: 'sparse.bin',
+        typeFlag: 'S',
+        size: sparseData.length,
+      );
+      final follower = tarHeader(name: 'after.txt', size: 2);
+      final reader = await parse(
+        tarArchive([
+          sparse,
+          tarData(sparseData),
+          follower,
+          tarData(utf8.encode('ok')),
+        ]),
+      );
+      expect(reader.entries.map((e) => e.path), ['sparse.bin', 'after.txt']);
+      expect(
+        () => reader.openRead(reader.entries.first),
+        throwsA(
+          isA<UnsupportedFeatureException>()
+              .having((e) => e.entryPath, 'entryPath', 'sparse.bin')
+              .having((e) => e.message, 'message', contains('sparse')),
+        ),
+      );
+      // The rest of the archive stays readable.
+      expect(await collectString(reader, reader.entries[1]), 'ok');
+    });
   });
 
-  group('corruption and truncation (typed errors only, §7)', () {
+  group('corruption and truncation (typed errors only)', () {
     test('bad checksum throws InvalidHeaderException', () {
       final bytes = tarArchive([tarHeader(name: 'x', corruptChecksum: true)]);
       expect(() => parse(bytes), throwsA(isA<InvalidHeaderException>()));
@@ -208,7 +205,7 @@ void main() {
       expect(reader.entries.map((e) => e.path), ['ok.txt']);
     });
 
-    test('metadata entries with absurd sizes are rejected (§7)', () {
+    test('metadata entries with absurd sizes are rejected', () {
       final pax = tarHeader(
         name: 'p',
         typeFlag: 'x',

@@ -4,8 +4,8 @@ import 'dart:typed_data';
 import 'package:koni_archive_core/koni_archive_core.dart';
 import 'package:test/test.dart';
 
-/// Test-only format matching a 4-byte magic at offset 0 — exercises the
-/// registry exactly the way a real format package plugs in (§5).
+/// Test-only format matching a 4-byte magic at offset 0, exercises the
+/// registry exactly the way a real format package plugs in.
 final class _MagicFormat extends ArchiveFormat {
   _MagicFormat(this.name, String magic) : _magic = ascii.encode(magic);
 
@@ -122,7 +122,7 @@ void main() {
       );
     });
 
-    test('an explicit format skips detection (§5 escape hatch)', () async {
+    test('an explicit format skips detection (escape hatch)', () async {
       final stub = _MagicFormat('stub', 'STUB');
       final registry = ArchiveFormatRegistry(); // empty on purpose
       final reader = await registry.openReader(

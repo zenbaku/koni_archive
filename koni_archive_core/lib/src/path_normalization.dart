@@ -1,4 +1,4 @@
-/// Entry-path normalization, applied by every reader at parse time (§7).
+/// Entry-path normalization, applied by every reader at parse time.
 ///
 /// Archive paths are attacker-controlled input; nothing downstream ever sees
 /// a raw one.
@@ -8,16 +8,16 @@ library;
 /// original attempted to escape the archive root.
 typedef NormalizedEntryPath = ({String path, bool escapedRoot});
 
-/// Normalizes a path as stored in an archive (§7):
+/// Normalizes a path as stored in an archive:
 ///
 /// - `\` becomes `/` (some ZIP tools write backslash separators);
 /// - a leading drive-letter prefix (`C:`) is stripped;
 /// - leading `/` (absolute paths) is stripped;
-/// - empty and `.` segments are dropped (this also drops trailing `/` —
+/// - empty and `.` segments are dropped (this also drops trailing `/`;
 ///   directory-ness is carried by the entry *type*, not the path);
 /// - `..` segments pop the previous segment; a `..` that would climb above
 ///   the archive root is dropped and sets `escapedRoot`, so callers expose
-///   the sanitized path **plus a flag** — never the raw path, and never a
+///   the sanitized path **plus a flag**, never the raw path, and never a
 ///   silent drop.
 ///
 /// The result may be the empty string (e.g. for a bare `/` or `.` entry
@@ -52,7 +52,7 @@ NormalizedEntryPath normalizeEntryPath(String rawPath) {
 
 /// Validates and normalizes a caller-supplied path for **writing** (Phase
 /// 2). Unlike [normalizeEntryPath], which silently sanitizes hostile input
-/// on read, this rejects a bad path with an [ArgumentError] — the writer's
+/// on read, this rejects a bad path with an [ArgumentError]: the writer's
 /// caller is a programmer, and silently rewriting their requested path
 /// would be surprising.
 ///

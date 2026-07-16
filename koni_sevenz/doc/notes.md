@@ -1,18 +1,18 @@
-# koni_sevenz — implementation notes
+# koni_sevenz: implementation notes
 
 Decisions made where the format description leaves room, matched against
-7zz as the reference tool (§13.3).
+7zz as the reference tool.
 
-## Spec provenance (§13.7)
+## Spec provenance
 
 Implemented from `7zFormat.txt` and `lzma-specification.txt` in the LZMA
 SDK (Igor Pavlov, public domain). LZMA/LZMA2/BCJ/delta decoding lives in
 koni_codecs and is differential-tested against liblzma via CPython.
 
-## Laziness caveat (§4)
+## Laziness caveat
 
 The 7z header block is usually itself LZMA-compressed (`kEncodedHeader`),
-so `open` decodes it — bounded by a 64 MiB header sanity cap (§7). No
+so `open` decodes it, bounded by a 64 MiB header sanity cap. No
 entry content is decoded at open.
 
 ## Folder decoding model
@@ -20,16 +20,16 @@ entry content is decoded at open.
 A folder (solid block) decodes as a whole into one buffer: the first coder
 (Copy/LZMA/LZMA2/Deflate) decompresses the packed stream, subsequent
 coders must be size-preserving filters (Delta, BCJ x86) applied in place.
-Supported folders are simple chains — single packed stream, 1-in/1-out
+Supported folders are simple chains: single packed stream, 1-in/1-out
 coders; anything else (BCJ2's four streams) is a typed error. Folder
-allocations are capped at 1 GiB (§7: forged sizes must not OOM; real solid
+allocations are capped at 1 GiB (forged sizes must not OOM; real solid
 blocks sit far below).
 
-## Solid-block LRU cache (§8)
+## Solid-block LRU cache
 
 Decoded folders are cached in an LRU capped at 64 MiB total, keyed by
 folder index; the most recently decoded folder is always kept even when it
-alone exceeds the cap. This is what makes CB7 page-flipping usable — see
+alone exceeds the cap. This is what makes CB7 page-flipping usable; see
 bench/results. Random access to entry N in a solid block costs one folder
 decode; every other entry in that block is then a memory slice.
 
@@ -45,20 +45,20 @@ decode; every other entry in that block is then a memory slice.
 
 ## Deliberate limits (typed errors)
 
-BCJ2 and PPMd (§8 deferred), AES (encrypted streams at `openRead`;
+BCJ2 and PPMd (deferred), AES (encrypted streams at `openRead`;
 encrypted headers at open), bzip2/ARM-filters/unknown codecs (named with
-their id), external headers/names, multi-volume (§15).
+their id), external headers/names, multi-volume.
 
 ## Writing: the buffering caveat (P2-4a)
 
 A 7z file is `[32-byte signature header][packed streams][header]`. The
 signature header sits at offset 0 but records the *offset, size, and CRC of
-the trailing header* — unknown until every packed stream and the header are
-produced. An append-only `ByteSink` (§16) cannot seek back to patch offset
+the trailing header*, unknown until every packed stream and the header are
+produced. An append-only `ByteSink` cannot seek back to patch offset
 0, so the writer buffers the packed streams in memory and, at `close`, emits
 signature header + packed data + header in one pass. Copy/Deflate input
 streams through the compressor (only the compressed output accumulates), so
-peak memory is bounded by the *compressed* archive size — a genuine
+peak memory is bounded by the *compressed* archive size, a genuine
 departure from the TAR/ZIP streaming invariant, inherent to appending a
 random-access format, not a shortcut. LZMA/LZMA2 entries (P2-4b) add the
 entry's *uncompressed* bytes while that one entry encodes: the koni_codecs
@@ -76,7 +76,7 @@ attribute blob when it has one (LZMA2: the dictionary-size byte; LZMA: the
 what the reader parses and lets `SubStreamsInfo` be omitted entirely: with
 one substream per folder, the per-folder CRC in `UnpackInfo` *is* the
 substream CRC. Since P2-4b the header itself is LZMA-compressed
-(`kEncodedHeader`) whenever compressed-plus-wrapper is smaller than plain —
+(`kEncodedHeader`) whenever compressed-plus-wrapper is smaller than plain;
 the wrapper is a one-folder StreamsInfo whose packed stream sits after the
 main packed streams. Solid folders remain deferred (no cross-file
 compression; header overhead scales with the file count).
@@ -86,10 +86,10 @@ compression; header overhead scales with the file count).
 - Empty content (files and empty-target links) → empty-stream + empty-file,
   no folder. Directories → empty-stream, *not* empty-file, DOS directory
   bit. This is the three-way distinction the reader decodes.
-- Names: UTF-16LE, null-terminated, in file order (no trailing separators —
+- Names: UTF-16LE, null-terminated, in file order (no trailing separators;
   7z stores plain names, unlike ZIP).
 - Attributes: when a unix mode is meaningful, the `FILE_ATTRIBUTE_UNIX_EXTENSION`
-  (0x8000) flag with the full `st_mode` in the high 16 bits — S_IFREG /
+  (0x8000) flag with the full `st_mode` in the high 16 bits: S_IFREG /
   S_IFDIR / S_IFLNK. Symlinks store the target as content; `7zz -snl`
   restores them (verified in interop).
 - FILETIME (mtime): the exact inverse of the reader's conversion, split into
@@ -97,7 +97,7 @@ compression; header overhead scales with the file count).
 
 ## Writing: default codec
 
-LZMA2 is the default since P2-4b — the format's own default, making our
+LZMA2 is the default since P2-4b, the format's own default, making our
 output "normal" 7z. (P2-4a shipped with Deflate as a tracked provisional
 default.) The LZMA dictionary is sized to the entry (floored at 4 KiB,
 capped at 8 MiB) so decoders never over-allocate. `stored` (Copy),

@@ -1,9 +1,9 @@
 // Generates per-archive conformance manifests from the owner-provided
-// real-world corpus (§11).
+// real-world corpus.
 //
 // The corpus contains copyrighted archives and is NEVER committed. This
 // script runs on the owner's machine, lists and hashes each archive's
-// contents with *reference tools* (unzip, tar, 7zz, unrar — never
+// contents with *reference tools* (unzip, tar, 7zz, unrar, never
 // koni_archive itself, so the manifests are independent ground truth), and
 // writes JSON manifests into koni_archive/test/conformance/manifests/, which
 // ARE committed. The conformance runner then decodes the corpus with
@@ -18,7 +18,7 @@
 //
 // Extractors are registered in [extractors]; each format milestone adds the
 // one for its format (zip/cbz at M5, tar/cbt at M2, 7z/cb7 at M8, rar/cbr at
-// M9/M10) — a manifest is only useful once the runner can decode that format.
+// M9/M10); a manifest is only useful once the runner can decode that format.
 
 import 'dart:convert';
 import 'dart:io';
@@ -39,8 +39,8 @@ final List<ReferenceExtractor> extractors = [
   RarReferenceExtractor(),
 ];
 
-/// ZIP/CBZ manifests via CPython's `zipfile` module — an independent
-/// reference implementation (never koni_archive itself, §11).
+/// ZIP/CBZ manifests via CPython's `zipfile` module: an independent
+/// reference implementation, never koni_archive itself.
 final class ZipReferenceExtractor implements ReferenceExtractor {
   @override
   List<String> get extensions => const ['.zip', '.cbz'];
@@ -93,7 +93,7 @@ print(json.dumps({
   }
 }
 
-/// RAR/CBR manifests via `unrar` (an independent reference tool, §11).
+/// RAR/CBR manifests via `unrar` (an independent reference tool).
 /// Delegates to Python for extraction + hashing, mirroring the ZIP path.
 final class RarReferenceExtractor implements ReferenceExtractor {
   @override

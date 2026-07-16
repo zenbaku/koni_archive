@@ -1,4 +1,4 @@
-/// Format-agnostic archive reading for pure Dart — the facade of the
+/// Format-agnostic archive reading for pure Dart, the facade of the
 /// koni_archive ecosystem.
 ///
 /// Open any supported archive with [Archive.open] (auto-detected) or
@@ -7,11 +7,11 @@
 /// here as their milestones land (see ROADMAP.md at the repository root).
 ///
 /// This library is platform-neutral. Platform sugar is an explicit opt-in
-/// import mirroring the core split (§2):
+/// import mirroring the core split:
 ///
-/// - `package:koni_archive/io.dart` — `openArchiveFile` (VM,
+/// - `package:koni_archive/io.dart`: `openArchiveFile` (VM,
 ///   Flutter-native);
-/// - `package:koni_archive/web.dart` — `openArchiveBlob` (browser).
+/// - `package:koni_archive/web.dart`: `openArchiveBlob` (browser).
 library;
 
 export 'package:koni_archive_core/koni_archive_core.dart'

@@ -9,7 +9,7 @@ import 'dart:typed_data';
 /// GF(2^8) definitions at first use rather than transcribed, and the FIPS
 /// / SP 800-38A vector tests pin the result.
 ///
-/// Not constant-time (table lookups are data-dependent) — an accepted
+/// Not constant-time (table lookups are data-dependent), an accepted
 /// non-goal for archive reading, recorded in `doc/encryption-scope.md`.
 /// All arithmetic stays within unsigned 32-bit range (dart2js-exact).
 final class Aes {

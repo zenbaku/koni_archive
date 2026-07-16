@@ -1,5 +1,5 @@
-// LZMA-encode benchmarks (P2-4b, §10): koni_codecs LzmaEncoder
-// / Lzma2Encoder — the 7z-writer hot path. package:archive has no LZMA
+// LZMA-encode benchmarks (P2-4b): koni_codecs LzmaEncoder
+// / Lzma2Encoder, the 7z-writer hot path. package:archive has no LZMA
 // encoder, so times are absolute, not ratios; DeflateEncoder runs on the
 // same payload as an in-repo reference point.
 //
@@ -7,7 +7,7 @@
 //
 // Results are printed as a markdown table; commit them under
 // bench/results/. Both time and compression ratio are reported (a fast
-// encoder that barely compresses is not a fair comparison) — performance is
+// encoder that barely compresses is not a fair comparison); performance is
 // measured, not asserted.
 
 import 'dart:io';
@@ -20,7 +20,7 @@ const int warmupRuns = 2;
 const int measuredRuns = 5;
 
 void main() {
-  // 8 MiB of seeded pseudo-prose (Zipf-ish word draws — real match
+  // 8 MiB of seeded pseudo-prose (Zipf-ish word draws: real match
   // structure, unlike periodic synthetic patterns that LZMA's window folds
   // to almost nothing), and 8 MiB of incompressible noise (the encoder's
   // worst case: every match probe fails, LZMA2 falls back to copy chunks).
@@ -51,7 +51,7 @@ void main() {
     '- payloads: 8 MiB seeded pseudo-prose; 8 MiB incompressible noise',
   );
   stdout.writeln(
-    '- baseline: none — package:archive has no LZMA encoder; '
+    '- baseline: none; package:archive has no LZMA encoder; '
     'DeflateEncoder shown as an in-repo reference',
   );
   stdout.writeln('');

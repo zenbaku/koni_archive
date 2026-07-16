@@ -3,12 +3,12 @@
 //
 // payload1: ('hello, lzma! ' * 150) + bytes(range(256)) * 4  (2974 B)
 // payload2: 'the quick brown fox jumps over the lazy dog. ' * 200  (9000 B)
-// payload3: 5000 random bytes (seed 42) — forces LZMA2 uncompressed chunks
+// payload3: 5000 random bytes (seed 42), forces LZMA2 uncompressed chunks
 //           at preset 0
 // payload4: ((i*3) ^ (i>>2)) & 0xFF for 4096 bytes, delta dist=4 + LZMA2
 // payload5: synthetic x86 call-heavy code (seed 7), FILTER_X86 + LZMA2
 
-/// `lzma.compress(payload1, format=FORMAT_ALONE, preset=6)` — 13-byte
+/// `lzma.compress(payload1, format=FORMAT_ALONE, preset=6)`, 13-byte
 /// header (props, dict size, uncompressed size) + LZMA1 stream.
 const String lzmaAloneBase64 =
     'XQAAgAD//////////wA0GUnuje+MaleT8MDfOX7i6e+GAfKu3uEVJ8pgGLx+svKLImeUjh/f'
@@ -23,8 +23,8 @@ const String lzma2Base64 =
     '4CMnAFVdADoaCM52x+Xp1gc0w9EOv85V4aq94OSPmAHdjeUHVJ5lJV8nOmp+tNNJA4nO1H08'
     '/5reNhysEWXiyvspiSZ/A4k9ITMEq0iMDtqeBREO5zL0oY6B9gAA';
 
-/// `lzma.compress(payload3, format=FORMAT_RAW, filters=[LZMA2 preset 0])`
-/// — starts with an uncompressed chunk (control 0x01).
+/// `lzma.compress(payload3, format=FORMAT_RAW, filters=[LZMA2 preset 0])`,
+/// starts with an uncompressed chunk (control 0x01).
 const String lzma2UncompressedBase64 =
     'AROHOQyMfXJHNCzYEA8vb3cNZdZw5Y4DUdiujk9urDQvwjG3sIcW6z/BKJa5YiMXdJQodzPC'
     'jui6U721a4gkV31T7MKKcKYcdRChzYkhbKFs/8rqSYdHfobbzLlwRvwuGDhOUdggxcPvgAU6'

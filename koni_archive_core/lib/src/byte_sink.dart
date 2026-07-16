@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'exceptions.dart';
 
-/// Sequential, append-only byte sink — the output abstraction every archive
+/// Sequential, append-only byte sink, the output abstraction every archive
 /// writer targets (Phase 2). The write mirror of [ByteSource], but there is
 /// no seeking: archive writing is inherently sequential (TAR is pure append;
 /// ZIP streams its data and appends the central directory at the end,
@@ -11,9 +11,9 @@ import 'exceptions.dart';
 /// ## Contract
 ///
 /// - [add] appends [bytes]; the buffer is consumed synchronously (the sink
-///   must not retain a reference past the returned future — callers may
+///   must not retain a reference past the returned future; callers may
 ///   reuse the buffer).
-/// - [length] is the total number of bytes written so far — writers use it
+/// - [length] is the total number of bytes written so far; writers use it
 ///   to record entry offsets (e.g. a ZIP local-header position).
 /// - After [close], [add] throws [ArchiveClosedException]. [close] is
 ///   idempotent.

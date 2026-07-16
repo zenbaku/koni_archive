@@ -10,7 +10,7 @@ import 'package:koni_zip/koni_zip.dart';
 import 'package:test/test.dart';
 
 /// ZIP decryption (P3-2): traditional PKWARE ("zipcrypto") and WinZip AES
-/// entries, authored by zip(1)/7zz — see fixtures_manifest.json.
+/// entries, authored by zip(1)/7zz; see fixtures_manifest.json.
 Uint8List fixtureBytes(String name) =>
     File('test/fixtures/zip/$name').readAsBytesSync();
 

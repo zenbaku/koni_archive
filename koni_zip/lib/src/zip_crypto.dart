@@ -27,7 +27,7 @@ final class ZipCryptoCipher {
   int _key1 = 0x23456789;
   int _key2 = 0x34567890;
 
-  // CRC-32 byte table (reflected, polynomial 0xEDB88320) — the same
+  // CRC-32 byte table (reflected, polynomial 0xEDB88320). The same
   // polynomial as core's Crc32, but that one exposes only a slicing-by-8
   // engine, so the single-byte step the key schedule needs is built here.
   static final Uint32List _crcTable = _buildCrcTable();
@@ -47,7 +47,7 @@ final class ZipCryptoCipher {
   static int _crc32Byte(int crc, int b) =>
       (crc >>> 8) ^ _crcTable[(crc ^ b) & 0xFF];
 
-  // 32-bit modular multiply, split so no intermediate exceeds 2^53 — the
+  // 32-bit modular multiply, split so no intermediate exceeds 2^53: the
   // dart2js/dart2wasm-safe form (a full 32×32 product would overflow the
   // exact-integer range and bitwise ops are 32-bit).
   static int _mul32(int a, int b) {
@@ -139,7 +139,7 @@ final class WinZipAesDecryptor {
 
   /// Derives keys with PBKDF2-HMAC-SHA1 (1000 iterations) from
   /// [passwordBytes] and [salt], verifies the 2-byte password check
-  /// [verifier], and returns a decryptor — or throws the caller-provided
+  /// [verifier], and returns a decryptor, or throws the caller-provided
   /// [onBadPassword] result when the verifier does not match.
   factory WinZipAesDecryptor.derive({
     required Uint8List passwordBytes,
@@ -242,7 +242,7 @@ final class WinZipAesEncryptor {
   final Uint8List verifier;
 
   /// Encrypts `data[start..end)` in place (plaintext → ciphertext), then
-  /// feeds the ciphertext to the running MAC — the reverse order of
+  /// feeds the ciphertext to the running MAC, the reverse order of
   /// [WinZipAesDecryptor.process], because the MAC is always over ciphertext.
   void process(Uint8List data, [int start = 0, int? end]) {
     final stop = RangeError.checkValidRange(start, end, data.length);

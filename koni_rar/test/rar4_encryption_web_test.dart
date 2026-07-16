@@ -1,6 +1,6 @@
 // Web-runnable RAR4 file decryption: encrypted v4 fixtures (authored with
-// rar 6.24) inlined as base64, so the RAR3 SHA-1 KDF — including its
-// 4-byte-word key byte-swap — and AES-128-CBC run on dart2js and
+// rar 6.24) inlined as base64, so the RAR3 SHA-1 KDF (including its
+// 4-byte-word key byte-swap) and AES-128-CBC run on dart2js and
 // dart2wasm, not only the VM. The store fixture isolates the crypto; the
 // compressed one additionally drives the method-29 decoder end to end.
 library;

@@ -1,4 +1,4 @@
-// CBZ/CBT page extractor (§12): the flagship streaming + preloading flow.
+// CBZ/CBT page extractor: the flagship streaming + preloading flow.
 //
 //   dart run example/extract_pages.dart <archive.cbz> [outputDir]
 //
@@ -35,8 +35,8 @@ Future<void> main(List<String> args) async {
     ]..sort((a, b) => a.path.compareTo(b.path));
     stdout.writeln('${pages.length} page(s)');
 
-    // Stream each page to disk while the NEXT page is already decoding —
-    // multiple entry streams are first-class (§4).
+    // Stream each page to disk while the NEXT page is already decoding;
+    // multiple entry streams are first-class.
     Future<void>? inFlight;
     for (var i = 0; i < pages.length; i++) {
       final current = inFlight ?? _extract(archive, pages[i], outputDir);
@@ -62,7 +62,7 @@ Future<void> _extract(
   ArchiveEntry page,
   Directory outputDir,
 ) async {
-  // Flatten the path for output; the entry path is already sanitized (§7).
+  // Flatten the path for output; the entry path is already sanitized.
   final name = page.path.replaceAll('/', '_');
   final sink = File('${outputDir.path}/$name').openWrite();
   try {

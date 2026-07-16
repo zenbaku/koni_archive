@@ -1,4 +1,4 @@
-/// Conformance runner (§11).
+/// Conformance runner.
 ///
 /// Decodes every archive in the owner-provided real-world corpus with
 /// koni_archive and checks it against the committed reference manifests in
@@ -7,7 +7,7 @@
 /// implementations, never koni_archive itself). The corpus is copyrighted
 /// and never committed; its location comes from the
 /// `KONI_ARCHIVE_CORPUS_DIR` environment variable. When the corpus is
-/// absent the run is *skipped with a mark* — never silently — so public CI
+/// absent the run is *skipped with a mark* (never silently), so public CI
 /// stays green while local/scheduled runs get full coverage.
 @TestOn('vm')
 @Tags(['conformance'])
@@ -76,7 +76,7 @@ void main() {
         );
 
         // A whole-archive feature we do not read yet (e.g. RAR4 CBRs,
-        // which §8 flags as common) is a *documented gap*, not a failure:
+        // a common case) is a *documented gap*, not a failure:
         // the manifest stays committed as a target for the milestone that
         // adds support, and this run marks the skip rather than going red.
         final Archive archive;

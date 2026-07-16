@@ -35,7 +35,7 @@ final class ZipEntrySpec {
   final bool zip64;
 
   /// Whether the data descriptor (when used) carries the optional
-  /// `PK\x07\x08` signature — both layouts exist in the wild.
+  /// `PK\x07\x08` signature; both layouts exist in the wild.
   final bool descriptorSignature;
 }
 

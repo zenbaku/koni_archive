@@ -2,13 +2,13 @@
 /// entry model, typed exceptions, checksums, and the format-detection
 /// registry.
 ///
-/// This library is platform-neutral — no `dart:io`, no JS interop — and
+/// This library is platform-neutral (no `dart:io`, no JS interop) and
 /// compiles everywhere Dart runs, including dart2wasm. Platform-specific
 /// byte sources are explicit opt-in imports:
 ///
-/// - `package:koni_archive_core/io.dart` — `FileByteSource` (VM,
+/// - `package:koni_archive_core/io.dart`: `FileByteSource` (VM,
 ///   Flutter-native);
-/// - `package:koni_archive_core/web.dart` — `BlobByteSource` (browser).
+/// - `package:koni_archive_core/web.dart`: `BlobByteSource` (browser).
 ///
 /// Application authors normally depend on `package:koni_archive` (the
 /// facade) instead; this package is the SPI for format implementers.

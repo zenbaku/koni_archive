@@ -4,8 +4,8 @@ import 'block_hash.dart';
 
 /// SHA-1 (FIPS 180-4) as an incremental hash.
 ///
-/// Present for the formats that mandate it — WinZip AES (PBKDF2-HMAC-SHA1
-/// and the HMAC-SHA1 authentication code) and the RAR4 key derivation —
+/// Present for the formats that mandate it: WinZip AES (PBKDF2-HMAC-SHA1
+/// and the HMAC-SHA1 authentication code) and the RAR4 key derivation,
 /// not as a general-purpose recommendation: SHA-1 is cryptographically
 /// broken for collision resistance. All arithmetic stays within unsigned
 /// 32-bit range (dart2js-exact).

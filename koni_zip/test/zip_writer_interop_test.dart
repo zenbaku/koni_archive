@@ -11,7 +11,7 @@ import 'package:koni_zip/koni_zip.dart';
 import 'package:test/test.dart';
 
 /// Interop is the definition of done (per doc/writing.md): the reference
-/// `unzip` must validate and extract what we wrote, byte-for-byte — the real
+/// `unzip` must validate and extract what we wrote, byte-for-byte, the real
 /// check that our deflate stream, data descriptors, and central directory
 /// are standard. Skipped (marked) when `unzip` is absent.
 void main() {
@@ -80,7 +80,7 @@ void main() {
     // locator: the plain EOCD carries 0xFFFF sentinel counts and unzip must
     // consult EOCD64 to find the real central directory. Self-round-trip
     // (zip_writer_test.dart) can't catch a shared reader/writer misreading of
-    // the ZIP64 layout — only an external tool can.
+    // the ZIP64 layout; only an external tool can.
     final sink = BytesBuilderSink();
     final writer = const ZipWriteFormat().openWriter(
       sink,
@@ -110,7 +110,7 @@ void main() {
       );
       expect(test.stdout, contains('No errors detected'));
       // unzip tests every entry it finds; seeing the last one proves it read
-      // the full central directory *through* the ZIP64 records — a reader that
+      // the full central directory *through* the ZIP64 records; a reader that
       // stalled at the 0xFFFF sentinel would stop ~65534 entries in.
       expect(test.stdout, contains('e69999'));
     } finally {

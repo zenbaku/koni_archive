@@ -26,5 +26,5 @@ Produced by `dart run --no-enable-asserts bench/bin/tar_bench.dart`.
   over in-memory bytes (no decompression), so this measures streaming
   overhead, not throughput: 64 MiB in 2.3 ms ≈ 27 GiB/s. The 4.6x gap is
   the cost of 64 KiB chunked async streaming vs handing out one whole-file
-  view per entry — the price of the bounded-memory guarantee (§10/§11),
+  view per entry, the price of the bounded-memory guarantee,
   and irrelevant at these absolute numbers.

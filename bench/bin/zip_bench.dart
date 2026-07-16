@@ -1,10 +1,10 @@
-// ZIP benchmarks (M3, §10): koni_archive vs package:archive.
+// ZIP benchmarks (M3): koni_archive vs package:archive.
 //
 //   dart run --no-enable-asserts bench/bin/zip_bench.dart
 //
 // Scenarios:
-//   1. list        — index a 20k-entry archive (no content decode)
-//   2. random page — open + read one page out of a large stored CBZ
+//   1. list: index a 20k-entry archive (no content decode)
+//   2. random page: open + read one page out of a large stored CBZ
 //
 // Results are printed as a markdown table; commit them under
 // bench/results/. Performance is measured, not asserted.
@@ -22,7 +22,7 @@ const int measuredRuns = 5;
 
 Future<void> main() async {
   final listArchive = _buildStoredZip(entryCount: 20000, entrySize: 64);
-  // A ~120-page CBZ with 512 KiB pages: 60 MiB, the flagship shape (§1).
+  // A ~120-page CBZ with 512 KiB pages: 60 MiB, the flagship shape.
   final cbz = _buildStoredZip(entryCount: 120, entrySize: 512 * 1024);
 
   stdout.writeln('# ZIP benchmarks (M3)');
@@ -56,7 +56,7 @@ Future<void> main() async {
   );
 
   // package:archive does not verify checksums on read; measure ours both
-  // ways (verification is on by default per §7).
+  // ways (verification is on by default).
   Future<void> ourPageRead(ArchiveReadOptions options) async {
     final reader = await const ZipFormat().openReader(
       MemoryByteSource(cbz),
@@ -87,7 +87,7 @@ Future<void> main() async {
     theirs: theirPageRead,
   );
 
-  // M5: the flagship scenario (§10) — random page read from a DEFLATED CBZ.
+  // M5: the flagship scenario, random page read from a DEFLATED CBZ.
   final deflatedCbz = _buildDeflatedZip(entryCount: 120, entrySize: 512 * 1024);
   Future<void> ourDeflatedPageRead() async {
     final reader = await const ZipFormat().openReader(
@@ -221,7 +221,7 @@ String _mb(int bytes) => (bytes / (1024 * 1024)).toStringAsFixed(0);
 int _sink = 0;
 void _use(int value) => _sink ^= value; // defeat dead-code elimination
 
-/// Minimal in-memory stored-ZIP emitter — bench-only code, not shipped.
+/// Minimal in-memory stored-ZIP emitter, bench-only code, not shipped.
 Uint8List _buildStoredZip({required int entryCount, required int entrySize}) {
   final out = BytesBuilder(copy: false);
   final content = Uint8List(entrySize);

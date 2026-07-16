@@ -1,7 +1,7 @@
 // Web-runnable RAR4 encrypted-header (`-hp`) reading: the compressed v4 `-hp`
 // fixture (authored with rar 6.24) inlined as base64, so the per-block header
-// decrypt — the RAR3 SHA-1 KDF, AES-128-CBC, and the 16-bit header-CRC
-// wrong-password check — runs on dart2js and dart2wasm (32-bit int traps), not
+// decrypt: the RAR3 SHA-1 KDF, AES-128-CBC, and the 16-bit header-CRC
+// wrong-password check; runs on dart2js and dart2wasm (32-bit int traps), not
 // only the VM. Decoding also drives the method-29 decoder end to end.
 library;
 

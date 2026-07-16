@@ -32,9 +32,9 @@ final class ZipReader extends ArchiveReader {
   final Expando<int> _indexOf = Expando<int>();
   bool _closed = false;
 
-  /// Locates the end-of-central-directory record (backward scan, §5) and
-  /// parses the central directory eagerly — O(entry count), no content
-  /// reads (§4). Local headers are validated lazily at [openRead].
+  /// Locates the end-of-central-directory record (backward scan) and
+  /// parses the central directory eagerly: O(entry count), no content
+  /// reads. Local headers are validated lazily at [openRead].
   static Future<ZipReader> parse(
     ArchiveFormat format,
     ByteSource source,
@@ -53,7 +53,7 @@ final class ZipReader extends ArchiveReader {
     }
     final central = _central[index];
 
-    // Entry-scoped failures surface here, never at open (§9): one exotic
+    // Entry-scoped failures surface here, never at open: one exotic
     // entry must not brick the archive.
     if (entry.isEncrypted) {
       if (central.flags & 0x40 != 0) {
@@ -238,8 +238,8 @@ final class ZipReader extends ArchiveReader {
     ArchiveEntry entry,
     Uint8List header,
   ) {
-    // The final header byte is checked against the CRC-32 high byte, or —
-    // when the entry was written with a data descriptor (bit 3) — the DOS
+    // The final header byte is checked against the CRC-32 high byte, or
+    // (when the entry was written with a data descriptor, bit 3) the DOS
     // mod-time high byte, matching what the encoder had available.
     final expected =
         (central.flags & 0x08) != 0
@@ -364,7 +364,7 @@ final class ZipReader extends ArchiveReader {
         _throwIfClosed(entry);
         if (!inflater.isFinished) {
           inflater.addInput(chunk);
-          // Decompression-bomb guard (§7): decoded output beyond the
+          // Decompression-bomb guard: decoded output beyond the
           // claimed uncompressed size is a typed error.
           if (producedTotal > entry.uncompressedSize) {
             throw SizeLimitExceededException(

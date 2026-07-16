@@ -21,14 +21,14 @@ Produced by `dart run --no-enable-asserts bench/bin/deflate_bench.dart`.
 
 - Encoding is the ZIP-writer hot path (stored entries are a memcpy; the CPU
   goes into deflate). At 93 MiB/s the pure-Dart encoder is ~1.7x faster than
-  package:archive's and, as expected, well behind native zlib — the price of
+  package:archive's and, as expected, well behind native zlib, the price of
   no FFI, on a code path that runs identically on VM, dart2js, and dart2wasm.
 - Ratio is honest about the documented ceiling. On this payload the encoder
   edges out native zlib level 6 (16.40x vs 15.35x) but trails
   package:archive (28.73x). The gap is exactly the deferred ratio work called
   out in `koni_codecs/doc/notes.md`: greedy (non-lazy) matching, fixed
   Huffman only, and no cross-block matching (matches never span a 32 KiB
-  block). These are ratio improvements, not correctness ones — output is
+  block). These are ratio improvements, not correctness ones; output is
   universally decodable (verified: dart:io zlib and Info-ZIP `unzip` both
   read koni_codecs deflate streams).
 - The encoder is deliberately conservative for correctness first. Lazy

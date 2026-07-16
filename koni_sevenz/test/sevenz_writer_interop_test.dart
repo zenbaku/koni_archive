@@ -12,7 +12,7 @@ import 'package:koni_sevenz/koni_sevenz.dart';
 import 'package:test/test.dart';
 
 /// Interop is the definition of done (per doc/writing-scope.md): the
-/// reference `7zz` must validate and extract what we wrote, byte-for-byte —
+/// reference `7zz` must validate and extract what we wrote, byte-for-byte,
 /// the check that our container (signature header, pack/unpack info,
 /// per-folder CRCs, FilesInfo) and our Deflate/Copy folders are standard.
 /// Skipped (marked) when `7zz` is absent, so public CI stays green.
@@ -262,13 +262,13 @@ void main() {
     }
     const password = 'corr3ct h0rse b4ttery';
     final expected = <String, (ArchiveCompression?, Uint8List)>{
-      // lzma2 default, copy, lzma, and deflate — every folder coder under AES.
+      // lzma2 default, copy, lzma, and deflate: every folder coder under AES.
       'secret.txt': (
         null,
         Uint8List.fromList(utf8.encode('top secret ' * 300)),
       ),
       // 4001 bytes (not a 16-multiple) so 7zz exercises a *padded* Copy
-      // folder — the coder with no end marker, where the AES output size must
+      // folder, the coder with no end marker, where the AES output size must
       // slice the padding off.
       'stored.bin': (
         ArchiveCompression.stored,

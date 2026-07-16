@@ -1,30 +1,30 @@
-# koni_archive_core — implementation notes
+# koni_archive_core: implementation notes
 
-Decisions made where the spec left room (recorded per §13.3).
+Design decisions made where there was room to choose.
 
 ## Exception hierarchy shape (M1)
 
-§9 lists the required exception types flat; we nest where it helps `catch`
+The required exception types are a flat list; we nest where it helps `catch`
 ergonomics without changing the required names:
 
 - `UnexpectedEofException`, `InvalidHeaderException`, and
-  `ChecksumMismatchException` extend `CorruptArchiveException` — truncation,
+  `ChecksumMismatchException` extend `CorruptArchiveException`: truncation,
   bad headers, and checksum failures *are* corruption, and
   `on CorruptArchiveException` should catch them.
 - `UnsupportedCompressionException` extends `UnsupportedFeatureException`.
-- `EntryNotFoundException` is an addition beyond the §9 list: §4 requires a
-  "typed error if absent" from `openReadPath` and no listed type fits.
+- `EntryNotFoundException` is an addition beyond the standard list:
+  `openReadPath` needs a "typed error if absent" and no listed type fits.
 
 ## ByteSource EOF and close behavior (M1)
 
 - `read()` past the end throws `UnexpectedEofException` (typed), not
   `RangeError`: out-of-range reads are almost always driven by
-  attacker-controlled header fields (§7), and the fuzz invariant bans
-  `RangeError`. Negative offset/length stays `ArgumentError` — that is a
+  attacker-controlled header fields, and the fuzz invariant bans
+  `RangeError`. Negative offset/length stays `ArgumentError`; that is a
   programmer error, not archive content.
 - `read()` after `close()` throws `ArchiveClosedException` (typed) so that
-  `Archive.close()` racing in-flight decodes surfaces typed errors (§4).
-- `MemoryByteSource` returns *views* over the caller's buffer (§10, no
+  `Archive.close()` racing in-flight decodes surfaces typed errors.
+- `MemoryByteSource` returns *views* over the caller's buffer (no
   defensive copies); mutating the buffer afterwards is visible.
 - `FileByteSource` serializes reads internally over the single
   `RandomAccessFile` cursor: pread *semantics* (no interference), not
@@ -37,16 +37,16 @@ ergonomics without changing the required names:
 `UnsupportedFeatureException` instead of silently losing precision; the VM
 and dart2wasm read the full range.
 
-## Path normalization (M1, §7)
+## Path normalization (M1)
 
-- Only `..` escaping the root sets the `escapedRoot` flag, per §7's wording.
-  Absolute paths and drive letters are stripped silently — they are common
+- Only `..` escaping the root sets the `escapedRoot` flag.
+  Absolute paths and drive letters are stripped silently; they are common
   benign tool output (absolute-path tars), while an escaping `..` is the
   actual traversal signal.
 - Trailing `/` is dropped: directory-ness is carried by the entry *type*.
 - The normalized path may be `''` for archive-root entries (a bare `/`).
 
-## Detection registry (M1, §5)
+## Detection registry (M1)
 
 - Formats are probed in registration order; first match wins. Registration
   order is therefore meaningful: cheap, precise magics belong first.

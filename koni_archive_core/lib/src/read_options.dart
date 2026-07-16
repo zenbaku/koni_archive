@@ -15,12 +15,12 @@ final class ArchiveReadOptions {
 
   /// Verify content checksums recorded by the format (CRC-32 for ZIP and
   /// gzip) while streaming; a mismatch errors the stream at its end with a
-  /// `ChecksumMismatchException` (§7). On by default; disable only for
+  /// `ChecksumMismatchException`. On by default; disable only for
   /// forensic reads of damaged archives.
   final bool verifyChecksums;
 
   /// Caller-supplied decoder for entry names whose encoding the format does
-  /// not record reliably (§8) — ZIP entries *without* the UTF-8 flag are
+  /// not record reliably: ZIP entries *without* the UTF-8 flag are
   /// the classic case (manga archives from assorted tools are often
   /// Shift-JIS). When set, it receives the raw stored name bytes and its
   /// result replaces the default strict-UTF-8-then-CP437 heuristic. Names
@@ -41,8 +41,8 @@ final class ArchiveReadOptions {
   /// Encoding is format-defined and handled internally: ZIP and RAR5 use
   /// the UTF-8 bytes, 7z and RAR4 the UTF-16LE bytes. Legacy zipcrypto
   /// archives authored with a non-ASCII OEM-codepage password may not
-  /// match their UTF-8 encoding — documented lossiness, same spirit as
-  /// entry-name encodings (§8).
+  /// match their UTF-8 encoding, documented lossiness, same spirit as
+  /// entry-name encodings.
   final String? password;
 
   /// Resolver for the later parts of a **multi-volume** archive (a set split
@@ -51,8 +51,8 @@ final class ArchiveReadOptions {
   /// with the 1-based number of each subsequent volume it needs (2, 3, …) and
   /// expects that volume's [ByteSource], or null when there is no such volume.
   ///
-  /// Opening a multi-volume archive without a resolver — or one that returns
-  /// null while a file's data still continues into a further volume — is a
+  /// Opening a multi-volume archive without a resolver (or one that returns
+  /// null while a file's data still continues into a further volume) is a
   /// typed error (`UnsupportedFeatureException` / `UnexpectedEofException`),
   /// never a silent truncation. Single-volume archives never call it. The
   /// reader does not close the volumes it obtains this way; the caller owns

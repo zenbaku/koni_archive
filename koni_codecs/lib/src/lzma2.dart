@@ -2,8 +2,8 @@ import 'dart:typed_data';
 
 import 'lzma.dart';
 
-/// LZMA2 decompression — chunked LZMA with reset control, 7z's default
-/// codec and xz's payload format (§8).
+/// LZMA2 decompression: chunked LZMA with reset control, 7z's default
+/// codec and xz's payload format.
 ///
 /// Chunk-driven like [LzmaDecoder]; writes into a caller-provided output
 /// buffer of known size. Malformed input throws [FormatException].
@@ -34,7 +34,7 @@ final class Lzma2Decoder {
   int _chunkRemaining = 0; // packed bytes (LZMA) or raw bytes (copy)
 
   /// Whether the end-of-stream control byte was seen (or the output buffer
-  /// is exactly full — 7z streams routinely omit the terminator because
+  /// is exactly full; 7z streams routinely omit the terminator because
   /// sizes are recorded in the container).
   bool get isFinished => _finished || _outPos >= _output.length;
 
@@ -100,7 +100,7 @@ final class Lzma2Decoder {
       }
     }
     // Nothing carries across calls except an unfinished header (stashed in
-    // _header) — every chunk state consumes greedily; input after the end
+    // _header); every chunk state consumes greedily; input after the end
     // marker is the container's concern.
   }
 

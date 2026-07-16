@@ -37,7 +37,7 @@ void main() {
       expect(reader.readUint64be(), expected);
     });
 
-    test('64-bit values beyond 2^53 throw uniformly (§7)', () {
+    test('64-bit values beyond 2^53 throw uniformly', () {
       // A hostile value with the top bit set would wrap negative on the VM
       // if composed naively; the uniform cap rejects it everywhere.
       for (final bytes in [
@@ -59,7 +59,7 @@ void main() {
       expect(view, [1, 2, 3]);
       expect(reader.position, 3);
       expect(reader.remaining, 2);
-      // View semantics (no defensive copy, §10).
+      // View semantics (no defensive copy).
       backing[0] = 99;
       expect(view[0], 99);
     });

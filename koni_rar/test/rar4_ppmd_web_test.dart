@@ -340,7 +340,7 @@ void main() {
       // The file starts in PPMd (text), then RAR's -mct auto-mode switches to
       // method-29 (LZSS) mid-file. Decoding crosses the boundary via the shared
       // bit-reader; CRC-32 verify (on by default) makes a completing decode
-      // byte-exact — also checked vs unrar locally.
+      // byte-exact; also checked vs unrar locally.
       final data = (await _readAll(_ppmdSwitch)).single;
       expect(data.length, 73589);
     },
@@ -354,7 +354,7 @@ void main() {
         const ArchiveReadOptions(),
       );
       expect(reader.entries.map((e) => e.path), ['s1.txt', 's2.txt', 's3.txt']);
-      // Every member decodes — the shared model + escape carry across files, and
+      // Every member decodes; the shared model + escape carry across files, and
       // each file's slice is CRC-checked. Read out of order to also exercise the
       // whole-run decode + per-file cache.
       for (final i in [2, 0, 1]) {

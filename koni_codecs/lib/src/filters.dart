@@ -1,4 +1,4 @@
-/// Branch/call filters used by 7z and xz (§8). These are byte-level
+/// Branch/call filters used by 7z and xz. These are byte-level
 /// transforms applied to already-decompressed data; decode direction only
 /// (this project reads archives).
 ///

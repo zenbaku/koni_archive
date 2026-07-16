@@ -4,7 +4,7 @@ library;
 import 'package:koni_archive/io.dart';
 import 'package:test/test.dart';
 
-/// The CBR flagship flow (§1/§8) through the facade against a real
+/// The CBR flagship flow through the facade against a real
 /// rar-generated compressed archive.
 void main() {
   const cbr = '../koni_rar/test/fixtures/rar/synthetic_comic.cbr';

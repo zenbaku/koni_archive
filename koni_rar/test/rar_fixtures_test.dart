@@ -114,7 +114,7 @@ void main() {
     });
   });
 
-  group('typed errors (§8/§9)', () {
+  group('typed errors', () {
     // Decryption with a password is covered in rar_encryption_test.dart;
     // here we pin the no-password behavior.
     test('encrypted entries throw at openRead without a password', () async {
@@ -129,7 +129,7 @@ void main() {
 
     test('encrypted headers (-hp) need a password at open', () async {
       // RAR5 `-hp` decodes with a password (rar_encryption_test.dart); with
-      // none it is a locked archive — a typed error at open, not corruption.
+      // none it is a locked archive: a typed error at open, not corruption.
       await expectLater(
         openFixture('encrypted_headers.rar'),
         throwsA(isA<EncryptedArchiveException>()),
@@ -137,7 +137,7 @@ void main() {
     });
   });
 
-  group('detection and RAR4 (§5/§8)', () {
+  group('detection and RAR4', () {
     test('RAR5 fixtures are detected; noise is rejected', () async {
       const format = RarFormat();
       for (final name in ['store.rar', 'normal.rar', 'synthetic_comic.cbr']) {
@@ -173,7 +173,7 @@ void main() {
     });
   });
 
-  group('robustness (§7)', () {
+  group('robustness', () {
     test('truncations throw typed errors', () async {
       final bytes = fixtureBytes('normal.rar');
       for (final cut in [8, 20, bytes.length ~/ 2, bytes.length - 3]) {
@@ -190,8 +190,8 @@ void main() {
         } on Object catch (e) {
           error = e;
         }
-        // §7 invariant: a truncation either yields a (possibly empty)
-        // readable archive or throws a *typed* error — never anything else.
+        // invariant: a truncation either yields a (possibly empty)
+        // readable archive or throws a *typed* error; never anything else.
         expect(
           error == null || error is ArchiveException,
           isTrue,

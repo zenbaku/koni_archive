@@ -2,8 +2,8 @@ import 'dart:typed_data';
 
 import 'lzma_encoder.dart';
 
-/// LZMA2 compression — chunked LZMA with reset control, the encode
-/// direction of `Lzma2Decoder` (§8, P2-4b). 7z's default codec and xz's
+/// LZMA2 compression: chunked LZMA with reset control, the encode
+/// direction of `Lzma2Decoder`. 7z's default codec and xz's
 /// payload format.
 ///
 /// Buffer-based one-shot like [LzmaEncoder], which it drives through the
@@ -16,7 +16,7 @@ import 'lzma_encoder.dart';
 /// sides back into lockstep.
 ///
 /// The stream is self-terminated by the 0x00 control byte, and the first
-/// chunk always resets props + state + dictionary — exactly the shape
+/// chunk always resets props + state + dictionary, exactly the shape
 /// liblzma and 7zz emit and require.
 final class Lzma2Encoder {
   /// Creates an encoder; parameters mirror [LzmaEncoder]'s.

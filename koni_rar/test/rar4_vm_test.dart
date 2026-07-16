@@ -1,6 +1,6 @@
 // RarVM opcode coverage. The four standard filter programs (verified byte-exact
-// through the VM in rar4_filters_test.dart) exercise most opcodes — including
-// the precision-sensitive `mul`, `shl`, `shr`, `neg` — but not `sar`, `adc`,
+// through the VM in rar4_filters_test.dart) exercise most opcodes, including
+// the precision-sensitive `mul`, `shl`, `shr`, `neg`, but not `sar`, `adc`,
 // `sbb`, `div`, `xor`, `and`, `or`. This assembles a small straight-line
 // program that does, and checks the results on dart2js/dart2wasm too (the VM's
 // 32-bit arithmetic is where a web-int trap would hide). The remaining

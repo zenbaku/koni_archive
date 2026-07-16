@@ -132,7 +132,7 @@ final class Rar5Keys {
   }
 
   /// Whether [expected] (the header's stored check) matches the derived
-  /// value — the reliable RAR5 wrong-password signal.
+  /// value; the reliable RAR5 wrong-password signal.
   bool passwordMatches(Uint8List expected) {
     if (expected.length != 8) return false;
     for (var i = 0; i < 8; i++) {
@@ -168,7 +168,7 @@ final class Rar5Keys {
 }
 
 /// Verifies the header's [pswCheckCsum] actually protects its [pswCheck]
-/// (SHA-256 prefix) — guards against trusting a corrupted check value.
+/// (SHA-256 prefix); guards against trusting a corrupted check value.
 bool rar5PswCheckIntact(Uint8List pswCheck, Uint8List pswCheckCsum) {
   final digest = Sha256.compute(pswCheck);
   for (var i = 0; i < 4; i++) {
@@ -179,7 +179,7 @@ bool rar5PswCheckIntact(Uint8List pswCheck, Uint8List pswCheckCsum) {
 
 /// Derived RAR4 (v29 / "RAR3") AES-128 key and IV.
 ///
-/// The RAR3 KDF is a bespoke SHA-1 construction — not PBKDF2 — verified
+/// The RAR3 KDF is a bespoke SHA-1 construction (not PBKDF2) verified
 /// byte-exact against `rar`-authored encrypted v4 fixtures. RAR4 stores the
 /// **plaintext** CRC (no hash-key tweak) and carries no password-check
 /// value, so a wrong password surfaces only as a CRC mismatch.

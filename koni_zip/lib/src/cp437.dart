@@ -8,10 +8,10 @@ const String _cp437High =
     '░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀'
     'αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ';
 
-/// Decodes a ZIP name/comment field (§8). Never throws (§7).
+/// Decodes a ZIP name/comment field. Never throws.
 ///
 /// With the UTF-8 flag (general-purpose bit 11) set, the bytes are UTF-8 by
-/// declaration: decoded permissively (invalid sequences become U+FFFD —
+/// declaration: decoded permissively (invalid sequences become U+FFFD,
 /// mojibake beats an unreadable archive). With the flag unset, the bytes
 /// are nominally CP437, but many tools wrote UTF-8 anyway: strict UTF-8 is
 /// attempted first and CP437 is the fallback. A caller-supplied decoder

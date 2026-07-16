@@ -5,7 +5,7 @@ import 'package:koni_archive_core/koni_archive_core.dart';
 import 'package:test/test.dart';
 
 /// Test-only write format that serializes entries as
-/// `path\n<length>\n<bytes>` records — enough to prove the SPI end-to-end
+/// `path\n<length>\n<bytes>` records, enough to prove the SPI end-to-end
 /// (mirrors the M1 stub-format reader test).
 final class _StubWriteFormat extends ArchiveWriteFormat {
   const _StubWriteFormat();
@@ -131,32 +131,29 @@ void main() {
       await writer.close();
     });
 
-    test(
-      'addStream rejects a size mismatch (§ streamed != declared)',
-      () async {
-        final sink = BytesBuilderSink();
-        final writer = _StubWriteFormat().openWriter(
-          sink,
-          const ArchiveWriteOptions(),
-        );
-        await expectLater(
-          writer.addStream(
-            ArchiveEntrySpec(path: 'short'),
-            Stream.value(Uint8List.fromList([1, 2])),
-            size: 5,
-          ),
-          throwsA(isA<CorruptArchiveException>()),
-        );
-        await expectLater(
-          writer.addStream(
-            ArchiveEntrySpec(path: 'long'),
-            Stream.value(Uint8List.fromList([1, 2, 3, 4, 5, 6])),
-            size: 5,
-          ),
-          throwsA(isA<SizeLimitExceededException>()),
-        );
-      },
-    );
+    test('addStream rejects a size mismatch (streamed != declared)', () async {
+      final sink = BytesBuilderSink();
+      final writer = _StubWriteFormat().openWriter(
+        sink,
+        const ArchiveWriteOptions(),
+      );
+      await expectLater(
+        writer.addStream(
+          ArchiveEntrySpec(path: 'short'),
+          Stream.value(Uint8List.fromList([1, 2])),
+          size: 5,
+        ),
+        throwsA(isA<CorruptArchiveException>()),
+      );
+      await expectLater(
+        writer.addStream(
+          ArchiveEntrySpec(path: 'long'),
+          Stream.value(Uint8List.fromList([1, 2, 3, 4, 5, 6])),
+          size: 5,
+        ),
+        throwsA(isA<SizeLimitExceededException>()),
+      );
+    });
 
     test('invalid paths are rejected before any bytes are written', () async {
       final sink = BytesBuilderSink();

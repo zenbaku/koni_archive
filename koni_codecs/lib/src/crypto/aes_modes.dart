@@ -6,8 +6,8 @@ import 'aes.dart';
 /// transform.
 ///
 /// Used by 7z (AES-256), RAR5 (AES-256), and RAR4 (AES-128), all of which
-/// pad ciphertext to 16 bytes and truncate the plaintext by *known size*
-/// — so there is no padding scheme here: callers hand in complete blocks
+/// pad ciphertext to 16 bytes and truncate the plaintext by *known size*,
+/// so there is no padding scheme here: callers hand in complete blocks
 /// and slice the output themselves. Sequential calls chain (the last
 /// ciphertext block carries over), matching a stream decrypted in chunks.
 final class AesCbcDecryptor {
@@ -77,7 +77,7 @@ final class AesCbcEncryptor {
 }
 
 /// The WinZip AES variant of CTR mode: the 16-byte counter block is a
-/// **little-endian** integer starting at 1, with no nonce — not the
+/// **little-endian** integer starting at 1, with no nonce, not the
 /// big-endian layout of SP 800-38A. XORing the keystream is its own
 /// inverse, so one class serves encrypt and decrypt.
 ///

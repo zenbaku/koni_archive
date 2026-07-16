@@ -76,7 +76,7 @@ DateTime? parsePaxTime(String value) {
   final seconds = int.tryParse(match.group(1)!);
   // Hostile timestamps can exceed DateTime's range; timestamps are
   // best-effort metadata, so out-of-range becomes null (fuzz invariant: no
-  // ArgumentError, §7). Bound: years 0001-9999.
+  // ArgumentError). Bound: years 0001-9999.
   if (seconds == null || seconds < -62135596800 || seconds > 253402300799) {
     return null;
   }

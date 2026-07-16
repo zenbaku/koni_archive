@@ -23,7 +23,7 @@ Future<ArchiveReader> open(String name, {String? password}) =>
     );
 
 /// The encrypted RAR4 fixtures live outside the generator-managed dir (rar
-/// 7.x cannot author v4, so they are hand-committed) — see
+/// 7.x cannot author v4, so they are hand-committed); see
 /// `test/fixtures/rar_static/README.md`.
 Future<ArchiveReader> openStatic(String name, {String? password}) =>
     const RarFormat().openReader(

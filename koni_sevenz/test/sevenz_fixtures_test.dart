@@ -118,7 +118,7 @@ void main() {
     });
   });
 
-  group('solid blocks and the LRU cache (§8)', () {
+  group('solid blocks and the LRU cache', () {
     test(
       'random access into a solid block; repeat reads served from cache',
       () async {
@@ -143,7 +143,7 @@ void main() {
     );
   });
 
-  group('deferred codecs are typed errors; listing still works (§8/§9)', () {
+  group('deferred codecs are typed errors; listing still works', () {
     test('PPMd', () async {
       final reader = await openFixture('ppmd.7z');
       final entry = reader.entries.singleWhere((e) => e.isFile);
@@ -225,7 +225,7 @@ void main() {
     });
   });
 
-  group('robustness (§7)', () {
+  group('robustness', () {
     test('every fixture is detected as 7z; noise is rejected', () async {
       const format = SevenZFormat();
       final dir = Directory('test/fixtures/sevenz');

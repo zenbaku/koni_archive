@@ -19,7 +19,7 @@ Future<String> collectString(ArchiveReader reader, ArchiveEntry entry) async =>
 
 void main() {
   group('synthetic archives (shapes zip(1) cannot emit on demand)', () {
-    test('duplicate paths are all listed in index order (§4)', () async {
+    test('duplicate paths are all listed in index order', () async {
       final reader = await parse(
         buildZip([
           ZipEntrySpec('dup.txt', 'first'),
@@ -31,14 +31,14 @@ void main() {
       expect(await collectString(reader, reader.entries[1]), 'second!');
     });
 
-    test('backslash separators normalize (§8)', () async {
+    test('backslash separators normalize', () async {
       final reader = await parse(
         buildZip([ZipEntrySpec(r'dir\sub\file.txt', 'x')]),
       );
       expect(reader.entries.single.path, 'dir/sub/file.txt');
     });
 
-    test('traversal names are sanitized and flagged (§7)', () async {
+    test('traversal names are sanitized and flagged', () async {
       final reader = await parse(
         buildZip([ZipEntrySpec('../../etc/passwd', 'pwnd')]),
       );
@@ -48,24 +48,18 @@ void main() {
       expect(await collectString(reader, entry), 'pwnd');
     });
 
-    test(
-      'data-descriptor entries read via central directory values (§8)',
-      () async {
-        final reader = await parse(
-          buildZip([
-            ZipEntrySpec('dd.txt', 'described data', dataDescriptor: true),
-            ZipEntrySpec('after.txt', 'ok'),
-          ]),
-        );
-        expect(
-          await collectString(reader, reader.entries[0]),
-          'described data',
-        );
-        expect(await collectString(reader, reader.entries[1]), 'ok');
-      },
-    );
+    test('data-descriptor entries read via central directory values', () async {
+      final reader = await parse(
+        buildZip([
+          ZipEntrySpec('dd.txt', 'described data', dataDescriptor: true),
+          ZipEntrySpec('after.txt', 'ok'),
+        ]),
+      );
+      expect(await collectString(reader, reader.entries[0]), 'described data');
+      expect(await collectString(reader, reader.entries[1]), 'ok');
+    });
 
-    test('CP437 fallback for non-UTF-8 names without the flag (§8)', () async {
+    test('CP437 fallback for non-UTF-8 names without the flag', () async {
       // 0x82 0x8A = "éè" in CP437; invalid as UTF-8.
       final reader = await parse(
         buildZip([
@@ -98,7 +92,7 @@ void main() {
       );
     });
 
-    test('CRC-32 is verified by default; opt-out honored (§7)', () async {
+    test('CRC-32 is verified by default; opt-out honored', () async {
       final bytes = buildZip([
         ZipEntrySpec('bad.txt', 'corrupted content', crcOverride: 0xDEADBEEF),
       ]);
@@ -166,56 +160,53 @@ void main() {
       );
     });
 
-    test(
-      'the caller-supplied name decoder handles mojibake (§8, M7)',
-      () async {
-        // 'テスト.txt' in Shift-JIS — not valid UTF-8, garbage in CP437.
-        const sjisName = [
-          0x83,
-          0x65,
-          0x83,
-          0x58,
-          0x83,
-          0x67,
-          0x2E,
-          0x74,
-          0x78,
-          0x74,
-        ];
-        final bytes = buildZip([
-          ZipEntrySpec('', 'content', nameBytes: sjisName),
-        ]);
+    test('the caller-supplied name decoder handles mojibake (M7)', () async {
+      // 'テスト.txt' in Shift-JIS, not valid UTF-8, garbage in CP437.
+      const sjisName = [
+        0x83,
+        0x65,
+        0x83,
+        0x58,
+        0x83,
+        0x67,
+        0x2E,
+        0x74,
+        0x78,
+        0x74,
+      ];
+      final bytes = buildZip([
+        ZipEntrySpec('', 'content', nameBytes: sjisName),
+      ]);
 
-        final defaulted = await parse(bytes);
-        expect(
-          defaulted.entries.single.path,
-          isNot('テスト.txt'),
-          reason: 'CP437 fallback cannot know this is Shift-JIS',
-        );
+      final defaulted = await parse(bytes);
+      expect(
+        defaulted.entries.single.path,
+        isNot('テスト.txt'),
+        reason: 'CP437 fallback cannot know this is Shift-JIS',
+      );
 
-        // A real app would use a charset package; the hook contract only
-        // needs bytes -> string.
-        const sjisKatakana = {0x65: 'テ', 0x58: 'ス', 0x67: 'ト'};
-        final hooked = await parse(
-          bytes,
-          options: ArchiveReadOptions(
-            entryNameDecoder: (nameBytes) {
-              final buffer = StringBuffer();
-              for (var i = 0; i < nameBytes.length; i++) {
-                if (nameBytes[i] == 0x83) {
-                  buffer.write(sjisKatakana[nameBytes[++i]]);
-                } else {
-                  buffer.writeCharCode(nameBytes[i]);
-                }
+      // A real app would use a charset package; the hook contract only
+      // needs bytes -> string.
+      const sjisKatakana = {0x65: 'テ', 0x58: 'ス', 0x67: 'ト'};
+      final hooked = await parse(
+        bytes,
+        options: ArchiveReadOptions(
+          entryNameDecoder: (nameBytes) {
+            final buffer = StringBuffer();
+            for (var i = 0; i < nameBytes.length; i++) {
+              if (nameBytes[i] == 0x83) {
+                buffer.write(sjisKatakana[nameBytes[++i]]);
+              } else {
+                buffer.writeCharCode(nameBytes[i]);
               }
-              return buffer.toString();
-            },
-          ),
-        );
-        expect(hooked.entries.single.path, 'テスト.txt');
-        expect(await collectString(hooked, hooked.entries.single), 'content');
-      },
-    );
+            }
+            return buffer.toString();
+          },
+        ),
+      );
+      expect(hooked.entries.single.path, 'テスト.txt');
+      expect(await collectString(hooked, hooked.entries.single), 'content');
+    });
 
     test('AE-x entries expose the inner method and encryption (M7)', () async {
       final bytes = buildZip([
@@ -287,7 +278,7 @@ void main() {
     });
 
     test(
-      'a central entry pointing at garbage fails at openRead only (§9)',
+      'a central entry pointing at garbage fails at openRead only',
       () async {
         final bytes = buildZip([
           ZipEntrySpec('ok.txt', 'fine'),
@@ -318,7 +309,7 @@ void main() {
       },
     );
 
-    test('hostile entry counts fail cleanly, no OOM (§7)', () async {
+    test('hostile entry counts fail cleanly, no OOM', () async {
       // EOCD claims more entries than the central directory can hold.
       final bytes = buildZip([
         ZipEntrySpec('a', 'x'),

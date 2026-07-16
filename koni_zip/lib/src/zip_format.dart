@@ -12,8 +12,8 @@ final class ZipFormat extends ArchiveFormat {
   @override
   String get name => 'zip';
 
-  /// ZIP detection facts (§5): `PK\x03\x04` at offset 0 is common but not
-  /// sufficient — self-extracting/prefixed archives require scanning
+  /// ZIP detection facts: `PK\x03\x04` at offset 0 is common but not
+  /// sufficient; self-extracting/prefixed archives require scanning
   /// backwards from EOF for the end-of-central-directory record (a comment
   /// can push it ~64 KiB from the end). Empty archives start `PK\x05\x06`.
   @override
@@ -31,7 +31,7 @@ final class ZipFormat extends ArchiveFormat {
       await Eocd.find(source);
       return true;
     } on UnsupportedFeatureException {
-      // ZIP64/multi-volume: it *is* a ZIP — let openReader report why it
+      // ZIP64/multi-volume: it *is* a ZIP; let openReader report why it
       // cannot be read instead of falling through to other formats.
       return true;
     } on ArchiveException {

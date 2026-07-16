@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-/// Incremental CRC-32 (IEEE 802.3, reflected, polynomial 0xEDB88320) — the
+/// Incremental CRC-32 (IEEE 802.3, reflected, polynomial 0xEDB88320), the
 /// checksum used by ZIP and gzip.
 ///
 /// Feed data in chunks with [add]; [value] is non-destructive, so a
@@ -12,7 +12,7 @@ final class Crc32 {
   Crc32();
 
   // Slicing-by-8 (Intel's technique): eight derived tables let the hot
-  // loop fold 8 input bytes per iteration instead of 1 (§10 — checksum
+  // loop fold 8 input bytes per iteration instead of 1 (checksum
   // verification is on the default read path of ZIP and gzip).
   static final Uint32List _tables = _buildTables();
 
@@ -81,7 +81,7 @@ final class Crc32 {
   static int compute(Uint8List data) => (Crc32()..add(data)).value;
 }
 
-/// Incremental Adler-32 (RFC 1950) — the checksum used by zlib streams.
+/// Incremental Adler-32 (RFC 1950), the checksum used by zlib streams.
 ///
 /// Same usage model as [Crc32].
 final class Adler32 {

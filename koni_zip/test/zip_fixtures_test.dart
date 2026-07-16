@@ -25,7 +25,7 @@ Future<String> collectString(ArchiveReader reader, ArchiveEntry entry) async =>
     );
 
 /// zip(1) rounded 03:04:05 to the DOS timestamp 03:04:06 (2 s resolution;
-/// wall time exposed as UTC — documented lossiness, §8).
+/// wall time exposed as UTC, documented lossiness).
 final dosMtime = DateTime.utc(2020, 1, 2, 3, 4, 6);
 
 void main() {
@@ -79,7 +79,7 @@ void main() {
     });
   });
 
-  group('EOCD variations (§5)', () {
+  group('EOCD variations', () {
     test('an archive comment pushes the EOCD off the end', () async {
       final reader = await openFixture('comment.zip');
       expect(reader.entries.single.path, 'hello.txt');
@@ -121,7 +121,7 @@ void main() {
     });
   });
 
-  group('entry-scoped typed errors (§9)', () {
+  group('entry-scoped typed errors', () {
     test(
       'encrypted entries are flagged; reading throws; listing works',
       () async {
@@ -142,7 +142,7 @@ void main() {
     );
 
     test(
-      'unsupported methods name the method; archive stays readable (§8)',
+      'unsupported methods name the method; archive stays readable',
       () async {
         // No real fixture uses an exotic method; assert via the encrypted
         // fixture path in the test above and the synthetic suite (bzip2 ids
@@ -211,7 +211,7 @@ void main() {
     });
   });
 
-  group('detection against fixtures (§5)', () {
+  group('detection against fixtures', () {
     test(
       'every fixture is detected as zip, incl. prefixed and empty',
       () async {

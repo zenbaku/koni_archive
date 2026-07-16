@@ -1,7 +1,7 @@
-/// Typed exception hierarchy for archive-content problems (§9).
+/// Typed exception hierarchy for archive-content problems.
 ///
 /// Every archive-content failure anywhere in the koni_archive ecosystem is an
-/// [ArchiveException] subtype — never a bare [Exception], [StateError], or
+/// [ArchiveException] subtype, never a bare [Exception], [StateError], or
 /// [RangeError]. Each exception carries context (format, byte offset, entry
 /// path) where known.
 library;
@@ -106,7 +106,7 @@ class InvalidHeaderException extends CorruptArchiveException {
 /// Decoded data does not match the checksum recorded in the archive.
 ///
 /// A form of corruption, so it extends [CorruptArchiveException]. Streaming
-/// reads verify at end-of-stream and emit this through the stream (§7).
+/// reads verify at end-of-stream and emit this through the stream.
 class ChecksumMismatchException extends CorruptArchiveException {
   /// Creates a [ChecksumMismatchException].
   ChecksumMismatchException(
@@ -160,7 +160,7 @@ class UnsupportedCompressionException extends UnsupportedFeatureException {
 
 /// The archive (or the requested entry) is encrypted and no password was
 /// supplied, or it uses an encryption scheme this implementation does not
-/// support (`doc/encryption-scope.md` — e.g. ZIP strong encryption, RAR4
+/// support (`doc/encryption-scope.md`, e.g. ZIP strong encryption, RAR4
 /// encrypted headers).
 class EncryptedArchiveException extends ArchiveException {
   /// Creates an [EncryptedArchiveException].
@@ -177,7 +177,7 @@ class EncryptedArchiveException extends ArchiveException {
 /// How reliably a wrong password is *distinguishable from corruption*
 /// varies by format: RAR5 carries an 8-byte check value (practically
 /// certain), WinZip AES a 2-byte verifier (1/65536 false accept),
-/// zipcrypto a 1-byte check (1/256 — a wrong password can also surface as
+/// zipcrypto a 1-byte check (1/256; a wrong password can also surface as
 /// a [CorruptArchiveException] or [ChecksumMismatchException] instead),
 /// and 7z has no check at all, so a wrong password there always surfaces
 /// as corrupt data or a checksum mismatch, never as this exception.
@@ -192,7 +192,7 @@ class InvalidPasswordException extends EncryptedArchiveException {
 }
 
 /// Decoded output exceeded a caller-supplied or format-derived size limit
-/// (decompression-bomb protection, §7).
+/// (decompression-bomb protection).
 class SizeLimitExceededException extends ArchiveException {
   /// Creates a [SizeLimitExceededException].
   SizeLimitExceededException(
@@ -220,7 +220,7 @@ class ArchiveClosedException extends ArchiveException {
 }
 
 /// A path-based lookup did not match any entry (e.g. `openReadPath` on an
-/// absent path, §4).
+/// absent path).
 class EntryNotFoundException extends ArchiveException {
   /// Creates an [EntryNotFoundException].
   EntryNotFoundException(

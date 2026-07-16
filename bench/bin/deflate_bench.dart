@@ -1,4 +1,4 @@
-// Deflate-encode benchmarks (P2-3, §10): koni_codecs
+// Deflate-encode benchmarks (P2-3): koni_codecs
 // DeflateEncoder vs package:archive, with the platform zlib (dart:io) as an
 // extra reference. Encoding is the ZIP-writer hot path.
 //
@@ -6,7 +6,7 @@
 //
 // Results are printed as a markdown table; commit them under
 // bench/results/. Both time and compression ratio are reported (a fast
-// encoder that barely compresses is not a fair comparison) — performance is
+// encoder that barely compresses is not a fair comparison); performance is
 // measured, not asserted.
 
 import 'dart:io';
@@ -20,7 +20,7 @@ const int measuredRuns = 5;
 
 Future<void> main() async {
   // ~32 MiB of mixed compressibility (text-ish + binary-ish), the same shape
-  // the inflate bench decodes — representative of real archive payloads.
+  // the inflate bench decodes, representative of real archive payloads.
   final payload = Uint8List(32 * 1024 * 1024);
   for (var i = 0; i < payload.length; i++) {
     payload[i] = i % 4 == 0 ? (i ~/ 4096) & 0x3F : (i * 31) & 0xFF;

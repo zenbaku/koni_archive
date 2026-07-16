@@ -1,4 +1,4 @@
-// 7z benchmarks (M8, §8/§10): CB7 page-flip.
+// 7z benchmarks (M8): CB7 page-flip.
 //
 //   dart run --no-enable-asserts bench/bin/sevenz_bench.dart
 //

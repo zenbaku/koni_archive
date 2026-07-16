@@ -8,10 +8,10 @@ import 'package:koni_archive_core/koni_archive_core.dart';
 
 /// Property ids of the 7z header grammar.
 abstract final class SevenZId {
-  /// kEnd — terminates a property block.
+  /// kEnd: terminates a property block.
   static const int end = 0x00;
 
-  /// kHeader — the uncompressed archive header.
+  /// kHeader: the uncompressed archive header.
   static const int header = 0x01;
 
   /// kArchiveProperties.
@@ -74,18 +74,18 @@ abstract final class SevenZId {
   /// kWinAttributes.
   static const int winAttributes = 0x15;
 
-  /// kEncodedHeader — the header itself is folder-compressed.
+  /// kEncodedHeader: the header itself is folder-compressed.
   static const int encodedHeader = 0x17;
 
   /// kStartPos.
   static const int startPos = 0x18;
 
-  /// kDummy — padding.
+  /// kDummy: padding.
   static const int dummy = 0x19;
 }
 
 /// Reads 7z's variable-length number encoding (first byte's high bits give
-/// the length). Values beyond 2^53 − 1 throw (uniform cap, §7).
+/// the length). Values beyond 2^53 − 1 throw (uniform cap).
 int readSevenZipNumber(ByteReader reader) {
   final first = reader.readUint8();
   var mask = 0x80;
@@ -668,7 +668,7 @@ final class SevenZFileInfo {
     final msSince1601 = hi * 429496 + (hi * 7296 + lo) ~/ 10000;
     final msSinceEpoch = msSince1601 - 11644473600000;
     if (msSinceEpoch < -62135596800000 || msSinceEpoch > 253402300799000) {
-      return null; // out of sane range: best-effort metadata (§7)
+      return null; // out of sane range: best-effort metadata
     }
     return DateTime.fromMillisecondsSinceEpoch(msSinceEpoch, isUtc: true);
   }

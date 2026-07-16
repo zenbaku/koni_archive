@@ -1,10 +1,10 @@
-// TAR benchmarks (M2, §10): koni_archive vs package:archive.
+// TAR benchmarks (M2): koni_archive vs package:archive.
 //
 //   dart run --no-enable-asserts bench/bin/tar_bench.dart
 //
 // Scenarios:
-//   1. list    — index a 20k-entry archive (no content decode)
-//   2. extract — full sequential extract of all content
+//   1. list: index a 20k-entry archive (no content decode)
+//   2. extract: full sequential extract of all content
 //
 // Results are printed as a markdown table; commit them under
 // bench/results/. Performance is measured, not asserted.
@@ -115,7 +115,7 @@ String _mb(int bytes) => (bytes / (1024 * 1024)).toStringAsFixed(0);
 int _sink = 0;
 void _use(int value) => _sink ^= value; // defeat dead-code elimination
 
-/// Minimal in-memory ustar emitter — bench-only code, not shipped.
+/// Minimal in-memory ustar emitter, bench-only code, not shipped.
 Uint8List _buildTar({required int entryCount, required int entrySize}) {
   final builder = BytesBuilder(copy: false);
   final content = Uint8List(entrySize);

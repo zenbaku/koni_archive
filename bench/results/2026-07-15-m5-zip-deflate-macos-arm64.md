@@ -26,6 +26,6 @@ Produced by `dart run --no-enable-asserts bench/bin/zip_bench.dart`.
 
 - Every "read 1 page" number stays comfortably inside a comic reader's
   page-flip budget; random access holds (119 other pages untouched).
-- The remaining gap on verified reads is the §7 verify-by-default promise
+- The remaining gap on verified reads is the verify-by-default promise
   itself (package:archive performs no verification) plus the inflate
   throughput difference recorded in the M4 results.

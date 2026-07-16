@@ -1,17 +1,17 @@
 /// RAR 2.0 / 2.6 decompression (unpack versions 20 and 26): LZSS with canonical
-/// Huffman codes, selected per block. Distinct from method-29 (v29) — different
+/// Huffman codes, selected per block. Distinct from method-29 (v29): different
 /// Huffman table sizes and block header.
 ///
 /// Clean-room per `doc/rar-provenance.md`. Structure and symbol dispatch are
 /// adapted from the BSD Go `rardecode` reader (`decode20.go`, `decode20_lz.go`;
-/// Nicholas Waples, BSD-2-Clause — notice in `NOTICE`, attribution in
+/// Nicholas Waples, BSD-2-Clause; notice in `NOTICE`, attribution in
 /// `doc/references.md`). No unrar or GPL source was consulted. The LZ
 /// length/offset base tables are the standard RAR tables (shared with v29). All
 /// arithmetic stays within 32 bits so dart2js matches the VM.
 ///
 /// The RAR 2.x **multimedia/audio** block mode is a typed error: `rardecode`'s
 /// audio decoder mis-decodes it (verified byte-for-byte against `unrar`), so no
-/// permissive clean-room reference covers it — only the GPL unrar does. LZ
+/// permissive clean-room reference covers it; only the GPL unrar does. LZ
 /// blocks (what every non-multimedia RAR 2.x archive uses) decode.
 ///
 /// Malformed input throws [FormatException].
@@ -101,7 +101,7 @@ final class Rar20Decoder {
   void _readBlockHeader(Bits bits) {
     final isAudio = bits.read(1) != 0;
     if (isAudio) {
-      // The multimedia/audio predictor has no correct permissive reference —
+      // The multimedia/audio predictor has no correct permissive reference, so
       // the reader maps this to a typed UnsupportedFeatureException.
       throw const FormatException(
         'RAR2 multimedia/audio blocks are not supported',

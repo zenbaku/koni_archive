@@ -7,7 +7,7 @@ import 'package:koni_codecs/koni_codecs.dart';
 /// up to ~1000x, and expansion is buffered until yielded.
 const int _readChunkSize = 16 * 1024;
 
-/// Reader presenting a gzip file as a single-entry archive (§8). Created
+/// Reader presenting a gzip file as a single-entry archive. Created
 /// via `GzipFormat.openReader`.
 final class GzipReader extends ArchiveReader {
   GzipReader._(this.format, this._source, this._options, this.entries);
@@ -22,8 +22,8 @@ final class GzipReader extends ArchiveReader {
   final ArchiveReadOptions _options;
   bool _closed = false;
 
-  /// Parses the member header (start) and trailer (last 8 bytes) — no
-  /// content decode (§4).
+  /// Parses the member header (start) and trailer (last 8 bytes); no
+  /// content decode.
   static Future<GzipReader> parse(
     ArchiveFormat format,
     ByteSource source,
@@ -58,7 +58,7 @@ final class GzipReader extends ArchiveReader {
       );
     }
     // Trailer of the *last* member: CRC-32 and ISIZE (mod 2^32). For
-    // multi-member files this reflects only the last member — see
+    // multi-member files this reflects only the last member, see
     // doc/notes.md; per-member integrity is still verified while reading.
     final trailer = await source.read(source.length - 8, 8);
     final crc32 =
@@ -88,7 +88,7 @@ final class GzipReader extends ArchiveReader {
     return GzipReader._(format, source, options, List.unmodifiable([entry]));
   }
 
-  /// Derives the entry name from the container name (§8): basename with a
+  /// Derives the entry name from the container name: basename with a
   /// trailing `.gz` dropped (`comics.gz` → `comics`); `data` as the last
   /// resort.
   static String _nameFromSource(String? sourceName) {
@@ -146,7 +146,7 @@ final class GzipReader extends ArchiveReader {
     }
   }
 
-  /// Codec errors are [FormatException] (§6.4); the archive layer owns the
+  /// Codec errors are [FormatException]; the archive layer owns the
   /// typed hierarchy.
   ArchiveException _translate(FormatException e, String entryPath) {
     final message = e.message;

@@ -8,8 +8,8 @@ import 'http_range_exception.dart';
 /// A raw HTTP response to a single range request, handed to
 /// [HttpRangeByteSource] by its [HttpRangeFetcher].
 ///
-/// The source parses [headers] itself (Content-Range, ETag), so a fetcher —
-/// including a test fake — only has to surface the wire response verbatim.
+/// The source parses [headers] itself (Content-Range, ETag), so a fetcher
+/// (including a test fake) only has to surface the wire response verbatim.
 /// Header keys are lower-cased on construction for case-insensitive lookup.
 final class HttpRangeResponse {
   /// Wraps a response; [headers] keys are lower-cased.
@@ -34,7 +34,7 @@ final class HttpRangeResponse {
 
 /// Performs one HTTP GET with the given request [headers] (the source adds
 /// `Range` and, after the first request, `If-Range`) and returns the raw
-/// response. Injected so [HttpRangeByteSource] is transport-agnostic —
+/// response. Injected so [HttpRangeByteSource] is transport-agnostic:
 /// [HttpRangeByteSource.open] supplies a `package:http` implementation, and
 /// tests supply an in-memory fake.
 typedef HttpRangeFetcher =
@@ -50,7 +50,7 @@ typedef HttpRangeFetcher =
 ///   bytes=0-0`. A `206 Partial Content` confirms range support; the total
 ///   size is read from the `Content-Range` header (never `Content-Length`,
 ///   which is `1` for that probe). A `200` means the server ignored the
-///   range — [HttpRangeException].
+///   range: [HttpRangeException].
 /// - Each [read] issues one ranged GET and returns exactly the requested
 ///   bytes. Requests are independent, so overlapping reads satisfy the pread
 ///   contract with no locking.
@@ -131,13 +131,13 @@ final class HttpRangeByteSource implements ByteSource {
       );
     } catch (_) {
       // The probe failed, so `withFetcher` never took ownership of the client
-      // it would close in `close()` — close the one we created here.
+      // it would close in `close()`; close the one we created here.
       if (ownsClient) c.close();
       rethrow;
     }
   }
 
-  /// Opens a source over a caller-supplied [fetch] — the transport-agnostic
+  /// Opens a source over a caller-supplied [fetch], the transport-agnostic
   /// entry point (a browser `Client`, a custom stack, or a test fake).
   ///
   /// [onClose] is invoked by [close] to release a transport the caller wants

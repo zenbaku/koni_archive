@@ -120,7 +120,7 @@ class TarHeader {
   }
 
   /// Whether [block] has a plausible tar header checksum (used by format
-  /// detection for magic-less pre-POSIX v7 tars, §5). Never throws.
+  /// detection for magic-less pre-POSIX v7 tars). Never throws.
   static bool checksumLooksValid(Uint8List block) {
     if (block.length != tarBlockSize || _isAllZero(block)) return false;
     try {
@@ -254,7 +254,7 @@ int _parseBase256(
 }
 
 /// Decodes a NUL-terminated tar string field: UTF-8 first, Latin-1 fallback
-/// (header encodings are unspecified in old formats; never throw, §7).
+/// (header encodings are unspecified in old formats; never throw).
 String decodeTarString(Uint8List block, int start, int length) {
   var end = start;
   while (end < start + length && block[end] != 0) {

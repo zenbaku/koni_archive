@@ -1,18 +1,18 @@
 import 'dart:typed_data';
 
-/// LZMA decompression — the primary 7z codec (§8).
+/// LZMA decompression, the primary 7z codec.
 ///
 /// Implemented from the public-domain LZMA specification (`LzmaSpec.cpp` /
 /// `lzma-specification.txt` in the LZMA SDK, Igor Pavlov, public domain).
-/// Synchronous and chunk-driven (§6.4): input may arrive split anywhere;
+/// Synchronous and chunk-driven: input may arrive split anywhere;
 /// decoding suspends at symbol boundaries when fewer than a safety margin
 /// of bytes are buffered. Malformed input throws [FormatException].
 ///
 /// Unlike DEFLATE, LZMA in archive containers always has a known output
 /// size, so the decoder writes into a caller-provided buffer which doubles
-/// as the match window — there is no separate streaming sink. (A
+/// as the match window; there is no separate streaming sink. (A
 /// `Converter` facade can wrap this when a standalone `.lzma` consumer
-/// exists; none does yet, §13.1.)
+/// exists; none does yet.)
 final class LzmaDecoder {
   /// Creates a decoder writing into `output[0..output.length)`.
   ///
@@ -124,7 +124,7 @@ final class LzmaDecoder {
 
   /// Starts a new compressed chunk producing output up to [chunkOutEnd]
   /// (absolute position in the output buffer). The range coder re-reads
-  /// its 5 initialization bytes — every LZMA2 chunk does this; a 7z LZMA1
+  /// its 5 initialization bytes. Every LZMA2 chunk does this; a 7z LZMA1
   /// stream is one big chunk.
   void beginChunk(int chunkOutEnd) {
     _outEnd = chunkOutEnd;

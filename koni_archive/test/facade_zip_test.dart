@@ -4,7 +4,7 @@ library;
 import 'package:koni_archive/io.dart';
 import 'package:test/test.dart';
 
-/// The CBZ flagship flow (§1) through the facade against a real
+/// The CBZ flagship flow through the facade against a real
 /// zip(1)-generated fixture, plus detection-order sanity.
 void main() {
   const cbz = '../koni_zip/test/fixtures/zip/synthetic_comic.cbz';
@@ -37,7 +37,7 @@ void main() {
     expect(pages, hasLength(3));
     expect(pages.first.compression.name, 'deflate');
 
-    // Page-flip with preload: read page N while preloading N+1 (§4).
+    // Page-flip with preload: read page N while preloading N+1.
     final contents = await Future.wait([
       for (final page in pages) archive.readBytes(page, maxSize: 1 << 20),
     ]);

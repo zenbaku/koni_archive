@@ -2,13 +2,13 @@ import 'dart:typed_data';
 
 import 'exceptions.dart';
 
-/// Random-access byte source — the input abstraction every archive reader
-/// consumes (§3). Never a file path, never a raw stream.
+/// Random-access byte source, the input abstraction every archive reader
+/// consumes. Never a file path, never a raw stream.
 ///
 /// ## Contract
 ///
 /// - **pread semantics**: implementations MUST support concurrent positional
-///   reads — overlapping in-flight [read] calls must not interfere with each
+///   reads: overlapping in-flight [read] calls must not interfere with each
 ///   other. There is no shared cursor.
 /// - [read] returns **exactly** `length` bytes. A range that extends past
 ///   [length] throws [UnexpectedEofException] (typed, so corrupt headers
@@ -24,7 +24,7 @@ import 'exceptions.dart';
 abstract interface class ByteSource {
   /// Optional display name for the source (a file path, a browser File
   /// name), used by formats that derive entry names from the container
-  /// (e.g. a bare `.gz` with no FNAME field, §8). Null when the source has
+  /// (e.g. a bare `.gz` with no FNAME field). Null when the source has
   /// no meaningful name.
   String? get name;
 
@@ -43,7 +43,7 @@ abstract interface class ByteSource {
 
 /// A [ByteSource] over an in-memory byte buffer.
 ///
-/// Reads return views over the original buffer (no copies, §10); mutating
+/// Reads return views over the original buffer (no copies); mutating
 /// the buffer after construction is visible through this source.
 final class MemoryByteSource implements ByteSource {
   /// Creates a source over [bytes]. The buffer is not copied. [name] is an
@@ -88,7 +88,7 @@ final class MemoryByteSource implements ByteSource {
 /// Shared helper for [ByteSource] implementations: throws [ArgumentError]
 /// for negative values (programmer error) and [UnexpectedEofException] when
 /// the range extends past the end of the source (attacker-controlled header
-/// fields land here, §7).
+/// fields land here).
 void checkByteSourceRange(ByteSource source, int offset, int length) {
   if (offset < 0) {
     throw ArgumentError.value(offset, 'offset', 'must be non-negative');

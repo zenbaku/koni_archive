@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 /// DEFLATE (RFC 1951) decompression as a synchronous, chunk-driven state
-/// machine (§6.4): input may arrive split at any byte boundary, output is
+/// machine: input may arrive split at any byte boundary, output is
 /// emitted in bounded chunks, and no `await` appears anywhere. Malformed
 /// input throws [FormatException] (the `dart:convert` idiom; the archive
 /// layer translates).
@@ -84,7 +84,7 @@ final class _InflateSink implements ByteConversionSink {
 // Resumable core
 // ---------------------------------------------------------------------------
 
-/// Resumable raw-DEFLATE decompressor — the engine under [InflateDecoder],
+/// Resumable raw-DEFLATE decompressor, the engine under [InflateDecoder],
 /// public for framing layers (gzip, ZIP) that must locate the end of the
 /// stream and reclaim trailing bytes.
 ///
@@ -107,7 +107,7 @@ final class RawInflater {
   int _bitCount = 0;
 
   // ---- output: 64 KiB accumulation buffer; the 32 KiB history window is
-  // refreshed in bulk at flush time (§10: no per-byte double writes) ----
+  // refreshed in bulk at flush time (no per-byte double writes) ----
   static const int _outSize = 64 * 1024;
   static const int _windowSize = 32 * 1024;
   Uint8List _out = Uint8List(_outSize);
@@ -722,7 +722,7 @@ enum _S {
   done,
 }
 
-/// Which DEFLATE tree a table decodes — determines how strictly
+/// Which DEFLATE tree a table decodes determines how strictly
 /// completeness is enforced (zlib semantics).
 enum _HuffmanKind {
   /// The code-length (header) tree: must be complete.

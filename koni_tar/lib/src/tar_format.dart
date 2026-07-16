@@ -13,8 +13,8 @@ final class TarFormat extends ArchiveFormat {
   @override
   String get name => 'tar';
 
-  /// TAR detection facts (§5): `ustar` magic at offset 257; pre-POSIX v7
-  /// tars have no magic — fall back to validating block 0's header
+  /// TAR detection facts: `ustar` magic at offset 257; pre-POSIX v7
+  /// tars have no magic, fall back to validating block 0's header
   /// checksum. An all-zero leading block is accepted as an empty archive
   /// (what `tar -cf x.tar -T /dev/null` produces; matches bsdtar).
   @override

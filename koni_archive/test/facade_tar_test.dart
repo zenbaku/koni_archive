@@ -7,8 +7,8 @@ import 'package:koni_archive/io.dart';
 import 'package:test/test.dart';
 
 /// End-to-end proof of the architecture (M2 exit criterion): a real
-/// bsdtar-generated CBT through the facade — detection, VFS view, glob,
-/// streaming — with zero format-specific code in sight.
+/// bsdtar-generated CBT through the facade (detection, VFS view, glob,
+/// streaming) with zero format-specific code in sight.
 void main() {
   const cbt = '../koni_tar/test/fixtures/tar/synthetic_comic.cbt';
 
@@ -26,7 +26,7 @@ void main() {
       'comic/page003.png',
     ]);
 
-    // Preload-style concurrent reads (§4).
+    // Preload-style concurrent reads.
     final contents = await Future.wait([
       for (final page in pages) archive.readBytes(page, maxSize: 1 << 20),
     ]);

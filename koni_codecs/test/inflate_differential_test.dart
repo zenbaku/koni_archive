@@ -8,7 +8,7 @@ import 'dart:typed_data';
 import 'package:koni_codecs/koni_codecs.dart';
 import 'package:test/test.dart';
 
-/// Differential vectors from the platform zlib (§11): compress random and
+/// Differential vectors from the platform zlib: compress random and
 /// structured payloads with `dart:io`'s ZLibCodec (raw deflate), decode
 /// with our inflater, expect byte identity. Seeded and replayable.
 void main() {

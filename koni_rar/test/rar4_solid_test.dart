@@ -1,6 +1,6 @@
 // Web-runnable solid RAR4 decoding. A real `rar 6.24 -ma4 -m3 -s` archive
 // of five text files that share a vocabulary, so later files reference earlier
-// ones through the shared solid window — inlined as base64 (no dart:io) so the
+// ones through the shared solid window, inlined as base64 (no dart:io) so the
 // cross-file LZSS decode runs on dart2js and dart2wasm, not just the VM.
 // Reading verifies CRC-32 by default, so a decode that completes is byte-exact
 // (also checked sha256-vs-unrar locally). The same archive lives in

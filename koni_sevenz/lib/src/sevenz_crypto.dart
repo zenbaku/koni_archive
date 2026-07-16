@@ -53,7 +53,7 @@ final class SevenZAesProps {
     );
   }
 
-  /// Serializes to the coder-property byte layout — the exact inverse of
+  /// Serializes to the coder-property byte layout, the exact inverse of
   /// [parse]. Salt and IV sizes are stored as `size - 1` in the two-nibble
   /// second byte, with their top bits flagged in the first byte's 0x80/0x40.
   Uint8List serialize() {
@@ -85,7 +85,7 @@ final class SevenZAesProps {
     final b0 = props[0];
     final numCyclesPower = b0 & 0x3F;
     if ((b0 & 0xC0) == 0) {
-      // No salt, no explicit IV — the whole-zero IV, default cost.
+      // No salt, no explicit IV; the whole-zero IV, default cost.
       return SevenZAesProps._(numCyclesPower, Uint8List(0), Uint8List(16));
     }
     if (props.length < 2) {
@@ -108,7 +108,7 @@ final class SevenZAesProps {
   }
 
   /// Cache key: the derived key depends only on (password, salt,
-  /// numCyclesPower) — never the IV — so folders sharing a salt reuse it.
+  /// numCyclesPower), never the IV, so folders sharing a salt reuse it.
   String cacheKey() =>
       '$numCyclesPower:${salt.map((b) => b.toRadixString(16)).join()}';
 }
@@ -120,7 +120,7 @@ final class SevenZAesProps {
 /// counter`, where the counter is an 8-byte little-endian round index; the
 /// context is finalized once. The password is encoded UTF-16LE.
 Uint8List deriveSevenZAesKey(String password, SevenZAesProps props) {
-  // Special sentinel (7-Zip): power 0x3F would mean 2^63 rounds — never a
+  // Special sentinel (7-Zip): power 0x3F would mean 2^63 rounds, never a
   // real archive; reject rather than hang.
   if (props.numCyclesPower >= 40) {
     throw const FormatException('implausible AES KDF cycle count');

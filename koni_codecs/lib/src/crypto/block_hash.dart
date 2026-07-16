@@ -8,7 +8,7 @@ import 'dart:typed_data';
 /// over one 64-byte block.
 ///
 /// The usage model matches core's `Crc32`: feed chunks with [add], then
-/// [finish] once. [copy] snapshots the running state — needed by KDFs that
+/// [finish] once. [copy] snapshots the running state, needed by KDFs that
 /// take intermediate digests mid-stream (RAR4's, via P3-5) and by HMAC's
 /// precomputed pad states.
 abstract base class BlockHash {
@@ -95,8 +95,8 @@ abstract base class BlockHash {
     }
     _buffer.fillRange(_bufferLength, blockSize - 8, 0);
     // 64-bit big-endian bit count, kept within web-safe arithmetic: the
-    // high word via division, the low word from the 29 low bits only —
-    // no shift ever sees a value ≥ 2^32 (dart2js §gotchas).
+    // high word via division, the low word from the 29 low bits only,
+    // no shift ever sees a value ≥ 2^32 (a dart2js gotcha).
     final high = bytes ~/ 0x20000000;
     final low = (bytes & 0x1FFFFFFF) << 3;
     _buffer[blockSize - 8] = (high >>> 24) & 0xFF;

@@ -136,12 +136,12 @@ Future<Rar5Toc> parseRar4(
 /// [startOffset] (just past the plaintext main header). Each block is stored
 /// as `salt[8] · AES-128-CBC(header padded to 16)`; the salt is the same value
 /// repeated before every block, and each block's cipher is (re)initialised with
-/// the salt-derived IV — CBC chains only *within* a block, not across them
+/// the salt-derived IV; CBC chains only *within* a block, not across them
 /// (matching the BSD `rardecode`'s per-block decrypt reader, `doc/references.md`).
 ///
 /// File *data* between headers stays encrypted under each file's own salt
 /// (the SALT flag in its now-decrypted header) and is decrypted later by the
-/// reader's `-p` path — nothing extra to do here.
+/// reader's `-p` path; nothing extra to do here.
 ///
 /// RAR4 has no password-check value, so a wrong password is detected by the
 /// header CRC: the first block failing to decrypt to a valid header
@@ -319,7 +319,7 @@ Rar5FileHeader _parseFileHeader(
 
   final isDirectory = (flags & _fileIsDirectory) == _fileIsDirectory;
   // Dictionary size from flag bits 5-7 (unless directory); the LZ window is
-  // a power of two ≥ unpacked size, capped at 4 MiB — the reader allocates
+  // a power of two ≥ unpacked size, capped at 4 MiB; the reader allocates
   // the actual window.
   final windowSize =
       isDirectory
@@ -349,7 +349,7 @@ Rar5FileHeader _parseFileHeader(
     unixMode: unixMode,
     isEncrypted: flags & _fhdPassword != 0,
     // RAR4 uses its own SHA-1-KDF + AES-128 scheme (rar_crypto.dart), keyed
-    // by the header salt below — not the RAR5 encryption record.
+    // by the header salt below, not the RAR5 encryption record.
     encryption: null,
     rar4Salt: rar4Salt,
     redirectTarget: null,
@@ -363,7 +363,7 @@ String _decodeName(Uint8List bytes, bool unicode) {
   // RAR4 Unicode names use a custom compression scheme after a NUL
   // separator; the common (ASCII/UTF-8) case is the bytes up to any NUL.
   // For non-ASCII Unicode names we fall back to the (lossy) ASCII prefix
-  // rather than mis-decode — documented in doc/notes.md.
+  // rather than mis-decode; documented in doc/notes.md.
   var end = bytes.length;
   if (unicode) {
     final nul = bytes.indexOf(0);

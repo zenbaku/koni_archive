@@ -4,7 +4,7 @@ import 'byte_sink.dart';
 import 'entry.dart';
 import 'write_options.dart';
 
-/// Immutable description of an entry to write (Phase 2) — the input mirror
+/// Immutable description of an entry to write (Phase 2), the input mirror
 /// of [ArchiveEntry].
 ///
 /// Only fields a *caller* controls appear here: reader-derived outputs
@@ -23,7 +23,7 @@ final class ArchiveEntrySpec {
     this.posixMode,
     this.linkTarget,
     this.compression,
-  }) : assert(modified == null || modified.isUtc, 'modified must be UTC (§4)'),
+  }) : assert(modified == null || modified.isUtc, 'modified must be UTC'),
        assert(
          type != ArchiveEntryType.symlink &&
                  type != ArchiveEntryType.hardlink ||
@@ -51,7 +51,7 @@ final class ArchiveEntrySpec {
   final ArchiveCompression? compression;
 }
 
-/// Writes entries to a [ByteSink] in one archive format — the SPI a format
+/// Writes entries to a [ByteSink] in one archive format, the SPI a format
 /// package implements for writing, and what application code drives via the
 /// `Archive.create` facade. The write mirror of `ArchiveReader`.
 ///
@@ -76,7 +76,7 @@ abstract class ArchiveWriter {
   /// bounded memory.
   ///
   /// [size] is required: TAR records it in the header *before* the data, so
-  /// unknown-size streaming would force whole-entry buffering — an explicit
+  /// unknown-size streaming would force whole-entry buffering, an explicit
   /// non-goal here (callers adding from disk or memory always know the
   /// size). Streaming fewer or more than [size] bytes is a
   /// [SizeLimitExceededException] / [CorruptArchiveException].
@@ -107,7 +107,7 @@ abstract class ArchiveWriter {
 }
 
 /// Descriptor for one writable archive format (Phase 2): its name and how
-/// to open a writer over a sink. Unlike reading there is no detection —
+/// to open a writer over a sink. Unlike reading there is no detection;
 /// writing always names the format explicitly.
 abstract class ArchiveWriteFormat {
   /// Const-constructable so descriptors can be compile-time constants.

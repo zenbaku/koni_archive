@@ -26,7 +26,7 @@ Future<String> collectString(ArchiveReader reader, ArchiveEntry entry) async =>
     );
 
 void main() {
-  group('single-entry adapter (§8)', () {
+  group('single-entry adapter', () {
     test('FNAME names the entry; metadata from header and trailer', () async {
       final reader = await openFixture('hello.txt.gz');
       final entry = reader.entries.single;
@@ -62,7 +62,7 @@ void main() {
     });
   });
 
-  group('multi-member (§8)', () {
+  group('multi-member', () {
     test('decodes to the concatenated content of all members', () async {
       final reader = await openFixture('multi_member.gz');
       final entry = reader.entries.single;
@@ -74,7 +74,7 @@ void main() {
     });
   });
 
-  group('integrity (§7)', () {
+  group('integrity', () {
     test(
       'a corrupted body surfaces as a typed error through the stream',
       () async {
@@ -132,7 +132,7 @@ void main() {
     });
   });
 
-  group('detection (§5)', () {
+  group('detection', () {
     test('gzip fixtures match; non-gzip bytes do not', () async {
       const format = GzipFormat();
       for (final name in ['hello.txt.gz', 'anonymous.gz', 'multi_member.gz']) {

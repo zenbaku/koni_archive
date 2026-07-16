@@ -2,8 +2,8 @@
 /// and layered `.tar.gz` handling via [GzipDecompressedByteSource].
 ///
 /// Most applications use the `koni_archive` facade, which registers
-/// [GzipFormat] automatically. A bare `.gz` opens as a single-entry archive
-/// (§8): name from the FNAME field, else derived from the source name.
+/// [GzipFormat] automatically. A bare `.gz` opens as a single-entry archive:
+/// name from the FNAME field, else derived from the source name.
 /// Multi-member (concatenated) files decode as one concatenated stream,
 /// with each member's CRC-32/ISIZE verified by default.
 library;

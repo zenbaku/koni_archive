@@ -8,11 +8,11 @@ import 'package:koni_archive_core/koni_archive_core.dart';
 import 'package:koni_tar/koni_tar.dart';
 import 'package:test/test.dart';
 
-/// Differential tests against `package:archive` (§11) where the formats
+/// Differential tests against `package:archive` where the formats
 /// overlap: same fixture, both decoders, same file list and content.
 ///
-/// Scope note: only plain-file entries are compared — the packages model
-/// directories/links differently — and only fixtures both handle.
+/// Scope note: only plain-file entries are compared (the packages model
+/// directories/links differently) and only fixtures both handle.
 void main() {
   const fixtures = [
     'basic_ustar.tar',

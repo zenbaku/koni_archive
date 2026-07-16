@@ -138,7 +138,7 @@ final class Rar5FileHeader {
   /// Whether the file's data continues into the next volume (multi-volume).
   final bool splitAfter;
 
-  /// Whether the file's data continues *from* the previous volume — i.e. this
+  /// Whether the file's data continues *from* the previous volume, i.e. this
   /// header is a continuation segment, not the file's first appearance.
   final bool splitBefore;
 }
@@ -189,7 +189,7 @@ final class Rar5Toc {
     // With encrypted headers (`rar -hp`) the crypt header yields this block
     // key; every following header block is then prefixed by a clear 16-byte
     // IV and AES-256-CBC encrypted under it. File *data* stays encrypted only
-    // by its own per-file record — the block key covers headers, not data
+    // by its own per-file record; the block key covers headers, not data
     // (see `doc/notes.md`).
     Rar5Keys? blockKey;
     var headerEncrypted = false;
@@ -485,14 +485,14 @@ final class Rar5Toc {
     );
   }
 
-  /// RAR5 names are UTF-8; decode permissively — invalid sequences become
-  /// U+FFFD rather than throwing (§7; hostile fuzz input lands here).
+  /// RAR5 names are UTF-8; decode permissively; invalid sequences become
+  /// U+FFFD rather than throwing (hostile fuzz input lands here).
   static String _decodeUtf8(Uint8List bytes) =>
       utf8.decode(bytes, allowMalformed: true);
 
   /// RAR5 mtime is unix seconds by default (the DOS-time flag is separate,
   /// but the common case and what `rar` writes is unix time in the base
-  /// field). Out-of-range values become null (§7).
+  /// field). Out-of-range values become null.
   static DateTime? _dosOrUnixTime(int value) {
     if (value == 0 || value > 253402300799) return null;
     return DateTime.fromMillisecondsSinceEpoch(value * 1000, isUtc: true);

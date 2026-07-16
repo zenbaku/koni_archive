@@ -16,13 +16,13 @@ import 'sevenz_crypto.dart';
 ///
 /// A 7z file is `[32-byte signature header][packed streams][header]`. The
 /// signature header sits at offset 0 but records the *offset, size, and CRC
-/// of the trailing header* — which are only known once every packed stream
+/// of the trailing header*, which are only known once every packed stream
 /// and the header itself have been produced. An append-only [ByteSink]
 /// cannot seek back to patch offset 0, so this writer **buffers the packed
 /// streams in memory** until [close], then emits signature header + packed
 /// data + header in one pass. Input still streams through the compressor
 /// (only the *compressed* output accumulates), so peak memory is bounded by
-/// the compressed archive size — inherent to appending a 7z, whose reader is
+/// the compressed archive size, inherent to appending a 7z, whose reader is
 /// itself a random-access format.
 ///
 /// ## Coders (P2-4b)
@@ -33,7 +33,7 @@ import 'sevenz_crypto.dart';
 /// whenever that comes out smaller. LZMA coders are buffer-based: an
 /// entry's *uncompressed* bytes are held in memory while it is encoded
 /// (the buffer doubles as the match window), so peak memory adds the
-/// largest entry's size to the packed-stream buffering described above —
+/// largest entry's size to the packed-stream buffering described above;
 /// Copy and Deflate entries still stream.
 ///
 /// ## Encryption (P4-2)
@@ -42,7 +42,7 @@ import 'sevenz_crypto.dart';
 /// two-coder chain `compressor → AES-256-CBC`: the compressed stream is
 /// zero-padded to a 16-byte block boundary and encrypted under a per-archive
 /// key (iterated-SHA-256 KDF, no salt) with a fresh per-folder IV. By
-/// default the header stays plaintext — filenames and the AES coder
+/// default the header stays plaintext; filenames and the AES coder
 /// parameters are visible, only the data is encrypted. Set
 /// [ArchiveWriteOptions.encryptHeader] to also encrypt the header (`-mhe`),
 /// wrapping it in the same `LZMA → AES` chain so entry names are hidden and
@@ -206,7 +206,7 @@ final class SevenZWriter extends ArchiveWriter {
     final type = isSymlink ? ArchiveEntryType.symlink : ArchiveEntryType.file;
 
     if (size == 0) {
-      // Zero content: an empty file (or empty-target link) — no folder, no
+      // Zero content: an empty file (or empty-target link), no folder, no
       // substream. Drain to honor the streaming contract and catch a
       // mis-declared size.
       await for (final chunk in content) {
@@ -291,7 +291,7 @@ final class SevenZWriter extends ArchiveWriter {
   /// buffer the entry; see the class note). With a password the compressed
   /// bytes are buffered, zero-padded to a 16-byte multiple, and
   /// AES-256-CBC-encrypted under a fresh IV before they land in the packed
-  /// area — so the packed size is the ciphertext length.
+  /// area, so the packed size is the ciphertext length.
   Future<(int, int, int, Uint8List?, Uint8List?)> _compress(
     String path,
     int method,
@@ -306,7 +306,7 @@ final class SevenZWriter extends ArchiveWriter {
     // When encrypting, buffer the compressed output so the whole stream can
     // be padded and AES-CBC-encrypted at once; otherwise stream it straight
     // into the packed area (bounded memory for Copy/Deflate). The buffer
-    // copies on add (`copy: true`) so it owns its bytes — the Copy path
+    // copies on add (`copy: true`) so it owns its bytes; the Copy path
     // would otherwise alias the caller's input chunk and encrypt-in-place
     // would corrupt the caller's data.
     final buffered = _encrypting ? BytesBuilder(copy: true) : null;
@@ -383,7 +383,7 @@ final class SevenZWriter extends ArchiveWriter {
     // Encrypt the buffered compressed stream: pad to a 16-byte multiple and
     // AES-256-CBC encrypt under a fresh per-folder IV. The AES coder's
     // declared output size stays the *unpadded* compressed length, so the
-    // reader slices the block padding off before the compressor runs — the
+    // reader slices the block padding off before the compressor runs, the
     // only thing that keeps a padded Copy (stored) folder honest, since Copy
     // has no end marker to absorb a tail.
     final compressed = buffered.takeBytes();
@@ -542,7 +542,7 @@ final class SevenZWriter extends ArchiveWriter {
 
   /// The encrypted (`-mhe`) kEncodedHeader: a StreamsInfo whose single folder
   /// is the two-coder `LZMA → AES` chain that decrypts-then-decompresses to
-  /// the real header — the same shape as an encrypted file-data folder, so
+  /// the real header, the same shape as an encrypted file-data folder, so
   /// the reader's encoded-header branch (which routes through the AES-aware
   /// `_decodeFolder`) parses it unchanged.
   Uint8List _buildEncryptedEncodedHeader({
@@ -629,7 +629,7 @@ final class SevenZWriter extends ArchiveWriter {
     h.number(SevenZId.codersUnpackSize);
     for (final f in _folders) {
       // Out-stream order: compressor output (the folder's plaintext size)
-      // then, for an encrypted folder, the AES output — the *unpadded*
+      // then, for an encrypted folder, the AES output, the *unpadded*
       // compressed length, so the reader trims the block padding before the
       // compressor decodes it.
       h.number(f.unpackSize);
@@ -670,7 +670,7 @@ final class SevenZWriter extends ArchiveWriter {
     // compressor. Coder 0 is the compressor, coder 1 is AES; a single bind
     // pair feeds the compressor's input (in-stream 0) from the AES output
     // (out-stream 1). numPackedStreams is 1, so the packed stream (AES's
-    // input, in-stream 1) is inferred — nothing more is written.
+    // input, in-stream 1) is inferred; nothing more is written.
     h
       ..number(2) // numCoders
       // coder 0: the compressor
@@ -788,7 +788,7 @@ final class SevenZWriter extends ArchiveWriter {
 
   /// The Windows attribute word: the DOS directory bit plus, when a unix
   /// mode is meaningful, the `FILE_ATTRIBUTE_UNIX_EXTENSION` (0x8000) flag
-  /// with the full mode in the high 16 bits — exactly what the reader
+  /// with the full mode in the high 16 bits, exactly what the reader
   /// decodes back into `posixMode`, symlink typing, and directory typing.
   int? _attributesFor(
     ArchiveEntrySpec spec, {
@@ -836,7 +836,7 @@ final class _Folder {
   /// (padded) ciphertext size when encrypted.
   final int packSize;
 
-  /// The folder's final output size — the entry's uncompressed size.
+  /// The folder's final output size, the entry's uncompressed size.
   final int unpackSize;
   final int crc;
 

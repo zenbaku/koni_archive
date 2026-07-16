@@ -1,14 +1,14 @@
 import 'dart:typed_data';
 
-/// LZMA range encoder — the encode-direction mirror of the range coder
-/// inside `LzmaDecoder` (§8, P2-4b).
+/// LZMA range encoder, the encode-direction mirror of the range coder
+/// inside `LzmaDecoder`.
 ///
 /// The bit probabilities, normalization threshold, and adaptation shifts are
 /// identical to the decoder's; what the decoder does not have is the **carry
 /// machinery**: the encoder's `low` register can overflow into a 33rd bit,
 /// which retroactively increments bytes already determined. Pending `0xFF`
 /// bytes are therefore counted (`_cacheSize`) rather than emitted, and are
-/// materialized — as `0xFF` or, after a carry, `0x00` — only once a
+/// materialized (as `0xFF` or, after a carry, `0x00`) only once a
 /// non-`0xFF` byte pins them down.
 ///
 /// `low` is manipulated with `%`/`~/` arithmetic (never bitwise) because it
@@ -135,7 +135,7 @@ final class RangeEncoder {
   }
 }
 
-/// LZMA compression — the encode direction of `LzmaDecoder` (§8, P2-4b).
+/// LZMA compression, the encode direction of `LzmaDecoder`.
 ///
 /// Buffer-based like the decoder, whose output buffer doubles as the match
 /// window: here the caller provides the entire input up front and it doubles
@@ -144,7 +144,7 @@ final class RangeEncoder {
 ///
 /// The probability-model layout and context computation are identical to the
 /// decoder's; the two stay in lockstep by construction. Any literal/match
-/// token choice therefore decodes correctly — parsing quality (greedy
+/// token choice therefore decodes correctly; parsing quality (greedy
 /// hash-chain matching, the deflate approach rebuilt for LZMA's window;
 /// 7zz's optimal-price parser is a deferred ratio lever) affects only ratio,
 /// never validity.
@@ -270,14 +270,14 @@ final class LzmaEncoder {
     _rc.reset();
   }
 
-  /// Resets the probability model, state, and rep distances — an LZMA2
+  /// Resets the probability model, state, and rep distances, an LZMA2
   /// "state reset". The match-finder chains are untouched: they follow the
   /// data, not the model.
   void resetState() => _resetState();
 
   /// Encodes `data[from..to)` as one range-coded unit, stopping at a symbol
   /// boundary once the packed output approaches [packLimit] bytes. Returns
-  /// the position actually reached — up to 272 bytes past [to] when the
+  /// the position actually reached, up to 272 bytes past [to] when the
   /// final match runs long; the caller declares whatever was reached.
   /// Finish the unit with [takeChunk].
   int encodeChunk(int from, int to, {required int packLimit}) =>
@@ -312,7 +312,7 @@ final class LzmaEncoder {
 
   // The table scales with the input (~one slot per position, 16–22 bits):
   // an undersized table fills every bucket with colliding candidates, and
-  // on incompressible data each chain step is a cache-missing false probe —
+  // on incompressible data each chain step is a cache-missing false probe,
   // the difference between ~16 MiB/s and ~0.4 MiB/s on noise.
   Int32List _head = _emptyChain;
   int _hashMask = 0;
@@ -363,7 +363,7 @@ final class LzmaEncoder {
     var candidate = _head[h];
     assert(
       candidate != pos,
-      'position $pos inserted twice — lookahead cache not honored',
+      'position $pos inserted twice; lookahead cache not honored',
     );
     _prev[pos] = candidate;
     _head[h] = pos;
@@ -412,7 +412,7 @@ final class LzmaEncoder {
   // prefer a rep match when it is nearly as long as the chain match (reps
   // cost a few bits, new distances cost dozens); before committing to a
   // chain match, peek one position ahead and emit a literal instead when
-  // the next position offers a decisively better match. Heuristic only —
+  // the next position offers a decisively better match. Heuristic only;
   // every outcome is valid LZMA.
 
   /// Best rep-distance match at the scan position (0 when none).
@@ -430,7 +430,7 @@ final class LzmaEncoder {
 
   /// A packLimit no chunk can hit (LZMA2's real one is 64 KiB). A literal,
   /// not `1 << 50`: dart2js shifts operate on 32 bits and evaluate that to
-  /// zero — which would silence every stream to its 5 flush bytes.
+  /// zero, which would silence every stream to its 5 flush bytes.
   static const int _noPackLimit = 0x4000000000000; // 2^50
 
   /// Headroom kept below the pack limit: one symbol emits at most ~48 bits,
@@ -562,7 +562,7 @@ final class LzmaEncoder {
     }
   }
 
-  /// Encodes a rep match — the decoder's rep branch in reverse, including
+  /// Encodes a rep match, the decoder's rep branch in reverse, including
   /// the rep-distance list rotation.
   void _encodeRep(int posState, int len, int index) {
     _rc.encodeBit(_isMatch, (_state << 4) + posState, 1);
@@ -634,7 +634,7 @@ final class LzmaEncoder {
     return (n << 1) | ((dist >> (n - 1)) & 1);
   }
 
-  /// Encodes a length (2–273) through a length coder's probability block —
+  /// Encodes a length (2–273) through a length coder's probability block,
   /// the decoder's `_length` in reverse.
   void _encodeLength(Uint16List probs, int len, int posState) {
     final v = len - 2;

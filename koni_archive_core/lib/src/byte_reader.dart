@@ -5,13 +5,13 @@ import 'exceptions.dart';
 /// Synchronous cursor over a byte buffer for parsing archive structures.
 ///
 /// All reads advance [position]; reading past the end throws
-/// [UnexpectedEofException] (never [RangeError], §7). Multi-byte reads exist
+/// [UnexpectedEofException] (never [RangeError]). Multi-byte reads exist
 /// in little- and big-endian variants; archive formats are predominantly
 /// little-endian.
 final class ByteReader {
   /// Creates a reader over [bytes], starting at offset 0.
   ///
-  /// [baseOffset] is added to [position] in error context only — pass the
+  /// [baseOffset] is added to [position] in error context only; pass the
   /// buffer's offset within the archive so exceptions point at the true
   /// archive offset.
   ByteReader(Uint8List bytes, {int baseOffset = 0})
@@ -86,10 +86,10 @@ final class ByteReader {
   ///
   /// Composed from two 32-bit reads for dart2js compatibility
   /// (`ByteData.getUint64` is unsupported there). Values above 2^53 − 1
-  /// throw [UnsupportedFeatureException] on every platform — one uniform
+  /// throw [UnsupportedFeatureException] on every platform: one uniform
   /// cap (the dart2js exact-integer limit; ~9 PB dwarfs any real archive
   /// field), which also keeps hostile 64-bit header fields from wrapping
-  /// negative on the VM (§7 fuzz invariant).
+  /// negative on the VM (fuzz invariant).
   int readUint64le() {
     _require(8);
     final lo = _data.getUint32(_position, Endian.little);

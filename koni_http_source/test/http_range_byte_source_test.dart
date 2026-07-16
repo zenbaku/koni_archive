@@ -30,7 +30,7 @@ final class FakeRangeServer {
       );
     }
     // If-Range: a weak validator (`W/"..."`) can't validate a range, and a
-    // validator that no longer matches means the resource changed — either
+    // validator that no longer matches means the resource changed; either
     // way the server sends the whole (new) resource with 200, not a 206 slice.
     final ifRange = headers['if-range'];
     if (ifRange != null && (ifRange.startsWith('W/') || ifRange != etag)) {
@@ -131,7 +131,7 @@ void main() {
       final source = await HttpRangeByteSource.withFetcher(server.fetch);
       await readEntry(source, 'page001.txt');
       // Open probe + EOCD tail + central directory + local header + data:
-      // a small, size-independent number — never a whole-file download.
+      // a small, size-independent number, never a whole-file download.
       expect(server.requests, lessThanOrEqualTo(10));
     });
   });
@@ -195,7 +195,7 @@ void main() {
     test('a weak ETag is not used as If-Range, so reads still work', () async {
       // Servers behind proxies/gzip/CDNs often emit weak ETags. A compliant
       // server rejects `If-Range: W/"..."` with 200, so the source must not
-      // send a weak validator — otherwise every read would fail.
+      // send a weak validator; otherwise every read would fail.
       final server = FakeRangeServer(zip, etag: 'W/"weak-v1"');
       final source = await HttpRangeByteSource.withFetcher(server.fetch);
       expect(await readEntry(source, 'page002.txt'), entries['page002.txt']);
@@ -207,7 +207,7 @@ void main() {
         final server = FakeRangeServer(zip, etag: '"v1"');
         final source = await HttpRangeByteSource.withFetcher(server.fetch);
         // The file is replaced under us: the If-Range validator no longer
-        // matches, so the server answers 200 (full body) — which must surface
+        // matches, so the server answers 200 (full body), which must surface
         // as a typed error, never as bytes from a different version.
         server.etag = '"v2"';
         await expectLater(

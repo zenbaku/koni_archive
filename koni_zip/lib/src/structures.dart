@@ -8,13 +8,13 @@ import 'cp437.dart';
 /// ZIP structure signatures (little-endian on disk; compared byte-wise).
 const int eocdSignature = 0x06054B50;
 
-/// `PK\x06\x07` — ZIP64 end-of-central-directory locator.
+/// `PK\x06\x07`: ZIP64 end-of-central-directory locator.
 const int zip64LocatorSignature = 0x07064B50;
 
-/// `PK\x01\x02` — central directory file header.
+/// `PK\x01\x02`: central directory file header.
 const int centralHeaderSignature = 0x02014B50;
 
-/// `PK\x03\x04` — local file header.
+/// `PK\x03\x04`: local file header.
 const int localHeaderSignature = 0x04034B50;
 
 /// Parsed end-of-central-directory record, positioned within the source.
@@ -43,15 +43,15 @@ final class Eocd {
   /// Absolute offset of the EOCD record in the source.
   final int eocdOffset;
 
-  /// Bytes of non-ZIP prefix (self-extracting stub, §5/§15): the recorded
+  /// Bytes of non-ZIP prefix (self-extracting stub): the recorded
   /// offsets are relative to the original archive start, so every offset
   /// must be shifted by this delta.
   final int prefixLength;
 
-  /// Locates and parses the EOCD by scanning backwards from EOF (§5): the
+  /// Locates and parses the EOCD by scanning backwards from EOF: the
   /// comment field can push the record up to ~64 KiB from the end. Prefers
   /// a candidate whose comment length exactly reaches EOF; falls back to
-  /// the last signature found (trailing junk happens in the wild — matches
+  /// the last signature found (trailing junk happens in the wild, matches
   /// Info-ZIP's tolerance; see doc/notes.md).
   static Future<Eocd> find(ByteSource source) async {
     if (source.length < 22) {
@@ -140,7 +140,7 @@ final class Eocd {
   ///
   /// The locator's recorded offset is relative to the original archive
   /// start (wrong for prefixed archives), so the record is found by
-  /// scanning backwards from the locator — writers place it immediately
+  /// scanning backwards from the locator; writers place it immediately
   /// before, but the record is extensible, so a bounded window is searched.
   static Future<Eocd> _parseZip64(
     ByteSource source,
@@ -210,7 +210,7 @@ final class Eocd {
     required int eocdOffset,
     required bool isZip64,
   }) {
-    // Never trust header fields (§7): the central directory must fit
+    // Never trust header fields: the central directory must fit
     // before whatever record marks its end.
     if (cdSize > cdEnd || cdOffset > cdEnd - cdSize) {
       throw CorruptArchiveException(
@@ -276,7 +276,7 @@ final class CentralEntry {
   /// Absolute offset of the local file header (prefix-adjusted).
   final int localHeaderOffset;
 
-  /// Stored byte count of the content in the archive — including any
+  /// Stored byte count of the content in the archive, including any
   /// encryption header/salt/MAC overhead.
   final int compressedSize;
 
@@ -284,7 +284,7 @@ final class CentralEntry {
   /// descriptor). Needed to pick the traditional-cipher password check.
   final int flags;
 
-  /// Raw DOS mod-time field — the traditional cipher's check byte when the
+  /// Raw DOS mod-time field, the traditional cipher's check byte when the
   /// entry carries a data descriptor (bit 3).
   final int dosTime;
 
@@ -298,7 +298,7 @@ final class CentralEntry {
     ArchiveReadOptions options,
   ) async {
     // Each record is at least 46 bytes: an entry count that cannot fit is
-    // hostile (§7 — fail cleanly, no OOM).
+    // hostile (fail cleanly, no OOM).
     if (eocd.totalEntries > eocd.centralDirectorySize ~/ 46) {
       throw CorruptArchiveException(
         '${eocd.totalEntries} entries cannot fit in a '
@@ -457,7 +457,7 @@ final class CentralEntry {
   }
 
   /// Extended-timestamp extra field (0x5455 "UT"): unix mtime, UTC,
-  /// 1-second precision — better than the DOS timestamp when present.
+  /// 1-second precision, better than the DOS timestamp when present.
   static DateTime? _extraTime(Uint8List extra) {
     var pos = 0;
     while (pos + 4 <= extra.length) {
@@ -483,8 +483,8 @@ final class CentralEntry {
   }
 
   /// DOS timestamps are local wall time with 2-second resolution and no
-  /// zone information; the wall time is exposed *as if* UTC — documented
-  /// lossiness (§8).
+  /// zone information; the wall time is exposed *as if* UTC, documented
+  /// lossiness.
   static DateTime? _dosTime(int dosDate, int dosTime) {
     if (dosDate == 0) return null;
     return DateTime.utc(

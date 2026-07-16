@@ -8,7 +8,7 @@ Produced by `dart run --no-enable-asserts bench/bin/lzma_encode_bench.dart`.
 - runs: best of 5 (after 2 warmup)
 - payloads: 8 MiB seeded pseudo-prose (Zipf-ish word draws); 8 MiB
   incompressible noise
-- baseline: none — package:archive has no LZMA encoder; koni_codecs'
+- baseline: none; package:archive has no LZMA encoder; koni_codecs'
   DeflateEncoder runs on the same payloads as an in-repo reference
 
 | encoder / payload | time | throughput | output | ratio |
@@ -23,14 +23,14 @@ Produced by `dart run --no-enable-asserts bench/bin/lzma_encode_bench.dart`.
 ## Reading the numbers
 
 - **Prose (the compressible case):** the LZMA coders beat our own deflate
-  on *both* time and ratio — the greedy+lazy parser with rep matches earns
+  on *both* time and ratio: the greedy+lazy parser with rep matches earns
   its keep. Against liblzma preset 6 on repo docs the ratio lands within
-  ~1 point (44.9% vs 44.3% on README.md; 42.8% vs 41.9% on PROMPT_V1.md) —
+  ~1 point (44.9% vs 44.3% on README.md; 42.8% vs 41.9% on a text file),
   strong for a fast-mode parser; 7zz's optimal-price parser remains the
   deferred ratio lever.
 - **Noise (the worst case):** every match probe fails, so throughput is
   bound by hash-chain probing over random memory. The input-scaled hash
-  table (16–22 bits) is what keeps this at MiB/s — a fixed 2^17 table
+  table (16–22 bits) is what keeps this at MiB/s; a fixed 2^17 table
   measured ~0.4 MiB/s on the same payload (~64 colliding candidates per
   bucket, each probe a cache miss). LZMA2's uncompressed-chunk fallback
   caps the size at 100.0% (+3 bytes per 64 KiB); LZMA1 has no fallback and

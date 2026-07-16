@@ -8,7 +8,7 @@ import 'sha256.dart';
 ///
 /// The keyed inner/outer pad states are compressed once at construction
 /// and snapshotted per message, so authenticating many messages under one
-/// key — PBKDF2's inner loop, WinZip AE streams — costs two compression
+/// key (PBKDF2's inner loop, WinZip AE streams) costs two compression
 /// calls per message beyond the data itself.
 ///
 /// Usage per message: [add] chunks, then [finish]; [reset] rearms the same

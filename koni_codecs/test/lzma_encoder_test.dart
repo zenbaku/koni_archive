@@ -8,7 +8,7 @@ import 'package:test/test.dart';
 /// emits must decode to the same symbols through a reference range decoder
 /// whose arithmetic is copied verbatim from `LzmaDecoder` (which is itself
 /// pinned by liblzma vectors in lzma_test.dart). Probability arrays adapt in
-/// lockstep on both sides, so any drift — carry handling above all — shows
+/// lockstep on both sides, so any drift (carry handling above all) shows
 /// up as a mismatch.
 void main() {
   group('RangeEncoder round-trip', () {
@@ -59,7 +59,7 @@ void main() {
 
     test('strongly adapted probabilities against the grain', () {
       // Drive one slot toward "always 0", then encode 1s through it (the
-      // most expensive symbols, max normalizations per bit) — and vice
+      // most expensive symbols, max normalizations per bit), and vice
       // versa.
       final ops = <_Op>[
         for (var i = 0; i < 2000; i++) _Op.bit(0, 0),
@@ -154,7 +154,7 @@ void main() {
 
     test('every valid lc/lp/pb combination (lc+lp <= 4)', () {
       final payload = Uint8List.fromList(
-        ('mixed content 12345 — ' * 40).codeUnits,
+        ('mixed content 12345 - ' * 40).codeUnits,
       );
       for (var lc = 0; lc <= 4; lc++) {
         for (var lp = 0; lc + lp <= 4; lp++) {
@@ -411,7 +411,7 @@ void main() {
 
   group('cross-platform determinism', () {
     // Golden pin: this exact (length, FNV-1a) pair must come out of every
-    // platform — VM, dart2js, dart2wasm — or compressed output is not
+    // platform (VM, dart2js, dart2wasm) or compressed output is not
     // byte-identical across them (hash mixing or arithmetic diverged).
     // Update the pin only for intentional encoder changes.
     test('LZMA1 and LZMA2 output is pinned', () {
@@ -517,7 +517,7 @@ final class _Op {
   };
 }
 
-/// Reference range decoder — the arithmetic of `LzmaDecoder`'s private
+/// Reference range decoder, the arithmetic of `LzmaDecoder`'s private
 /// range coder, copied verbatim (including the 32-bit masking discipline).
 final class _RefRangeDecoder {
   _RefRangeDecoder(this._input) {

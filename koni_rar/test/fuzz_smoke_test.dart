@@ -13,9 +13,9 @@ import 'package:test/test.dart';
 
 import 'src/rar4_builder.dart';
 
-/// Corpus-driven fuzz smoke (§11): bit-flip and truncation mutations over
-/// the committed fixtures. Invariant (§7): any input either parses or
-/// throws a typed [ArchiveException] — never a RangeError, never another
+/// Corpus-driven fuzz smoke: bit-flip and truncation mutations over
+/// the committed fixtures. Invariant: any input either parses or
+/// throws a typed [ArchiveException]; never a RangeError, never another
 /// error type, never a hang, never unbounded memory.
 void main() {
   test(
@@ -32,8 +32,8 @@ void main() {
       final random = Random(seed);
       printOnFailure('fuzz seed: $seed');
 
-      // The generated fixtures (rar/) are all RAR5; the real RAR4 archives —
-      // including the encrypted v4 ones — live in rar_static/ (rar 7.x can't
+      // The generated fixtures (rar/) are all RAR5; the real RAR4 archives,
+      // including the encrypted v4 ones, live in rar_static/ (rar 7.x can't
       // author v4, so they are hand-committed there).
       final fixtures = [
         for (final dir in const [
@@ -89,7 +89,7 @@ void main() {
 
   // Drive the generic RarVM (compile + execute) on corrupt input: mutate the
   // standard-filter fixtures with the force-VM seam on, so the filter programs
-  // run through the interpreter. The §7 invariant holds here too — a bad
+  // run through the interpreter. The invariant holds here too, a bad
   // program or region must throw a typed error, never a RangeError or a hang
   // (the VM's memory is masked and its instruction count is capped).
   test(
@@ -160,7 +160,7 @@ void main() {
   // The no-password pass above only reaches the "archive is locked" branch for
   // `-hp` archives. Mutating them and opening *with* the password drives the
   // encrypted-header walker itself (per-block salt read, AES decrypt, header
-  // size/CRC checks) — the same §7 invariant must hold there.
+  // size/CRC checks); the same invariant must hold there.
   test(
     'mutated encrypted-header (-hp) archives throw typed errors only',
     () async {

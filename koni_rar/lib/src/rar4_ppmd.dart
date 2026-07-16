@@ -13,7 +13,7 @@
 /// source was consulted.
 ///
 /// The C code addresses model nodes by casting a byte pool (`Base`) with 32-bit
-/// offset refs; this port keeps that representation exactly — [_base] is the
+/// offset refs; this port keeps that representation exactly; [_base] is the
 /// pool and every context/state/node is an `int` byte offset into it, read and
 /// written through a little-endian [ByteData] view. That faithfulness is
 /// deliberate: the sub-allocator's free-list and glue logic depend on precise
@@ -229,9 +229,9 @@ final class Ppmd7Model {
   int _runLength = 0, _initRL = 0;
 
   // BinSumm[128][64] and See[25][16] (Summ u16, Shift u8, Count u8). The C
-  // model's DummySee (used when NumStats == 256) is never read — MakeEscFreq
+  // model's DummySee (used when NumStats == 256) is never read; MakeEscFreq
   // returns escFreq = 1 there and its Summ update is a no-op (Shift ==
-  // PERIOD_BITS) — so it is represented by the -1 sentinel from _makeEscFreq.
+  // PERIOD_BITS), so it is represented by the -1 sentinel from _makeEscFreq.
   final Uint16List _binSumm = Uint16List(128 * 64);
   final Uint16List _seeSumm = Uint16List(25 * 16);
   final Uint8List _seeShift = Uint8List(25 * 16);

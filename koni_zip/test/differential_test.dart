@@ -8,7 +8,7 @@ import 'package:koni_archive_core/koni_archive_core.dart';
 import 'package:koni_zip/koni_zip.dart';
 import 'package:test/test.dart';
 
-/// Differential tests against `package:archive` (§11): same fixture, both
+/// Differential tests against `package:archive`: same fixture, both
 /// decoders, same regular-file list and content.
 void main() {
   const fixtures = [

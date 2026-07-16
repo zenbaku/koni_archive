@@ -1,4 +1,4 @@
-// RAR benchmarks (M9, §8/§10): CBR page-flip.
+// RAR benchmarks (M9): CBR page-flip.
 //
 //   dart run --no-enable-asserts bench/bin/rar_bench.dart
 //

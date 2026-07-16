@@ -1,4 +1,4 @@
-# koni_sevenz — feature matrix
+# koni_sevenz: feature matrix
 
 ## Supported
 
@@ -6,8 +6,8 @@
 | --- | --- |
 | LZMA, LZMA2, Copy, Deflate folders | decoded via koni_codecs |
 | Delta and BCJ (x86) filter chains | applied in place after decompression |
-| Solid blocks | whole-folder decode + size-capped LRU cache (§8) |
-| Compressed (kEncodedHeader) headers | decoded at open (§4 caveat) |
+| Solid blocks | whole-folder decode + size-capped LRU cache |
+| Compressed (kEncodedHeader) headers | decoded at open |
 | AES-256 decryption (P3-3) | `ArchiveReadOptions.password`; iterated-SHA-256 KDF (UTF-16LE password), AES-256-CBC peeled ahead of the codec chain; solid folders and encrypted headers (`-mhe`, password needed at open) |
 | Substream CRC-32 verification | on by default; `verifyChecksums: false` opt-out |
 | Entry metadata | names (UTF-16), mtimes (FILETIME→UTC ms), unix modes, dirs, symlinks, empty files |
@@ -20,7 +20,7 @@
 | BCJ2, PPMd, bzip2, other codecs | `UnsupportedCompressionException` naming codec + id, at `openRead`; listing works |
 | AES-encrypted stream, no password | `EncryptedArchiveException` at `openRead` (listing works) |
 | AES-encrypted header, no password | `EncryptedArchiveException` at open |
-| Wrong password | no verifier exists in 7z: surfaces as `CorruptArchiveException` (bad LZMA/inflate) or `ChecksumMismatchException` — never an untyped error |
+| Wrong password | no verifier exists in 7z: surfaces as `CorruptArchiveException` (bad LZMA/inflate) or `ChecksumMismatchException`, never an untyped error |
 | Multi-volume, external headers/names | `UnsupportedFeatureException` |
 
 ## Writing (P2-4a container, P2-4b LZMA)
@@ -46,7 +46,7 @@
 format's leading signature header records the *offset/size/CRC of the
 trailing header*, which an append-only sink cannot patch in retrospect.
 Input still streams through the compressor, so peak memory is bounded by the
-*compressed* archive size — but a Copy-stored `.cb7` effectively holds the
+*compressed* archive size, but a Copy-stored `.cb7` effectively holds the
 whole archive in RAM. This is inherent to appending a random-access format.
 
 **Deferred to P2-4b (tracked, not silent):** LZMA/LZMA2 folders (and the
@@ -58,4 +58,4 @@ cross-file compression and header overhead scales with file count). See
 ## Spec references
 
 - 7zFormat.txt, lzma-specification.txt (LZMA SDK, public domain)
-- 7zz observed behavior as the reference tool (§13.3)
+- 7zz observed behavior as the reference tool
