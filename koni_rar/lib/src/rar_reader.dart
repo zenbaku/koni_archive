@@ -14,14 +14,28 @@ const int _readChunkSize = 64 * 1024;
 /// Cap on a single decoded file / solid run (§7).
 const int _maxFileSize = 1024 * 1024 * 1024;
 
+/// One volume's slice of a multi-volume file's packed data.
+final class _VolumeSegment {
+  _VolumeSegment(this.source, this.offset, this.size);
+
+  final ByteSource source;
+  final int offset;
+  final int size;
+}
+
 /// Reader for RAR5 and RAR4 archives (and CBR comics). Created via
 /// `RarFormat.openReader`. RAR5 handles store + methods 1–5 (solid and
 /// non-solid); RAR4 handles store + method-29 (solid and non-solid) with the
 /// RarVM standard filters. PPMd and custom (non-standard) VM filter programs
 /// surface as typed errors (see `doc/notes.md`).
 final class RarReader extends ArchiveReader {
-  RarReader._(this.format, this._source, this._options, this._headers)
-    : entries = List.unmodifiable([for (final h in _headers) _toEntry(h)]) {
+  RarReader._(
+    this.format,
+    this._source,
+    this._options,
+    this._headers, [
+    this._segments,
+  ]) : entries = List.unmodifiable([for (final h in _headers) _toEntry(h)]) {
     for (var i = 0; i < entries.length; i++) {
       _indexOf[entries[i]] = i;
     }
@@ -36,6 +50,12 @@ final class RarReader extends ArchiveReader {
   final ByteSource _source;
   final ArchiveReadOptions _options;
   final List<Rar5FileHeader> _headers;
+
+  /// For a multi-volume set: per entry (parallel to [_headers]), the packed-
+  /// data segments that make up that file, in order across volumes. Null for
+  /// a single-volume archive, where data is read from [_source] directly.
+  final List<List<_VolumeSegment>>? _segments;
+
   final Expando<int> _indexOf = Expando<int>();
 
   // Decoded solid run: the shared window decoder plus which file indices it
@@ -88,7 +108,75 @@ final class RarReader extends ArchiveReader {
         );
       }
     }
+    if (toc.isVolume) {
+      return _parseMultiVolume(format, source, options, isRar4: isRar4);
+    }
     return RarReader._(format, source, options, toc.files);
+  }
+
+  /// Assembles a multi-volume set: volume 1 is [firstSource], the rest come
+  /// from `options.nextVolume`. A file whose data spans volumes appears in
+  /// each with `splitBefore`/`splitAfter` set; its segments are merged into a
+  /// single logical entry whose packed data is the segments concatenated.
+  static Future<RarReader> _parseMultiVolume(
+    ArchiveFormat format,
+    ByteSource firstSource,
+    ArchiveReadOptions options, {
+    required bool isRar4,
+  }) async {
+    final resolver = options.nextVolume;
+    if (resolver == null) {
+      throw UnsupportedFeatureException(
+        'multi-volume archive: supply ArchiveReadOptions.nextVolume to read '
+        'the other volumes',
+        format: 'rar',
+      );
+    }
+
+    final headers = <Rar5FileHeader>[];
+    final segments = <List<_VolumeSegment>>[];
+    var expectingContinuation = false;
+
+    void addVolume(ByteSource src, List<Rar5FileHeader> files) {
+      for (final h in files) {
+        if (h.splitBefore &&
+            expectingContinuation &&
+            headers.isNotEmpty &&
+            headers.last.name == h.name) {
+          // Continuation of the file split across the volume boundary.
+          segments.last.add(_VolumeSegment(src, h.dataOffset, h.dataSize));
+          // The final segment (splitAfter == false) carries the authoritative
+          // full-file CRC — earlier occurrences store only their segment's CRC
+          // — so adopt its header for the merged entry.
+          if (!h.splitAfter) headers[headers.length - 1] = h;
+        } else {
+          headers.add(h);
+          segments.add([_VolumeSegment(src, h.dataOffset, h.dataSize)]);
+        }
+        expectingContinuation = h.splitAfter;
+      }
+    }
+
+    Future<Rar5Toc> parseVolume(ByteSource src) =>
+        isRar4
+            ? parseRar4(src, 7)
+            : Rar5Toc.parse(src, 8, password: options.password);
+
+    addVolume(firstSource, (await parseVolume(firstSource)).files);
+    // Pull subsequent volumes until the resolver runs out; the cap only guards
+    // against a resolver that never returns null.
+    for (var volume = 2; volume < 1 << 20; volume++) {
+      final next = await resolver(volume);
+      if (next == null) break;
+      addVolume(next, (await parseVolume(next)).files);
+    }
+    if (expectingContinuation) {
+      throw UnexpectedEofException(
+        'multi-volume archive is incomplete: a continuation volume is missing',
+        format: 'rar',
+      );
+    }
+    return RarReader._(format, firstSource, options, headers, segments);
   }
 
   static ArchiveEntry _toEntry(Rar5FileHeader h) {
@@ -140,13 +228,6 @@ final class RarReader extends ArchiveReader {
           entryPath: entry.path,
         );
       }
-    }
-    if (header.splitAfter) {
-      throw UnsupportedFeatureException(
-        'multi-volume archives are not supported',
-        format: 'rar',
-        entryPath: entry.path,
-      );
     }
     if (header.version != 50 && header.version != 29) {
       throw UnsupportedFeatureException(
@@ -240,7 +321,7 @@ final class RarReader extends ArchiveReader {
     Rar5FileHeader header,
     String entryPath,
   ) async {
-    final data = await _readData(header);
+    final data = await _readData(index, header);
     if (header.method == 0) {
       // Stored: data is the content (solid store still just concatenates).
       // Encrypted data is padded to a 16-byte AES block, so allow a padded
@@ -312,7 +393,7 @@ final class RarReader extends ArchiveReader {
       if (h.method == 0 || h.isDirectory) {
         // A stored or empty member inside a solid run: append raw. Encrypted
         // data carries AES padding — append only the declared bytes.
-        final decrypted = await _readData(h);
+        final decrypted = await _readData(i, h);
         final raw =
             h.isEncrypted && decrypted.length > h.unpackedSize
                 ? Uint8List.sublistView(decrypted, 0, h.unpackedSize)
@@ -326,7 +407,7 @@ final class RarReader extends ArchiveReader {
       } else {
         final start = decoder.writePtr;
         decoder.beginFileFilters();
-        decoder.decompressFile(await _readData(h), h.unpackedSize);
+        decoder.decompressFile(await _readData(i, h), h.unpackedSize);
         _solidOutputs[i] = _extractWindow(decoder, start, h.unpackedSize, mask);
       }
     }
@@ -382,7 +463,7 @@ final class RarReader extends ArchiveReader {
         if (h.method == 0 || h.isDirectory) {
           // Stored/empty member: append its bytes to the shared window so
           // later compressed members can still reference them.
-          final decrypted = await _readData(h);
+          final decrypted = await _readData(i, h);
           final raw =
               h.isEncrypted && decrypted.length > h.unpackedSize
                   ? Uint8List.sublistView(decrypted, 0, h.unpackedSize)
@@ -391,7 +472,7 @@ final class RarReader extends ArchiveReader {
           decoder.writePtr += raw.length;
         } else {
           decoder.decompressFile(
-            await _readData(h),
+            await _readData(i, h),
             h.unpackedSize,
             parseTable: !decoder.hasTables,
           );
@@ -441,16 +522,40 @@ final class RarReader extends ArchiveReader {
     return pow;
   }
 
-  Future<Uint8List> _readData(Rar5FileHeader header) async {
-    if (header.dataSize == 0) return Uint8List(0);
-    if (header.dataOffset + header.dataSize > _source.length) {
-      throw UnexpectedEofException(
-        'entry data extends past the end of the archive',
-        format: 'rar',
-        offset: header.dataOffset,
-      );
+  Future<Uint8List> _readData(int index, Rar5FileHeader header) async {
+    final Uint8List raw;
+    final segs = _segments?[index];
+    if (segs != null) {
+      // Multi-volume: concatenate this file's packed segments across volumes.
+      var total = 0;
+      for (final s in segs) {
+        total += s.size;
+      }
+      if (total == 0) return Uint8List(0);
+      raw = Uint8List(total);
+      var pos = 0;
+      for (final s in segs) {
+        if (s.offset + s.size > s.source.length) {
+          throw UnexpectedEofException(
+            'multi-volume entry data extends past the end of a volume',
+            format: 'rar',
+            offset: s.offset,
+          );
+        }
+        raw.setRange(pos, pos + s.size, await s.source.read(s.offset, s.size));
+        pos += s.size;
+      }
+    } else {
+      if (header.dataSize == 0) return Uint8List(0);
+      if (header.dataOffset + header.dataSize > _source.length) {
+        throw UnexpectedEofException(
+          'entry data extends past the end of the archive',
+          format: 'rar',
+          offset: header.dataOffset,
+        );
+      }
+      raw = await _source.read(header.dataOffset, header.dataSize);
     }
-    final raw = await _source.read(header.dataOffset, header.dataSize);
     if (!header.isEncrypted) return raw;
     return _decryptData(header, raw);
   }

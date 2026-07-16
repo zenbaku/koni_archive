@@ -67,6 +67,7 @@ final class Rar5FileHeader {
     required this.redirectTarget,
     required this.hostOs,
     required this.splitAfter,
+    required this.splitBefore,
   });
 
   /// Decoded UTF-8 name (raw, before normalization).
@@ -125,8 +126,12 @@ final class Rar5FileHeader {
   /// Host OS (0 = Windows, 1 = Unix).
   final int hostOs;
 
-  /// Whether the file's data continues in the next volume (unsupported).
+  /// Whether the file's data continues into the next volume (multi-volume).
   final bool splitAfter;
+
+  /// Whether the file's data continues *from* the previous volume — i.e. this
+  /// header is a continuation segment, not the file's first appearance.
+  final bool splitBefore;
 }
 
 /// Reads RAR5's variable-length integer (7 bits per byte, little-endian,
@@ -152,13 +157,16 @@ int readRarVarInt(ByteReader reader) {
 /// Result of parsing all headers: the file list, in archive order.
 final class Rar5Toc {
   /// Creates a table of contents.
-  Rar5Toc(this.files, this.headerEncrypted);
+  Rar5Toc(this.files, this.headerEncrypted, {this.isVolume = false});
 
   /// The file/service headers.
   final List<Rar5FileHeader> files;
 
   /// Whether encrypted headers were detected (whole archive locked).
   final bool headerEncrypted;
+
+  /// Whether the main header marks this as one volume of a multi-volume set.
+  final bool isVolume;
 
   /// Walks every base block from just past the signature to the
   /// end-of-archive marker.
@@ -176,6 +184,7 @@ final class Rar5Toc {
     // (see `doc/notes.md`).
     Rar5Keys? blockKey;
     var headerEncrypted = false;
+    var isVolume = false;
 
     while (offset < source.length) {
       final head = await _readHeaderBytes(source, offset, blockKey);
@@ -187,6 +196,7 @@ final class Rar5Toc {
       final headerFlags = readRarVarInt(reader);
       final hasExtra = headerFlags & 0x0001 != 0;
       final hasData = headerFlags & 0x0002 != 0;
+      final splitBefore = headerFlags & 0x0008 != 0;
       final splitAfter = headerFlags & 0x0010 != 0;
 
       var extraSize = 0;
@@ -206,7 +216,7 @@ final class Rar5Toc {
           // password; every subsequent header decrypts under it.
           blockKey = _deriveBlockKey(reader, password);
         case Rar5HeadType.endArc:
-          return Rar5Toc(files, headerEncrypted);
+          return Rar5Toc(files, headerEncrypted, isVolume: isVolume);
         case Rar5HeadType.file:
         case Rar5HeadType.service:
           final header = _parseFileHeader(
@@ -216,21 +226,22 @@ final class Rar5Toc {
             dataOffset,
             dataSize,
             splitAfter,
+            splitBefore,
             extraSize,
             offset,
           );
           if (!header.isService) files.add(header);
         case Rar5HeadType.main:
-          // Main header: archive flags (volume/solid). Nothing else needed
-          // for single-volume reading.
-          break;
+          // Main header body: archive flags. Bit 0 marks a multi-volume set.
+          final archiveFlags = readRarVarInt(reader);
+          isVolume = archiveFlags & 0x0001 != 0;
         default:
           break; // unknown block: skip via header + data size
       }
 
       offset = dataOffset + dataSize;
     }
-    return Rar5Toc(files, headerEncrypted);
+    return Rar5Toc(files, headerEncrypted, isVolume: isVolume);
   }
 
   /// Reads the base-block header at [offset]: the plaintext header bytes, the
@@ -341,6 +352,7 @@ final class Rar5Toc {
     int dataOffset,
     int dataSize,
     bool splitAfter,
+    bool splitBefore,
     int extraSize,
     int baseOffset,
   ) {
@@ -431,6 +443,7 @@ final class Rar5Toc {
       redirectTarget: redirectTarget,
       hostOs: hostOs,
       splitAfter: splitAfter,
+      splitBefore: splitBefore,
     );
   }
 

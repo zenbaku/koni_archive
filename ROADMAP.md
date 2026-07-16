@@ -126,7 +126,7 @@ order of attack:
 | R1 | RAR4 RarVM **standard filters** (delta, x86 E8/E9, RGB, audio) — unblocks 37 delta-filtered pages in the corpus | ✅ (byte-exact vs rar 6.24 on VM/dart2js/dart2wasm; conformance now 0 deferrals) |
 | R2 | RAR5 `-hp` encrypted-header **read** | ✅ (per-block IV + block-key CBC headers; byte-exact vs rar 7.x on VM/dart2js/dart2wasm; wrong/no-password typed errors) |
 | R3 | Solid RAR4 | ✅ (persistent tables/offset-cache/window across the run; byte-exact vs unrar on VM/dart2js/dart2wasm; fuzz-hardened) |
-| R4 | Multi-volume (RAR4 + RAR5) | ⬜ |
+| R4 | Multi-volume (RAR4 + RAR5) | ✅ (`ArchiveReadOptions.nextVolume` resolver; split files reassembled across volumes; store + compressed, both versions, byte-exact vs unrar on VM/dart2js/dart2wasm) |
 | R5 | RAR4 PPMd (variant H) — the finale; large, no corpus coverage | ⬜ |
 
 Custom (non-standard) RarVM programs stay a typed error by *license* (only the
@@ -148,5 +148,5 @@ Roughly in expected demand order:
 * gzip seek-index (zran-style) for random access into `.tar.gz`
 * 7z BCJ2, PPMd
 * GNU sparse tars
-* Multi-volume archives
+* Multi-volume archives — **done for RAR** (R4 above, via `nextVolume`); 7z/ZIP spanning still deferred
 * New formats via the registry: XZ, BZip2/tar.bz2, CPIO, ISO, CAB, …

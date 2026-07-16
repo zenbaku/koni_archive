@@ -19,7 +19,9 @@ filter programs — a license-bounded boundary, not a difficulty one: the
 only interpreter reference is GPL unrar, and the standard filters are the
 ones real archives emit. File encryption (`-p`) is supported on both
 versions and RAR5 header encryption (`-hp`) reads with a password (see
-below); RAR4 `-hp` and multi-volume stay typed errors (§15).
+below). **Multi-volume sets read** (both versions) when the caller supplies
+the other volumes via `ArchiveReadOptions.nextVolume` (see below). RAR4
+`-hp` stays a typed error (§15).
 
 ## Container
 
@@ -138,6 +140,32 @@ header; the walk advances by `headerSize + packSize`. Method 0x30 → store,
 0x31–0x35 → 1–5. Names are UTF-8 (the RAR4 Unicode name-compression scheme
 past a NUL is not decoded — the ASCII/UTF-8 prefix is used; documented
 lossiness, rare for CBRs). DOS timestamps → UTC.
+
+## Multi-volume (RAR4 + RAR5)
+
+A multi-volume set is one archive split across `name.part1.rar`,
+`name.part2.rar`, … (or `name.rar`, `name.r00`, …). Each volume is itself a
+complete RAR archive (signature + main header + blocks + end); the main
+header carries a *volume* flag (RAR5 archive-flag bit 0, RAR4 `MHD_VOLUME`
+`0x0001`). A file whose data crosses a volume boundary has its **header
+repeated in every volume it spans**, flagged `splitBefore` / `splitAfter`
+(RAR5 bits `0x08`/`0x10`; RAR4 file-flag bits `0x01`/`0x02`); `unpackedSize`
+is the full size in every occurrence, but `dataSize` is only that volume's
+slice, and the **authoritative full-file CRC lives on the final segment**
+(`splitAfter == false`) — earlier occurrences carry only their slice's CRC.
+
+The reader logic is format-agnostic (`_parseMultiVolume`, `_VolumeSegment`
+in `rar_reader.dart`): volume 1 is the source passed to `openReader`; the
+rest come from `ArchiveReadOptions.nextVolume(n)` (called with 2, 3, … until
+it returns null). It walks every volume, merges each split file's headers
+into one logical entry whose packed data is the segments **concatenated**
+across volumes, and decodes that whole with the ordinary single-file path —
+which works for store *and* compressed because the packed stream is split at
+byte boundaries (verified byte-exact vs `unrar`, both, both versions). A
+missing continuation volume → `UnexpectedEofException`; a multi-volume
+archive opened without a resolver → `UnsupportedFeatureException`. The reader
+does not close volumes it obtains this way (the caller owns them). Solid +
+multi-volume is not specifically exercised.
 
 ## Testing
 

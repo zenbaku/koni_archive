@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'byte_source.dart';
+
 /// Options honored by format readers, passed through `Archive.open` /
 /// `ArchiveFormatRegistry.openReader`.
 final class ArchiveReadOptions {
@@ -8,6 +10,7 @@ final class ArchiveReadOptions {
     this.verifyChecksums = true,
     this.entryNameDecoder,
     this.password,
+    this.nextVolume,
   });
 
   /// Verify content checksums recorded by the format (CRC-32 for ZIP and
@@ -41,4 +44,18 @@ final class ArchiveReadOptions {
   /// match their UTF-8 encoding — documented lossiness, same spirit as
   /// entry-name encodings (§8).
   final String? password;
+
+  /// Resolver for the later parts of a **multi-volume** archive (a set split
+  /// across `name.part1.rar`, `name.part2.rar`, … or `name.rar`, `name.r00`,
+  /// …). Volume 1 is the source passed to the reader; the reader calls this
+  /// with the 1-based number of each subsequent volume it needs (2, 3, …) and
+  /// expects that volume's [ByteSource], or null when there is no such volume.
+  ///
+  /// Opening a multi-volume archive without a resolver — or one that returns
+  /// null while a file's data still continues into a further volume — is a
+  /// typed error (`UnsupportedFeatureException` / `UnexpectedEofException`),
+  /// never a silent truncation. Single-volume archives never call it. The
+  /// reader does not close the volumes it obtains this way; the caller owns
+  /// their lifetime, as with the volume-1 source.
+  final Future<ByteSource?> Function(int volume)? nextVolume;
 }

@@ -11,9 +11,10 @@
 /// custom VM programs and PPMd stay typed errors).
 /// Password-protected *files* decrypt via `ArchiveReadOptions.password` —
 /// RAR5 with AES-256 (P3-4) and RAR4 with AES-128 (P3-5). RAR5 encrypted
-/// *headers* (`-hp`) also read with a password; RAR4 `-hp` and multi-volume
-/// stay typed errors. See `doc/rar-provenance.md` for the clean-room policy
-/// and `doc/references.md` for attributions.
+/// *headers* (`-hp`) also read with a password; RAR4 `-hp` stays a typed
+/// error. Multi-volume sets (both versions) read when the other volumes are
+/// supplied via `ArchiveReadOptions.nextVolume`. See `doc/rar-provenance.md`
+/// for the clean-room policy and `doc/references.md` for attributions.
 library;
 
 export 'src/rar_format.dart';

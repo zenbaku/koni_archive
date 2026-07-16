@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- `ArchiveReadOptions` gains `nextVolume`, a resolver a reader calls to obtain
+  the later volumes of a multi-volume archive (volume 1 is the source passed
+  to the reader; `nextVolume(n)` returns volume `n` or null when there is no
+  such volume). Consumed by the RAR reader; other formats ignore it. Purely
+  additive — existing callers are unaffected.
+
 ## 0.6.0 (2026-07-15)
 
 - Phase 4 (write-side encryption): `ArchiveWriteOptions` gains `password`

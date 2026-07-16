@@ -28,6 +28,7 @@ abstract final class Rar4BlockType {
 }
 
 const int _hdAddSizePresent = 0x8000;
+const int _fhdSplitBefore = 0x0001;
 const int _fhdSplitAfter = 0x0002;
 const int _fhdPassword = 0x0004;
 const int _fhdSolid = 0x0010;
@@ -35,6 +36,7 @@ const int _fhdLarge = 0x0100;
 const int _fhdUnicode = 0x0200;
 const int _fhdSalt = 0x0400;
 const int _fileIsDirectory = 0xE0;
+const int _mhdVolume = 0x0001;
 const int _mhdPassword = 0x0080;
 const int _dictionaryMax = 0x400000;
 
@@ -43,6 +45,7 @@ const int _dictionaryMax = 0x400000;
 Future<Rar5Toc> parseRar4(ByteSource source, int signatureEnd) async {
   final files = <Rar5FileHeader>[];
   var offset = signatureEnd;
+  var isVolume = false;
 
   while (offset + 7 <= source.length) {
     final head = await source.read(offset, 7);
@@ -76,6 +79,7 @@ Future<Rar5Toc> parseRar4(ByteSource source, int signatureEnd) async {
       if (flags & _mhdPassword != 0) {
         return Rar5Toc(const [], true); // encrypted headers
       }
+      isVolume = flags & _mhdVolume != 0;
       offset += headerSize + addSize;
       continue;
     }
@@ -104,7 +108,7 @@ Future<Rar5Toc> parseRar4(ByteSource source, int signatureEnd) async {
     // Any other block: skip by header + add size.
     offset += headerSize + addSize;
   }
-  return Rar5Toc(files, false);
+  return Rar5Toc(files, false, isVolume: isVolume);
 }
 
 Rar5FileHeader _parseFileHeader(
@@ -189,6 +193,7 @@ Rar5FileHeader _parseFileHeader(
     redirectTarget: null,
     hostOs: hostOs,
     splitAfter: flags & _fhdSplitAfter != 0,
+    splitBefore: flags & _fhdSplitBefore != 0,
   );
 }
 

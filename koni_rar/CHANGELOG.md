@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- **Multi-volume RAR** sets (both RAR4 and RAR5) now read, when the caller
+  supplies the other volumes via the new `ArchiveReadOptions.nextVolume`
+  resolver (volume 1 is the source passed to the reader; later volumes are
+  requested by number). A file split across volumes is reassembled by
+  concatenating its per-volume packed segments and decoding the whole — store
+  and compressed alike. The full-file CRC is taken from the final segment's
+  header. A missing continuation volume → `UnexpectedEofException`; a
+  multi-volume archive opened without a resolver → `UnsupportedFeatureException`.
+  Verified byte-exact vs `unrar` (store + compressed, both versions) on VM +
+  dart2js + dart2wasm (`test/rar_multivolume_test.dart`).
+
 - **Solid RAR4** archives now decode (previously a typed error). One decoder
   carries the Huffman tables, repeated-offset cache, and window across the
   run — only the run's first compressed file parses a table block; later
