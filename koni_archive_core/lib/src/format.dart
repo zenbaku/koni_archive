@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'byte_source.dart';
+import 'entry.dart';
 import 'exceptions.dart';
 import 'read_options.dart';
 import 'reader.dart';
@@ -25,16 +28,103 @@ abstract class ArchiveFormat {
   /// probe) is treated by the registry as "does not match".
   Future<bool> matches(ByteSource source);
 
-  /// Opens [source] as this format, eagerly parsing container metadata
-  /// (O(entry count), no content decode), honoring [options].
+  /// Opens [source] as this format and applies the decompression-bomb guards
+  /// in [options] around the reader.
   ///
-  /// Called by the driver after [matches], or directly when the caller
-  /// forces a format. Throws a typed [ArchiveException] if the source is not
-  /// a well-formed archive of this format. Must not close [source].
+  /// This is the stable entry point every caller (the facade, the registry, a
+  /// direct `Format().openReader(...)` call) goes through. Format packages do
+  /// **not** override it; they override [createReader]. Keeping the guards
+  /// here — not in the facade — is what makes them impossible to bypass by
+  /// using a format's reader directly, and gives them to third-party formats
+  /// for free.
+  ///
+  /// Enforces [ArchiveReadOptions.maxEntryCount] once the index is parsed and
+  /// wraps the reader so [ArchiveReadOptions.maxEntrySize] bounds every
+  /// streamed entry. Both are no-ops (a pass-through reader) when their option
+  /// is null.
   Future<ArchiveReader> openReader(
     ByteSource source,
     ArchiveReadOptions options,
+  ) async {
+    final reader = await createReader(source, options);
+    final maxCount = options.maxEntryCount;
+    if (maxCount != null && reader.entries.length > maxCount) {
+      // Post-parse floor: readers that learn the count up front reject
+      // earlier, but this guarantees the limit holds for every format.
+      await reader.close();
+      throw SizeLimitExceededException(
+        'archive declares ${reader.entries.length} entries, over the '
+        'maxEntryCount limit of $maxCount',
+        limit: maxCount,
+        format: reader.format.name,
+      );
+    }
+    final maxSize = options.maxEntrySize;
+    if (maxSize == null) return reader;
+    return _BoundedArchiveReader(reader, maxSize);
+  }
+
+  /// Opens [source] as this format, eagerly parsing container metadata
+  /// (O(entry count), no content decode), honoring [options]. **This is the
+  /// method format packages implement**; application code calls [openReader]
+  /// (which additionally enforces the bomb-limit options).
+  ///
+  /// Called by [openReader] after [matches], or directly when the caller
+  /// forces a format. Throws a typed [ArchiveException] if the source is not
+  /// a well-formed archive of this format. Must not close [source].
+  Future<ArchiveReader> createReader(
+    ByteSource source,
+    ArchiveReadOptions options,
   );
+}
+
+/// Wraps a format reader so that [ArchiveReadOptions.maxEntrySize] bounds
+/// every streamed entry. A decoded entry that grows past the limit aborts the
+/// underlying decode (the `await for` cancels its subscription) and errors the
+/// stream with [SizeLimitExceededException]. Entry identity, [entries] order,
+/// and [close] pass straight through, so the reader contract is preserved.
+class _BoundedArchiveReader implements ArchiveReader {
+  _BoundedArchiveReader(this._inner, this._maxEntrySize);
+
+  final ArchiveReader _inner;
+  final int _maxEntrySize;
+
+  @override
+  ArchiveFormat get format => _inner.format;
+
+  @override
+  List<ArchiveEntry> get entries => _inner.entries;
+
+  @override
+  Stream<Uint8List> openRead(ArchiveEntry entry) =>
+      _bounded(_inner.openRead(entry), entry);
+
+  Stream<Uint8List> _bounded(
+    Stream<Uint8List> source,
+    ArchiveEntry entry,
+  ) async* {
+    var total = 0;
+    await for (final chunk in source) {
+      total += chunk.length;
+      // `> _maxEntrySize`, so a limit set to an entry's exact size passes;
+      // matches `Archive.readBytes`'s `maxSize` boundary. Throw before
+      // yielding the over-limit chunk, so no over-limit bytes reach the
+      // caller.
+      if (total > _maxEntrySize) {
+        throw SizeLimitExceededException(
+          'entry "${entry.path}" decoded past the maxEntrySize limit of '
+          '$_maxEntrySize byte(s)',
+          limit: _maxEntrySize,
+          format: _inner.format.name,
+          entryPath: entry.path,
+        );
+      }
+      yield chunk;
+    }
+  }
+
+  @override
+  Future<void> close() => _inner.close();
 }
 
 /// Ordered, mutable registry of [ArchiveFormat]s, what makes koni_archive

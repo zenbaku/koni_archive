@@ -39,9 +39,19 @@ final class GzipDecompressedByteSource implements ByteSource {
 
   /// Opens [source] (a complete gzip container). Reads only the trailer to
   /// learn the decompressed [length]; no content is decoded yet.
+  ///
+  /// [maxDecodedSize] (from `ArchiveReadOptions.maxEntrySize`) caps the
+  /// decompressed size: a container declaring more is rejected here with
+  /// [SizeLimitExceededException], before any content is decoded. This is a
+  /// hard bound, not just a fast path: every [read] is range-checked against
+  /// [length], so the decoder is never driven past [length] bytes of output —
+  /// bounding the trailer's ISIZE bounds the whole decode. ISIZE is the size
+  /// mod 2^32, so it only ever under-reports; a value over the cap therefore
+  /// means the true size is over it too (no false rejections).
   static Future<GzipDecompressedByteSource> open(
     ByteSource source, {
     bool verifyChecksums = true,
+    int? maxDecodedSize,
   }) async {
     if (source.length < 20) {
       throw UnexpectedEofException(
@@ -55,6 +65,14 @@ final class GzipDecompressedByteSource implements ByteSource {
         (trailer[5] << 8) |
         (trailer[6] << 16) |
         (trailer[7] << 24);
+    if (maxDecodedSize != null && isize > maxDecodedSize) {
+      throw SizeLimitExceededException(
+        'gzip container decompresses to $isize byte(s), over the '
+        'maxEntrySize limit of $maxDecodedSize',
+        limit: maxDecodedSize,
+        format: 'gzip',
+      );
+    }
     return GzipDecompressedByteSource._(
       source,
       verifyChecksums,

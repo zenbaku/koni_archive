@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.0 (2026-07-17)
+
+- Honors `ArchiveReadOptions.maxEntryCount`: a ZIP whose end-of-central-directory
+  declares more entries than the limit is rejected before the central directory
+  is walked (one record allocated per entry), not only afterward. `maxEntrySize`
+  is enforced by the shared reader seam.
+
 ## 0.8.0 (2026-07-16)
 
 - The writer honors `ArchiveWriteOptions.allowUnsafePaths` (see

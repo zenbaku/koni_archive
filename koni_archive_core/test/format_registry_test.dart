@@ -25,7 +25,7 @@ final class _MagicFormat extends ArchiveFormat {
   }
 
   @override
-  Future<ArchiveReader> openReader(
+  Future<ArchiveReader> createReader(
     ByteSource source,
     ArchiveReadOptions options,
   ) async {

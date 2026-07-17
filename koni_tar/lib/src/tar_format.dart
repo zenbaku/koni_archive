@@ -43,9 +43,8 @@ final class TarFormat extends ArchiveFormat {
     return TarHeader.checksumLooksValid(block);
   }
 
-  // TAR has no content checksums, so [options] has nothing to control yet.
   @override
-  Future<ArchiveReader> openReader(
+  Future<ArchiveReader> createReader(
     ByteSource source,
     ArchiveReadOptions options,
   ) => TarReader.parse(this, source);

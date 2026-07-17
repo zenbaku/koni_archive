@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.0 (2026-07-17)
+
+- Honors `ArchiveReadOptions.maxEntrySize` for the one open-time decode gzip
+  does: a layered `.tar.gz` is decompressed while its inner TAR is enumerated at
+  open, and a container that decompresses past the limit is now rejected there
+  rather than read fully into memory. The check reads only the gzip trailer
+  (ISIZE), so it costs nothing before deciding.
+
 ## 0.8.0 (2026-07-16)
 
 - Lockstep release; no changes to this package since 0.7.0.

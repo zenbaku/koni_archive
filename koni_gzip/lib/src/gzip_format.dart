@@ -36,7 +36,7 @@ final class GzipFormat extends ArchiveFormat {
   }
 
   @override
-  Future<ArchiveReader> openReader(
+  Future<ArchiveReader> createReader(
     ByteSource source,
     ArchiveReadOptions options,
   ) async {
@@ -44,6 +44,7 @@ final class GzipFormat extends ArchiveFormat {
       final decompressed = await GzipDecompressedByteSource.open(
         source,
         verifyChecksums: options.verifyChecksums,
+        maxDecodedSize: options.maxEntrySize,
       );
       for (final inner in layeredFormats) {
         try {

@@ -25,7 +25,7 @@ final class SevenZFormat extends ArchiveFormat {
   }
 
   @override
-  Future<ArchiveReader> openReader(
+  Future<ArchiveReader> createReader(
     ByteSource source,
     ArchiveReadOptions options,
   ) => SevenZReader.parse(this, source, options);

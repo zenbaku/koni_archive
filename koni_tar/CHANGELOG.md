@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.0 (2026-07-17)
+
+- Honors the read-side size limits (`ArchiveReadOptions.maxEntrySize` /
+  `maxEntryCount`) via the shared reader seam. TAR has no up-front entry count,
+  so the count limit is enforced once the index is built.
+
 ## 0.8.0 (2026-07-16)
 
 - The writer honors `ArchiveWriteOptions.allowUnsafePaths` (see

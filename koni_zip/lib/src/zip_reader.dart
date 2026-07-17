@@ -41,6 +41,16 @@ final class ZipReader extends ArchiveReader {
     ArchiveReadOptions options,
   ) async {
     final eocd = await Eocd.find(source);
+    final maxCount = options.maxEntryCount;
+    if (maxCount != null && eocd.totalEntries > maxCount) {
+      // Reject before the directory loop allocates one record per entry.
+      throw SizeLimitExceededException(
+        'ZIP declares ${eocd.totalEntries} entries, over the maxEntryCount '
+        'limit of $maxCount',
+        limit: maxCount,
+        format: 'zip',
+      );
+    }
     final central = await CentralEntry.parseDirectory(source, eocd, options);
     return ZipReader._(format, source, options, central);
   }

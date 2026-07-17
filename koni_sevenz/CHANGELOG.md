@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.0 (2026-07-17)
+
+- Honors the read-side size limits (`ArchiveReadOptions.maxEntrySize` /
+  `maxEntryCount`) via the shared reader seam. 7z's own format-derived caps on
+  the (compressed) header (64 MiB) and each decoded solid folder (1 GiB) still
+  bound its open-time and per-folder decodes independently.
+
 ## 0.8.0 (2026-07-16)
 
 - The writer honors `ArchiveWriteOptions.allowUnsafePaths` (see

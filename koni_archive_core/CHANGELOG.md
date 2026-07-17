@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.9.0 (2026-07-17)
+
+- Decompression-bomb guards on the read side. `ArchiveReadOptions` gains
+  `maxEntrySize` (a cap, in bytes, on any single entry's decoded output) and
+  `maxEntryCount` (a cap on how many entries an archive may declare). Both are
+  enforced at the `ArchiveFormat.openReader` seam, so they hold for every
+  format and cannot be bypassed by using a reader directly instead of the
+  facade: streaming an entry past `maxEntrySize` aborts the decode with
+  `SizeLimitExceededException`, and opening an over-count archive throws the
+  same. Null (the default) means unbounded, so behavior is unchanged unless a
+  caller opts in.
+- **SPI change (format implementers).** The method a format overrides to build
+  its reader is now `ArchiveFormat.createReader`; `openReader` became the
+  concrete entry point that wraps the reader with the guards above. A
+  third-party format that overrode `openReader` must rename it to
+  `createReader` — a compile error points at it. Application code is
+  unaffected.
+- `SizeLimitExceededException` now also covers the entry-count limit; its
+  `limit` field carries a byte count for a size limit or an entry count for
+  `maxEntryCount`.
+
 ## 0.8.0 (2026-07-16)
 
 - `ArchiveWriteOptions` gains `allowUnsafePaths` (default `false`). When set,

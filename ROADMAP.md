@@ -3,7 +3,7 @@
 Tracking document for the milestones behind each release. Update the Status
 column as work lands.
 
-Last updated: 2026-07-16 · Statuses: ⬜ not started · 🟨 in progress · ✅ done
+Last updated: 2026-07-17 · Statuses: ⬜ not started · 🟨 in progress · ✅ done
 
 ---
 
@@ -66,6 +66,16 @@ the codec infrastructure from M4's standalone-codec pattern.
   multi-volume RAR (new `ArchiveReadOptions.nextVolume`), RAR4 PPMd variant H
   (solid + non-solid, incl. a mid-file PPMd→method-29 switch), and RAR 2.0/2.6
   (v20/v26) LZ. **RAR reading is essentially complete (2026-07-16).** Git-only.
+* **0.8.0**: `ArchiveWriteOptions.allowUnsafePaths` (author a deliberately
+  hostile-path archive as a Zip-Slip test fixture; ZIP/TAR/7z writers).
+  Git-only.
+* **0.9.0**: read-side decompression-bomb guards — `ArchiveReadOptions`
+  `maxEntrySize` (per-entry decoded-byte cap; aborts a streamed decode) and
+  `maxEntryCount` (declared-entry cap). Enforced at the
+  `ArchiveFormat.openReader` seam (readers now override `createReader`), so no
+  format or direct-reader path can bypass them; ZIP rejects an over-count
+  directory before allocating it, and the layered-gzip open-time decode is
+  capped too. **First item off the options backlog (2026-07-17).** Git-only.
 * All packages stay 0.x with lockstep minor bumps until the API stabilizes.
 
 ---
@@ -341,22 +351,21 @@ speculatively: each waits for a concrete caller. (`allowUnsafePaths`, 0.8.0,
 is the pattern: it shipped because konimanga's Zip-Slip test needed a hostile
 fixture the safe writer refuses to author.)
 
-* **Read: decompression-bomb limits (`maxEntrySize`, `maxEntryCount`).** The
-  highest-value gap here, and a promise the code does not yet keep:
-  `SizeLimitExceededException` documents itself as "a caller-supplied or
-  format-derived size limit (decompression-bomb protection)", but the only
-  caller-supplied limit that exists is `Archive.readBytes(maxSize:)`, a
-  per-call parameter on the *convenience* method. Streaming through
-  `openRead`, which the same doc recommends "for anything large", is
-  unbounded, and there is no archive-wide default. `maxEntryCount` covers the
-  directory-bomb variant (millions of tiny entries). Motivating consumer:
-  konimanga, which reads untrusted CBZ/CBR from both user files and remote
-  sources.
-  **Scope note:** enforcement has to live in every reader (zip/tar/7z/rar/
-  gzip), not only the `Archive` facade. A limit that silently lapses when a
-  caller goes through `ZipFormat().openReader(...)` directly is worse than no
-  limit at all, the same trap `allowUnsafePaths` hit with `TarWriter` (which
-  held no options and needed them threaded in).
+* ~~**Read: decompression-bomb limits (`maxEntrySize`, `maxEntryCount`).**~~ →
+  **shipped in 0.9.0.** Was the highest-value gap and a promise the code did
+  not keep: the only size limit was `Archive.readBytes(maxSize:)`, a per-call
+  parameter on the *convenience* method, while streaming through `openRead`
+  (recommended "for anything large") was unbounded. `maxEntrySize` now bounds
+  every streamed entry and `maxEntryCount` the directory-bomb variant.
+  **On the scope note** ("enforcement must live in every reader, not only the
+  facade, or a direct `ZipFormat().openReader(...)` bypasses it"): solved once,
+  not per-reader, by making `ArchiveFormat.openReader` a concrete template that
+  wraps the reader and delegating the format-specific parse to a new
+  `createReader` override — so the guard is unbypassable *and* free for
+  third-party formats, without threading a limit through five decoders. ZIP
+  additionally rejects an over-count directory before allocating it; the
+  layered-gzip open-time decode is capped by reading only the ISIZE trailer.
+  Motivating consumer: konimanga (untrusted CBZ/CBR).
 
 * **Write: compression level.** `ArchiveWriteOptions.compression` selects a
   *method*, never an effort level, and `DeflateEncoder` is const with no level.
