@@ -206,4 +206,40 @@ void main() {
       );
     });
   });
+
+  group('allowUnsafePaths', () {
+    test(
+      'writes a ".."-escaping path verbatim; the reader flags it as escaping '
+      'root',
+      () async {
+        // The whole point: koni_zip normally refuses to author a hostile
+        // path, so a consumer's Zip-Slip defense can only be tested against a
+        // fixture built with the escape hatch on. Prove the round trip the
+        // consumer relies on: raw write, then read back sanitized with
+        // pathEscapedRoot set (koni's readers never surface a raw `..` path).
+        final archive = await writeArchive((w) async {
+          await w.addBytes(ArchiveEntrySpec(path: 'safe.txt'), _bytes('ok'));
+          await w.addBytes(
+            ArchiveEntrySpec(path: '../escape.txt'),
+            _bytes('evil'),
+          );
+        }, options: const ArchiveWriteOptions(allowUnsafePaths: true));
+
+        final reader = await const ZipFormat().openReader(
+          MemoryByteSource(archive),
+          const ArchiveReadOptions(),
+        );
+        final escaped = reader.entries.firstWhere(
+          (e) => e.path == 'escape.txt',
+        );
+        expect(escaped.pathEscapedRoot, isTrue);
+        expect(
+          await reader.openRead(escaped).expand((c) => c).toList(),
+          _bytes('evil'),
+        );
+        final safe = reader.entries.firstWhere((e) => e.path == 'safe.txt');
+        expect(safe.pathEscapedRoot, isFalse);
+      },
+    );
+  });
 }

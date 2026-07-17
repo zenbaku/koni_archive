@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0 (2026-07-16)
+
+- The writer honors `ArchiveWriteOptions.allowUnsafePaths` (see
+  `koni_archive_core` 0.8.0): with it set, an entry path is written verbatim
+  rather than validated. Round-trip tested, a raw `../escape.txt` is written,
+  then read back sanitized to `escape.txt` with `pathEscapedRoot` set, which
+  is the property a consumer's Zip-Slip defense keys on.
+
 ## 0.7.0 (2026-07-16)
 
 - Lockstep release; no changes to this package since 0.6.0.

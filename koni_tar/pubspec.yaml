@@ -1,7 +1,7 @@
 name: koni_tar
 description: >-
   TAR reader and writer (ustar, PAX, GNU extensions) for the koni_archive ecosystem.
-version: 0.7.0
+version: 0.8.0
 repository: https://github.com/zenbaku/koni_archive
 topics:
   - archive
@@ -11,7 +11,7 @@ environment:
 resolution: workspace
 
 dependencies:
-  koni_archive_core: ^0.7.0
+  koni_archive_core: ^0.8.0
 
 dev_dependencies:
   archive: ^4.0.0

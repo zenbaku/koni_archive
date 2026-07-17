@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.0 (2026-07-16)
+
+- `ArchiveWriteOptions.allowUnsafePaths` (new in `koni_archive_core` 0.8.0) is
+  available through the facade and honored by the ZIP, TAR, and 7z writers.
+  Set it to author an archive whose entry paths are deliberately hostile (`..`
+  escapes, absolute paths, drive letters), which the writers otherwise reject
+  with an `ArgumentError`; the intended use is a test fixture that exercises a
+  consumer's path-traversal ("Zip Slip") defenses. Reading is unaffected and
+  stays safe either way.
+
 ## 0.7.0 (2026-07-16)
 
 - RAR reading is substantially more complete through the facade (via

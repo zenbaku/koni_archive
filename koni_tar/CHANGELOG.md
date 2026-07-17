@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.0 (2026-07-16)
+
+- The writer honors `ArchiveWriteOptions.allowUnsafePaths` (see
+  `koni_archive_core` 0.8.0). `TarWriter` now takes the `ArchiveWriteOptions`
+  its format was opened with, matching the ZIP and 7z writers; it previously
+  took none, because TAR consults no other option (`password`/`encryptHeader`
+  are rejected up front by `TarWriteFormat.openWriter`, and entries are always
+  stored). `allowUnsafePaths` is the first format-agnostic write option, so
+  this is the first one TAR needs.
+
 ## 0.7.0 (2026-07-16)
 
 - Lockstep release; no changes to this package since 0.6.0.

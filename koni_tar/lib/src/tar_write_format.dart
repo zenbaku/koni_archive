@@ -26,6 +26,6 @@ final class TarWriteFormat extends ArchiveWriteFormat {
         format: 'tar',
       );
     }
-    return TarWriter(this, sink);
+    return TarWriter(this, sink, options);
   }
 }

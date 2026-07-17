@@ -76,7 +76,8 @@ final class ZipWriter extends ArchiveWriter {
         'addStream is for files; use addEntry for other types',
       );
     }
-    final path = validateWritePath(spec.path);
+    final path =
+        _options.allowUnsafePaths ? spec.path : validateWritePath(spec.path);
     final method = _methodOf(spec);
     return _writeFile(path, spec, method, content, size, isSymlink: false);
   }
@@ -91,7 +92,8 @@ final class ZipWriter extends ArchiveWriter {
         'a file needs content; use addStream/addBytes',
       );
     }
-    final path = validateWritePath(spec.path);
+    final path =
+        _options.allowUnsafePaths ? spec.path : validateWritePath(spec.path);
 
     if (spec.type == ArchiveEntryType.symlink ||
         spec.type == ArchiveEntryType.hardlink) {

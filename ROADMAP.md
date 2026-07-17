@@ -332,3 +332,38 @@ Roughly in expected demand order:
 * GNU sparse tars
 * Multi-volume archives: **done for RAR** (R4 above, via `nextVolume`); 7z/ZIP spanning still deferred
 * New formats via the registry: XZ, BZip2/tar.bz2, CPIO, ISO, CAB, …
+
+## Options backlog (post-0.8.0)
+
+Additive `ArchiveReadOptions`/`ArchiveWriteOptions` surface. An option is
+permanent public API and a 0.x minor costs one bump, so nothing here lands
+speculatively: each waits for a concrete caller. (`allowUnsafePaths`, 0.8.0,
+is the pattern: it shipped because konimanga's Zip-Slip test needed a hostile
+fixture the safe writer refuses to author.)
+
+* **Read: decompression-bomb limits (`maxEntrySize`, `maxEntryCount`).** The
+  highest-value gap here, and a promise the code does not yet keep:
+  `SizeLimitExceededException` documents itself as "a caller-supplied or
+  format-derived size limit (decompression-bomb protection)", but the only
+  caller-supplied limit that exists is `Archive.readBytes(maxSize:)`, a
+  per-call parameter on the *convenience* method. Streaming through
+  `openRead`, which the same doc recommends "for anything large", is
+  unbounded, and there is no archive-wide default. `maxEntryCount` covers the
+  directory-bomb variant (millions of tiny entries). Motivating consumer:
+  konimanga, which reads untrusted CBZ/CBR from both user files and remote
+  sources.
+  **Scope note:** enforcement has to live in every reader (zip/tar/7z/rar/
+  gzip), not only the `Archive` facade. A limit that silently lapses when a
+  caller goes through `ZipFormat().openReader(...)` directly is worse than no
+  limit at all, the same trap `allowUnsafePaths` hit with `TarWriter` (which
+  held no options and needed them threaded in).
+
+* **Write: compression level.** `ArchiveWriteOptions.compression` selects a
+  *method*, never an effort level, and `DeflateEncoder` is const with no level.
+  The knob already exists hardcoded: `RawDeflater._maxChain = 128` ("hash-chain
+  search depth (ratio vs speed)"), so a coarse fast/default/best could thread
+  it through. Honest zlib-style 1-9 levels are more than chain depth alone
+  (lazy-match thresholds too), so prefer the coarse triple unless a caller
+  needs zlib parity. Motivating case: konimanga's full backups (pages
+  included) are large enough for speed-vs-size to matter, but nobody has hit
+  it yet, hence deferred.

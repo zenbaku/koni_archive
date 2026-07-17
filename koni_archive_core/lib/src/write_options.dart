@@ -8,6 +8,7 @@ final class ArchiveWriteOptions {
     this.compression,
     this.password,
     this.encryptHeader = false,
+    this.allowUnsafePaths = false,
   });
 
   /// Default compression method for entries whose [ArchiveEntrySpec] does
@@ -43,4 +44,18 @@ final class ArchiveWriteOptions {
   /// flag. TAR rejects any password outright. Setting it without a
   /// [password] is an error (there is nothing to encrypt the header with).
   final bool encryptHeader;
+
+  /// Skip the writer's path-safety check, writing each entry's
+  /// [ArchiveEntrySpec.path] **verbatim**, including absolute paths, drive
+  /// letters, and `..` segments that escape the archive root.
+  ///
+  /// Default `false`: writers reject such a path with an [ArgumentError]
+  /// (`validateWritePath`), because a normal caller supplying one is a bug.
+  /// Set `true` only to deliberately author a hostile archive, e.g. a test
+  /// fixture that exercises a consumer's path-traversal ("Zip Slip")
+  /// defenses; the bytes are exactly what a malicious tool would emit, with
+  /// nothing sanitized. Reading such an archive back stays safe regardless:
+  /// every reader normalizes paths at parse time and flags
+  /// [NormalizedEntryPath.escapedRoot].
+  final bool allowUnsafePaths;
 }

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.8.0 (2026-07-16)
+
+- `ArchiveWriteOptions` gains `allowUnsafePaths` (default `false`). When set,
+  a writer skips the `validateWritePath` check and writes each
+  `ArchiveEntrySpec.path` verbatim, including absolute paths, drive letters,
+  and `..` segments that escape the archive root. It exists to author a
+  hostile archive on purpose, e.g. a fixture that exercises a consumer's
+  path-traversal ("Zip Slip") defenses, which the safe writer refuses to
+  build. Purely additive: the default keeps the existing `ArgumentError`
+  rejection, and the read side is untouched (every reader still normalizes
+  paths at parse time and flags `pathEscapedRoot`, so reading such an archive
+  back stays safe).
+
 ## 0.7.0 (2026-07-16)
 
 - `ArchiveReadOptions` gains `nextVolume`, a resolver a reader calls to obtain

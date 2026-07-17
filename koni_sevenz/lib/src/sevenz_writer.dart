@@ -147,7 +147,8 @@ final class SevenZWriter extends ArchiveWriter {
         'addStream is for files; use addEntry for other types',
       );
     }
-    final path = validateWritePath(spec.path);
+    final path =
+        _options.allowUnsafePaths ? spec.path : validateWritePath(spec.path);
     return _addFile(path, spec, content, size, isSymlink: false);
   }
 
@@ -161,7 +162,8 @@ final class SevenZWriter extends ArchiveWriter {
         'a file needs content; use addStream/addBytes',
       );
     }
-    final path = validateWritePath(spec.path);
+    final path =
+        _options.allowUnsafePaths ? spec.path : validateWritePath(spec.path);
 
     if (spec.type == ArchiveEntryType.symlink ||
         spec.type == ArchiveEntryType.hardlink) {

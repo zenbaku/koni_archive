@@ -14,12 +14,18 @@ import 'header.dart' show tarBlockSize;
 /// the reader's (see `doc/notes.md`).
 final class TarWriter extends ArchiveWriter {
   /// Creates a writer appending to [_sink].
-  TarWriter(this.format, this._sink);
+  TarWriter(this.format, this._sink, this._options);
 
   @override
   final ArchiveWriteFormat format;
 
   final ByteSink _sink;
+
+  /// Write options. TAR uses none of the encryption/compression fields
+  /// (`password`/`encryptHeader` are rejected by `TarWriteFormat.openWriter`;
+  /// entries are always stored); only [ArchiveWriteOptions.allowUnsafePaths]
+  /// is consulted, at the path-validation sites.
+  final ArchiveWriteOptions _options;
   bool _closed = false;
   var _paxCounter = 0;
 
@@ -51,7 +57,8 @@ final class TarWriter extends ArchiveWriter {
       );
     }
     _rejectCompression(spec);
-    final path = validateWritePath(spec.path);
+    final path =
+        _options.allowUnsafePaths ? spec.path : validateWritePath(spec.path);
 
     await _writeHeader(spec, path, size, _typeFile, '');
 
@@ -100,7 +107,8 @@ final class TarWriter extends ArchiveWriter {
       );
     }
     _rejectCompression(spec);
-    final path = validateWritePath(spec.path);
+    final path =
+        _options.allowUnsafePaths ? spec.path : validateWritePath(spec.path);
     final linkTarget = spec.linkTarget ?? '';
     final typeFlag = switch (spec.type) {
       ArchiveEntryType.directory => _typeDir,
