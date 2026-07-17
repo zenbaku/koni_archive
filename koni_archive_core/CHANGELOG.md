@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.9.0 (2026-07-17)
+
+- Decompression-bomb guards on the read side. `ArchiveReadOptions` gains
+  `maxEntrySize` (a cap, in bytes, on any single entry's decoded output) and
+  `maxEntryCount` (a cap on how many entries an archive may declare). Both are
+  enforced at the `ArchiveFormat.openReader` seam, so they hold for every
+  format and cannot be bypassed by using a reader directly instead of the
+  facade: streaming an entry past `maxEntrySize` aborts the decode with
+  `SizeLimitExceededException`, and opening an over-count archive throws the
+  same. Null (the default) means unbounded, so behavior is unchanged unless a
+  caller opts in.
+- `maxContainerDecodeSize` bounds a reader's *bulk* decodes that are not a
+  single entry's stream — a layered `.tar.gz` decompressed at open, or a 7z
+  (compressed) header / solid folder decoded to reach an entry. For the
+  `.tar.gz` open-time decode it **falls back to `maxEntrySize`** when unset, so
+  a per-entry limit alone still guards against a gzip bomb at open; 7z's
+  folder/header caps are opt-in only (a per-entry limit must not reject a small
+  entry that merely lives in a larger solid folder). Both null leaves each
+  format at its built-in behavior — a no-op for ZIP, plain TAR, and plain gzip;
+  RAR does not yet enforce it (a documented gap on the solid-run decode).
+- **SPI change (format implementers).** The method a format overrides to build
+  its reader is now `ArchiveFormat.createReader`; `openReader` became the
+  concrete entry point that wraps the reader with the guards above. A
+  third-party format that overrode `openReader` must rename it to
+  `createReader` — a compile error points at it. Application code is
+  unaffected.
+- `SizeLimitExceededException` now also covers the entry-count limit; its
+  `limit` field carries a byte count for a size limit or an entry count for
+  `maxEntryCount`.
+
 ## 0.8.0 (2026-07-16)
 
 - `ArchiveWriteOptions` gains `allowUnsafePaths` (default `false`). When set,

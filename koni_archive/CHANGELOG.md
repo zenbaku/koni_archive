@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.9.0 (2026-07-17)
+
+- Read-side decompression-bomb guards (`ArchiveReadOptions.maxEntrySize` /
+  `maxEntryCount`, new in `koni_archive_core` 0.9.0) flow through the facade:
+  pass them to `Archive.open` / `openBytes` / `openArchiveFile`. Streaming an
+  entry past `maxEntrySize` aborts the decode with `SizeLimitExceededException`;
+  `readBytes`'s own `maxSize` still applies as an additional, tighter per-call
+  bound. A third guard, `maxContainerDecodeSize`, bounds bulk decodes that are
+  not a per-entry stream (a `.tar.gz` container decode; a 7z header/solid
+  folder). Motivated by reading untrusted archives (e.g. CBZ/CBR from user
+  files or remote sources).
+
 ## 0.8.0 (2026-07-16)
 
 - `ArchiveWriteOptions.allowUnsafePaths` (new in `koni_archive_core` 0.8.0) is

@@ -40,7 +40,7 @@ final class ZipFormat extends ArchiveFormat {
   }
 
   @override
-  Future<ArchiveReader> openReader(
+  Future<ArchiveReader> createReader(
     ByteSource source,
     ArchiveReadOptions options,
   ) => ZipReader.parse(this, source, options);

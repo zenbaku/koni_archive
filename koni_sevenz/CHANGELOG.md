@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.0 (2026-07-17)
+
+- Honors the read-side size limits (`ArchiveReadOptions.maxEntrySize` /
+  `maxEntryCount`) via the shared reader seam, plus `maxContainerDecodeSize` to
+  bound 7z's bulk decodes: reading even a small entry decodes its whole
+  (possibly compressed) header or solid folder, and this caps that decode,
+  tightening 7z's built-in backstops (64 MiB header, 1 GiB folder) to a
+  caller-chosen value. Those backstops still apply when the option is null.
+
 ## 0.8.0 (2026-07-16)
 
 - The writer honors `ArchiveWriteOptions.allowUnsafePaths` (see

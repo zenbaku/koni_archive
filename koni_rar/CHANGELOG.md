@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.0 (2026-07-17)
+
+- Honors the read-side size limits (`ArchiveReadOptions.maxEntrySize` /
+  `maxEntryCount`) via the shared reader seam.
+
 ## 0.8.0 (2026-07-16)
 
 - Lockstep release; no changes to this package since 0.7.0.

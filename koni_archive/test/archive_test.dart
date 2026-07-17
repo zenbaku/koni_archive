@@ -27,7 +27,7 @@ final class _StubFormat extends ArchiveFormat {
   }
 
   @override
-  Future<ArchiveReader> openReader(
+  Future<ArchiveReader> createReader(
     ByteSource source,
     ArchiveReadOptions options,
   ) async => _StubReader(this);

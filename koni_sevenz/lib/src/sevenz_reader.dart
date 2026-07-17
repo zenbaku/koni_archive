@@ -474,6 +474,17 @@ final class SevenZReader extends ArchiveReader {
   }) async {
     final folder = streams.folders[folderIndex];
     _checkFolderSupported(folder);
+    // Caller-set cap on a bulk decode (this runs for both the encoded header
+    // and every content folder, so it covers 7z's two amplification points).
+    final containerLimit = options.maxContainerDecodeSize;
+    if (containerLimit != null && folder.unpackSize > containerLimit) {
+      throw SizeLimitExceededException(
+        'a 7z folder decodes to ${folder.unpackSize} byte(s), over the '
+        'maxContainerDecodeSize limit of $containerLimit',
+        limit: containerLimit,
+        format: '7z',
+      );
+    }
     if (folder.unpackSize > _maxFolderSize) {
       throw CorruptArchiveException(
         'folder claims implausible unpacked size ${folder.unpackSize}',

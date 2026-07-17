@@ -36,7 +36,7 @@ final class GzipFormat extends ArchiveFormat {
   }
 
   @override
-  Future<ArchiveReader> openReader(
+  Future<ArchiveReader> createReader(
     ByteSource source,
     ArchiveReadOptions options,
   ) async {
@@ -44,6 +44,10 @@ final class GzipFormat extends ArchiveFormat {
       final decompressed = await GzipDecompressedByteSource.open(
         source,
         verifyChecksums: options.verifyChecksums,
+        // Falls back to the per-entry limit: for a layered gzip the container
+        // decode is an open-time cost, so a caller who set only `maxEntrySize`
+        // is still protected. An explicit `maxContainerDecodeSize` overrides.
+        maxDecodedSize: options.maxContainerDecodeSize ?? options.maxEntrySize,
       );
       for (final inner in layeredFormats) {
         try {

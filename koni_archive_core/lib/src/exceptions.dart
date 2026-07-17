@@ -191,8 +191,11 @@ class InvalidPasswordException extends EncryptedArchiveException {
   });
 }
 
-/// Decoded output exceeded a caller-supplied or format-derived size limit
-/// (decompression-bomb protection).
+/// A caller-supplied or format-derived size or count limit was exceeded
+/// (decompression-bomb / directory-bomb protection): a decoded entry grew
+/// past [ArchiveReadOptions.maxEntrySize] (or `Archive.readBytes`'s
+/// `maxSize`), or an archive declared more entries than
+/// [ArchiveReadOptions.maxEntryCount].
 class SizeLimitExceededException extends ArchiveException {
   /// Creates a [SizeLimitExceededException].
   SizeLimitExceededException(
@@ -203,7 +206,8 @@ class SizeLimitExceededException extends ArchiveException {
     super.entryPath,
   });
 
-  /// The limit, in bytes, that was exceeded, when known.
+  /// The limit that was exceeded, when known: a byte count for a size limit,
+  /// or an entry count for [ArchiveReadOptions.maxEntryCount].
   final int? limit;
 }
 

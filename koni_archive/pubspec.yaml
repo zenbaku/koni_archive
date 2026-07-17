@@ -1,7 +1,7 @@
 name: koni_archive
 description: >-
   Format-agnostic archive reading and writing for Dart — one streaming-first API over ZIP, TAR, GZIP, 7z, and RAR. Facade of the koni_archive ecosystem.
-version: 0.8.0
+version: 0.9.0
 repository: https://github.com/zenbaku/koni_archive
 topics:
   - archive
@@ -14,12 +14,12 @@ resolution: workspace
 
 dependencies:
   glob: ^2.1.2
-  koni_archive_core: ^0.8.0
-  koni_gzip: ^0.8.0
-  koni_rar: ^0.8.0
-  koni_sevenz: ^0.8.0
-  koni_tar: ^0.8.0
-  koni_zip: ^0.8.0
+  koni_archive_core: ^0.9.0
+  koni_gzip: ^0.9.0
+  koni_rar: ^0.9.0
+  koni_sevenz: ^0.9.0
+  koni_tar: ^0.9.0
+  koni_zip: ^0.9.0
   path: ^1.9.0
   web: ^1.1.0
 
