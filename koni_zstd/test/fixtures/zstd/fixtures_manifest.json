@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "set": "zstd",
+  "tools": {
+    "zstd": "*** Zstandard CLI (64-bit) v1.5.7, by Yann Collet ***",
+    "tar": "bsdtar 3.5.3 - libarchive 3.7.4 zlib/1.2.12 liblzma/5.4.3 bz2lib/1.0.8"
+  },
+  "files": [
+    "hello.txt",
+    "hello.zst",
+    "prose.bin",
+    "sample.tar.zst"
+  ]
+}

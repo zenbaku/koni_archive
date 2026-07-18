@@ -106,9 +106,11 @@ final class ZipReader extends ArchiveReader {
             entryPath: entry.path,
           );
         }
-        return _streamEntry(central, entry, compressed: false);
+        return _streamEntry(central, entry, method: 0);
       case 8:
-        return _streamEntry(central, entry, compressed: true);
+        return _streamEntry(central, entry, method: 8);
+      case 12:
+        return _streamEntry(central, entry, method: 12);
       default:
         throw UnsupportedCompressionException(
           'compression method "${entry.compression.name}" '
@@ -137,7 +139,7 @@ final class ZipReader extends ArchiveReader {
   Stream<Uint8List> _streamEntry(
     CentralEntry central,
     ArchiveEntry entry, {
-    required bool compressed,
+    required int method,
   }) async* {
     final dataOffset = await _dataOffset(central, entry);
     if (dataOffset + central.compressedSize > _source.length) {
@@ -158,10 +160,13 @@ final class ZipReader extends ArchiveReader {
     }
 
     final content = _decryptedContent(central, entry, dataOffset);
-    if (compressed) {
-      yield* _emitDeflated(entry, content, verifyCrc);
-    } else {
-      yield* _emitStored(entry, content, _contentLength(central), verifyCrc);
+    switch (method) {
+      case 8:
+        yield* _emitDeflated(entry, content, verifyCrc);
+      case 12:
+        yield* _emitBzip2(entry, content, verifyCrc);
+      default: // 0 (stored)
+        yield* _emitStored(entry, content, _contentLength(central), verifyCrc);
     }
   }
 
@@ -403,6 +408,58 @@ final class ZipReader extends ArchiveReader {
     }
     for (final decoded in pending) {
       yield decoded;
+    }
+    if (producedTotal != entry.uncompressedSize) {
+      throw CorruptArchiveException(
+        'decoded $producedTotal byte(s), central directory claims '
+        '${entry.uncompressedSize}',
+        format: 'zip',
+        entryPath: entry.path,
+      );
+    }
+    _verifyCrc(crc, entry);
+  }
+
+  /// Streams a bzip2 (method 12) entry: the compressed bytes are a raw bzip2
+  /// stream. Decoded one block at a time; the ZIP CRC-32 and uncompressed size
+  /// are verified in addition to bzip2's own block/stream CRCs.
+  Stream<Uint8List> _emitBzip2(
+    ArchiveEntry entry,
+    Stream<Uint8List> content,
+    bool verifyCrc,
+  ) async* {
+    final crc = verifyCrc ? Crc32() : null;
+    final decoder = RawBzip2Decoder();
+    var producedTotal = 0;
+    try {
+      // Accumulate the compressed input (bzip2 blocks are bit-aligned), then
+      // pull decoded blocks one at a time.
+      await for (final chunk in content) {
+        _throwIfClosed(entry);
+        decoder.addInput(chunk);
+      }
+      decoder.close();
+      for (Uint8List? block; (block = decoder.nextBlock()) != null;) {
+        _throwIfClosed(entry);
+        producedTotal += block!.length;
+        if (producedTotal > entry.uncompressedSize) {
+          throw SizeLimitExceededException(
+            'decoded output exceeds the claimed uncompressed size '
+            '(${entry.uncompressedSize} bytes)',
+            limit: entry.uncompressedSize,
+            format: 'zip',
+            entryPath: entry.path,
+          );
+        }
+        crc?.add(block);
+        yield block;
+      }
+    } on FormatException catch (e) {
+      throw CorruptArchiveException(
+        'bad bzip2 stream: ${e.message}',
+        format: 'zip',
+        entryPath: entry.path,
+      );
     }
     if (producedTotal != entry.uncompressedSize) {
       throw CorruptArchiveException(

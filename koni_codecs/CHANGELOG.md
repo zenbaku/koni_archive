@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.10.0 (2026-07-18)
+
+- Adds a **Zstandard decoder** (`ZstdDecoder`, a `dart:convert` `Converter`, and
+  the resumable `RawZstdDecoder`): the full RFC 8878 format — frame/block
+  framing, FSE (tANS) and Huffman entropy coding, sequences with the three
+  repeat offsets, back-reference matches (overlapping copies included),
+  concatenated and skippable frames, and XXH64 content-checksum verification
+  (on native 64-bit platforms; skipped under dart2js/dart2wasm). Dictionary and
+  legacy-v0.x frames are typed errors. `RawZstdDecoder` is pull-based
+  (`addInput` → `close` → `nextBlock`) with a mandatory 128 MiB window cap.
+  Backs the new `koni_zstd` package.
+- Adds a **bzip2 decoder** (`Bzip2Decoder`, a `dart:convert` `Converter`, and
+  the resumable `RawBzip2Decoder`): the full format (`BZh1`–`BZh9`) — MSB-first
+  bit stream, per-group Huffman, MTF/RLE2, inverse BWT, RLE1, and the
+  CRC-32/BZIP2 block/stream checks — with concatenated streams. `RawBzip2Decoder`
+  is pull-based (`addInput` → `close` → `nextBlock`), so callers decode one
+  ≤ 900 KiB block at a time. Backs the new `koni_bzip2` package as well as ZIP
+  method 12 and 7z's BZip2 coder.
+
 ## 0.9.0 (2026-07-17)
 
 - Lockstep release; no changes to this package since 0.8.0.

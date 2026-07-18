@@ -43,6 +43,71 @@ void main() {
       final crc = Crc32()..add(Uint8List.fromList(List.filled(100000, 0xFF)));
       expect(crc.value, inInclusiveRange(0, 0xFFFFFFFF));
     });
+
+    test('bytes/computeBytes are the value in little-endian', () {
+      // 0xCBF43926 little-endian.
+      expect(Crc32.computeBytes(_ascii('123456789')), [0x26, 0x39, 0xF4, 0xCB]);
+      final crc = Crc32()..add(_ascii('123456789'));
+      expect(crc.bytes, Crc32.computeBytes(_ascii('123456789')));
+    });
+  });
+
+  group('Crc64', () {
+    test('matches the canonical CRC-64/XZ vector, lane by lane', () {
+      // Empty input: init all-ones XOR final all-ones = 0.
+      final empty = Crc64()..add(_ascii(''));
+      expect(empty.low, 0x00000000);
+      expect(empty.high, 0x00000000);
+
+      // "123456789" -> 0x995DC9BBDF1939FA (the standard check value).
+      final check = Crc64()..add(_ascii('123456789'));
+      expect(check.low, 0xDF1939FA);
+      expect(check.high, 0x995DC9BB);
+    });
+
+    test('incremental chunked result equals one-shot', () {
+      final data = Uint8List.fromList(
+        List.generate(10000, (i) => (i * 31 + 7) & 0xFF),
+      );
+      final oneShot = Crc64()..add(data);
+      final chunked = Crc64();
+      for (var i = 0; i < data.length; i += 977) {
+        final end = (i + 977 <= data.length) ? i + 977 : data.length;
+        chunked.add(data, i, end);
+      }
+      expect(chunked.low, oneShot.low);
+      expect(chunked.high, oneShot.high);
+    });
+
+    test('reset returns to initial state', () {
+      final crc = Crc64()..add(_ascii('junk'));
+      crc.reset();
+      crc.add(_ascii('123456789'));
+      expect(crc.low, 0xDF1939FA);
+      expect(crc.high, 0x995DC9BB);
+    });
+
+    test('lanes stay within unsigned 32-bit range', () {
+      final crc = Crc64()..add(Uint8List.fromList(List.filled(100000, 0xFF)));
+      expect(crc.low, inInclusiveRange(0, 0xFFFFFFFF));
+      expect(crc.high, inInclusiveRange(0, 0xFFFFFFFF));
+    });
+
+    test('bytes/computeBytes are 8 little-endian bytes (low then high)', () {
+      // 0x995DC9BBDF1939FA little-endian: low 0xDF1939FA, then high 0x995DC9BB.
+      expect(Crc64.computeBytes(_ascii('123456789')), [
+        0xFA,
+        0x39,
+        0x19,
+        0xDF,
+        0xBB,
+        0xC9,
+        0x5D,
+        0x99,
+      ]);
+      final crc = Crc64()..add(_ascii('123456789'));
+      expect(crc.bytes, Crc64.computeBytes(_ascii('123456789')));
+    });
   });
 
   group('Adler32', () {

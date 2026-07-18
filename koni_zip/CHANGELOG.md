@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.10.0 (2026-07-18)
+
+- **bzip2 (method 12) entries now decode** (via the new `koni_codecs` bzip2
+  decoder), replacing the previous typed error. The ZIP CRC-32 and uncompressed
+  size are verified in addition to bzip2's own block/stream CRCs.
+
 ## 0.9.0 (2026-07-17)
 
 - Honors `ArchiveReadOptions.maxEntryCount`: a ZIP whose end-of-central-directory

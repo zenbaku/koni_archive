@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.0 (2026-07-18)
+
+- Lockstep release; no changes to this package since 0.9.0.
+
 ## 0.9.0 (2026-07-17)
 
 - Honors `ArchiveReadOptions.maxContainerDecodeSize` for the one open-time

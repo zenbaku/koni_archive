@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "set": "xz",
+  "tools": {
+    "xz": "xz (XZ Utils) 5.8.3",
+    "tar": "bsdtar 3.5.3 - libarchive 3.7.4 zlib/1.2.12 liblzma/5.4.3 bz2lib/1.0.8"
+  },
+  "files": [
+    "empty.xz",
+    "hello.txt",
+    "hello_crc32.xz",
+    "hello_crc64.xz",
+    "hello_none.xz",
+    "hello_sha256.xz",
+    "prose.bin",
+    "prose_arm.xz",
+    "prose_bcj.xz",
+    "prose_bcj_multiblock.xz",
+    "prose_multiblock.xz",
+    "ramp.bin",
+    "ramp_delta.xz",
+    "ramp_delta_x86.xz",
+    "sample.tar.xz",
+    "two_stream.xz"
+  ]
+}

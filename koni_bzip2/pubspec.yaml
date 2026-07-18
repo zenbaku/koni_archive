@@ -1,0 +1,21 @@
+name: koni_bzip2
+description: >-
+  BZip2 adapter for the koni_archive ecosystem — single-entry .bz2 archives and layered .tar.bz2 handling.
+version: 0.10.0
+repository: https://github.com/zenbaku/koni_archive
+topics:
+  - archive
+  - bzip2
+  - compression
+environment:
+  sdk: ^3.7.0
+resolution: workspace
+
+dependencies:
+  koni_archive_core: ^0.10.0
+  koni_codecs: ^0.10.0
+
+dev_dependencies:
+  koni_tar: ^0.10.0
+  lints: ^6.0.0
+  test: ^1.26.0

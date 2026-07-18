@@ -41,6 +41,9 @@ final List<FixtureSet> fixtureSets = [
   TarFixtureSet(),
   ZipFixtureSet(),
   GzipFixtureSet(),
+  XzFixtureSet(),
+  Bzip2FixtureSet(),
+  ZstdFixtureSet(),
   SevenZFixtureSet(),
   RarFixtureSet(),
 ];
@@ -221,6 +224,7 @@ final class SevenZFixtureSet implements FixtureSet {
       await sevenZip('lzma1.7z', ['-m0=LZMA'], basicMembers);
       await sevenZip('copy.7z', ['-m0=Copy'], basicMembers);
       await sevenZip('deflate.7z', ['-m0=Deflate'], basicMembers);
+      await sevenZip('bzip2.7z', ['-m0=BZip2'], basicMembers);
       await sevenZip(
         'bcj_lzma2.7z',
         [
@@ -359,6 +363,236 @@ final class GzipFixtureSet implements FixtureSet {
   }
 }
 
+/// XZ fixtures: the four integrity checks (none/CRC32/CRC64/SHA-256), a delta
+/// filter, an x86 BCJ filter, a multi-block file (`-T0 --block-size`), a
+/// concatenation of two streams, and a layered `.tar.xz`. Plaintext sources are
+/// copied alongside so the test can compare byte-for-byte. Uses `xz` (+ `tar`).
+final class XzFixtureSet implements FixtureSet {
+  @override
+  String get id => 'xz';
+
+  @override
+  String get package => 'koni_xz';
+
+  @override
+  List<String> get requiredTools => ['xz', 'tar'];
+
+  /// `Hello, xz world!\n` repeated (small, all-checks sample).
+  static List<int> get _helloText => ('Hello, xz world!\n' * 4).codeUnits;
+
+  /// Compressible natural-ish text, big enough to split into blocks.
+  static List<int> get _proseText =>
+      ('the quick brown fox jumps over the lazy dog. ' * 1000).codeUnits;
+
+  /// A byte ramp: ideal for the delta filter.
+  static List<int> get _ramp =>
+      List<int>.generate(20000, (i) => (i * 7) & 0xFF);
+
+  @override
+  Future<void> generate(Directory outDir) async {
+    final staging = Directory.systemTemp.createTempSync('koni_archive_fx');
+    try {
+      final root = staging.path;
+      final out = outDir.absolute.path;
+
+      File('$root/hello.txt').writeAsBytesSync(_helloText);
+      File('$root/prose.bin').writeAsBytesSync(_proseText);
+      File('$root/ramp.bin').writeAsBytesSync(_ramp);
+      // Plaintext sources committed too, so the test compares against them.
+      File('$root/hello.txt').copySync('$out/hello.txt');
+      File('$root/prose.bin').copySync('$out/prose.bin');
+      File('$root/ramp.bin').copySync('$out/ramp.bin');
+
+      Future<void> xz(List<String> args, String src, String dst) async {
+        await TarFixtureSet._run(
+          'xz',
+          ['-k', '-c', ...args, src],
+          cwd: root,
+          stdoutPath: '$out/$dst',
+        );
+      }
+
+      // The four integrity checks over the same small text.
+      await xz(['-C', 'crc64'], 'hello.txt', 'hello_crc64.xz');
+      await xz(['-C', 'crc32'], 'hello.txt', 'hello_crc32.xz');
+      await xz(['-C', 'sha256'], 'hello.txt', 'hello_sha256.xz');
+      await xz(['-C', 'none'], 'hello.txt', 'hello_none.xz');
+
+      // Delta filter (distance 1) + LZMA2, over the ramp.
+      await xz(
+        ['--delta=dist=1', '--lzma2=preset=6'],
+        'ramp.bin',
+        'ramp_delta.xz',
+      );
+
+      // x86 BCJ filter + LZMA2, over the prose.
+      await xz(['--x86', '--lzma2=preset=6'], 'prose.bin', 'prose_bcj.xz');
+
+      // A non-x86 BCJ (ARM): the reader must reject this with a typed error,
+      // so it is a committed negative fixture.
+      await xz(['--arm', '--lzma2=preset=6'], 'prose.bin', 'prose_arm.xz');
+
+      // Multi-block: force >1 block with a small block size.
+      await xz(
+        ['-T0', '--block-size=16384'],
+        'prose.bin',
+        'prose_multiblock.xz',
+      );
+
+      // Multi-block *with* the x86 BCJ filter: proves the BCJ start offset
+      // resets per block (each block is independent).
+      await xz(
+        ['--x86', '--lzma2=preset=6', '-T0', '--block-size=16384'],
+        'prose.bin',
+        'prose_bcj_multiblock.xz',
+      );
+
+      // A two-transform chain (delta then x86): exercises the reverse-apply
+      // loop with more than one non-final filter.
+      await xz(
+        ['--delta=dist=1', '--x86', '--lzma2=preset=6'],
+        'ramp.bin',
+        'ramp_delta_x86.xz',
+      );
+
+      // Empty input: a zero-record index and a zero-block stream.
+      File('$root/empty.bin').writeAsBytesSync(const <int>[]);
+      await xz(const [], 'empty.bin', 'empty.xz');
+
+      // Concatenation of two independent streams (decodes to hello.txt twice).
+      File('$out/two_stream.xz').writeAsBytesSync([
+        ...File('$out/hello_crc64.xz').readAsBytesSync(),
+        ...File('$out/hello_crc32.xz').readAsBytesSync(),
+      ]);
+
+      // Layered .tar.xz (sniffs as the inner TAR).
+      await TarFixtureSet._run('tar', [
+        '-c',
+        '--format',
+        'ustar',
+        '-f',
+        'sample.tar',
+        '--',
+        'hello.txt',
+        'prose.bin',
+      ], cwd: root);
+      await xz(['-6'], 'sample.tar', 'sample.tar.xz');
+    } finally {
+      staging.deleteSync(recursive: true);
+    }
+  }
+}
+
+/// BZip2 fixtures: a single-entry `.bz2` and a layered `.tar.bz2`, plus the
+/// plaintext sources for byte-for-byte comparison. Uses `bzip2` (+ `tar`).
+final class Bzip2FixtureSet implements FixtureSet {
+  @override
+  String get id => 'bzip2';
+
+  @override
+  String get package => 'koni_bzip2';
+
+  @override
+  List<String> get requiredTools => ['bzip2', 'tar'];
+
+  static List<int> get _helloText => ('hello, bzip2!\n' * 4).codeUnits;
+
+  static List<int> get _proseText =>
+      ('the quick brown fox jumps over the lazy dog. ' * 2000).codeUnits;
+
+  @override
+  Future<void> generate(Directory outDir) async {
+    final staging = Directory.systemTemp.createTempSync('koni_archive_fx');
+    try {
+      final root = staging.path;
+      final out = outDir.absolute.path;
+
+      File('$root/hello.txt').writeAsBytesSync(_helloText);
+      File('$root/prose.bin').writeAsBytesSync(_proseText);
+      File('$root/hello.txt').copySync('$out/hello.txt');
+      File('$root/prose.bin').copySync('$out/prose.bin');
+
+      Future<void> bz(String src, String dst) => TarFixtureSet._run(
+        'bzip2',
+        ['-9', '-c', src],
+        cwd: root,
+        stdoutPath: '$out/$dst',
+      );
+
+      await bz('hello.txt', 'hello.bz2');
+
+      await TarFixtureSet._run('tar', [
+        '-c',
+        '--format',
+        'ustar',
+        '-f',
+        'sample.tar',
+        '--',
+        'hello.txt',
+        'prose.bin',
+      ], cwd: root);
+      await bz('sample.tar', 'sample.tar.bz2');
+    } finally {
+      staging.deleteSync(recursive: true);
+    }
+  }
+}
+
+/// Zstandard fixtures: a single-entry `.zst` and a layered `.tar.zst`, plus the
+/// plaintext sources. Uses `zstd` (+ `tar`).
+final class ZstdFixtureSet implements FixtureSet {
+  @override
+  String get id => 'zstd';
+
+  @override
+  String get package => 'koni_zstd';
+
+  @override
+  List<String> get requiredTools => ['zstd', 'tar'];
+
+  static List<int> get _helloText => ('hello, zstd!\n' * 4).codeUnits;
+
+  static List<int> get _proseText =>
+      ('the quick brown fox jumps over the lazy dog. ' * 2000).codeUnits;
+
+  @override
+  Future<void> generate(Directory outDir) async {
+    final staging = Directory.systemTemp.createTempSync('koni_archive_fx');
+    try {
+      final root = staging.path;
+      final out = outDir.absolute.path;
+
+      File('$root/hello.txt').writeAsBytesSync(_helloText);
+      File('$root/prose.bin').writeAsBytesSync(_proseText);
+      File('$root/hello.txt').copySync('$out/hello.txt');
+      File('$root/prose.bin').copySync('$out/prose.bin');
+
+      Future<void> zst(String src, String dst) => TarFixtureSet._run(
+        'zstd',
+        ['-q', '-19', '--check', '-c', src],
+        cwd: root,
+        stdoutPath: '$out/$dst',
+      );
+
+      await zst('hello.txt', 'hello.zst');
+
+      await TarFixtureSet._run('tar', [
+        '-c',
+        '--format',
+        'ustar',
+        '-f',
+        'sample.tar',
+        '--',
+        'hello.txt',
+        'prose.bin',
+      ], cwd: root);
+      await zst('sample.tar', 'sample.tar.zst');
+    } finally {
+      staging.deleteSync(recursive: true);
+    }
+  }
+}
+
 /// ZIP fixtures (M3/M5): stored + deflated archives, comments, encrypted
 /// entries, self-extracting prefixes, unicode names, and a synthetic CBZ
 /// comic with dummy page images.
@@ -471,6 +705,14 @@ final class ZipFixtureSet implements FixtureSet {
         ['-mm=Copy', '-mem=AES256'],
         ['hello.txt'],
       );
+      // A bzip2-compressed (method 12) ZIP; Info-ZIP `zip` here isn't built
+      // with bzip2, so 7zz authors it.
+      await TarFixtureSet._run('7zz', [
+        'a', '-y', '-tzip', '-mm=BZip2', //
+        '$out/bzip2.zip',
+        'hello.txt',
+        'nested/deep/data.bin',
+      ], cwd: root);
       const comicMembers = [
         'comic/',
         'comic/ComicInfo.xml',
@@ -667,6 +909,7 @@ final class TarFixtureSet implements FixtureSet {
     List<String> args, {
     String? cwd,
     String? stdin,
+    String? stdoutPath,
   }) async {
     final process = await Process.start(
       exe,
@@ -677,7 +920,12 @@ final class TarFixtureSet implements FixtureSet {
     if (stdin != null) process.stdin.write(stdin);
     await process.stdin.close();
     final stderrText = await process.stderr.transform(utf8.decoder).join();
-    await process.stdout.drain<void>();
+    if (stdoutPath != null) {
+      final sink = File(stdoutPath).openWrite();
+      await process.stdout.pipe(sink);
+    } else {
+      await process.stdout.drain<void>();
+    }
     final exitCode = await process.exitCode;
     if (exitCode != 0) {
       throw ProcessException(
@@ -696,6 +944,9 @@ const Map<String, List<String>> _versionCommands = {
   'unzip': ['unzip', '-v'],
   'tar': ['tar', '--version'],
   'gzip': ['gzip', '--version'],
+  'xz': ['xz', '--version'],
+  'bzip2': ['bzip2', '--help'],
+  'zstd': ['zstd', '--version'],
   '7zz': ['7zz'],
   'rar': ['rar'],
 };

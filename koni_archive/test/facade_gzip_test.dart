@@ -58,6 +58,9 @@ void main() {
       '7z',
       'rar',
       'gzip',
+      'xz',
+      'bzip2',
+      'zstd',
       'tar',
     ]);
   });

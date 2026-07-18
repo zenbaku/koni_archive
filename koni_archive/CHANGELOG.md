@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.10.0 (2026-07-18)
+
+- New format: **xz**, via the new `koni_xz` package. A bare `.xz` auto-detects
+  and opens as a single-entry archive; `.tar.xz` / `.txz` presents as the inner
+  TAR (layered, like `.tar.gz`) — both registered in `builtInFormats`. Writing
+  is exposed as `XzWriteFormat` (LZMA2, single block, CRC-64) for
+  `Archive.create`. See `koni_xz` for details.
+- New format: **bzip2**, via the new `koni_bzip2` package. A bare `.bz2`
+  auto-detects and opens as a single-entry archive; `.tar.bz2` / `.tbz2` /
+  `.tbz` presents as the inner TAR — both registered in `builtInFormats`. The
+  same codec also decodes bzip2 inside ZIP (method 12) and 7z (BZip2 coder). See
+  `koni_bzip2` for details.
+- New format: **Zstandard**, via the new `koni_zstd` package. A bare `.zst`
+  auto-detects and opens as a single-entry archive; `.tar.zst` / `.tzst`
+  presents as the inner TAR — both registered in `builtInFormats`. Read-only
+  (RFC 8878); dictionary and legacy frames are typed errors. See `koni_zstd`.
+
 ## 0.9.0 (2026-07-17)
 
 - Read-side decompression-bomb guards (`ArchiveReadOptions.maxEntrySize` /

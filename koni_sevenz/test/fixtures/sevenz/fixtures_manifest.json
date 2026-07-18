@@ -7,6 +7,7 @@
   "files": [
     "bcj2.7z",
     "bcj_lzma2.7z",
+    "bzip2.7z",
     "copy.7z",
     "deflate.7z",
     "delta_lzma2.7z",

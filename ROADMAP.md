@@ -324,6 +324,118 @@ v20/v26, a multimedia/audio filter. R9 adds **v20/v26 LZ** decoding
 * **Value:** breadth: vintage `.rar` files. Rare in practice (the manga corpus
   and any modern archive are v29/v50).
 
+## XZ reading + writing (new format, post-0.9.0)
+
+New `koni_xz` package: `.xz` opens as a single-entry archive and `.tar.xz` /
+`.txz` as the inner TAR (layered, like `.tar.gz`), registered in the facade.
+The cheap-to-reach payoff the memory flagged: XZ is LZMA2 (which `koni_codecs`
+already decodes/encodes) plus container framing, not a from-scratch codec.
+
+* **Container:** parsed from the end (stream footer → index → block table),
+  the same read-from-EOF strategy as ZIP/7z. Handles concatenated multi-stream
+  files (with inter-stream padding) via a backward walk that **reconciles**
+  against the file length — a non-matching walk is a typed error, never a
+  one-stream assumption. Full detail in `koni_xz/doc/notes.md`.
+* **Decode:** block by block. Each block's LZMA2 output buffer (sized from the
+  index — the block is independent, no cross-block dictionary) is the decode
+  unit; transform filters (delta, x86 BCJ, reused from `koni_codecs`) are
+  reverse-applied after decompression; the integrity check is verified. Checks:
+  None / CRC-32 / **CRC-64** (xz's default) / SHA-256. CRC-64 is new in
+  `koni_archive_core` (`Crc64`, `CRC-64/XZ`), held in two 32-bit lanes so it is
+  dart2js-safe.
+* **Guards:** a block over `maxEntrySize` is rejected before allocation; a
+  layered `.tar.xz` honors `maxContainerDecodeSize` (falling back to
+  `maxEntrySize`) at open.
+* **Typed errors (read):** non-x86 BCJ filters (ARM/PPC/SPARC/…), a non-zero BCJ
+  start offset, reserved check ids, and non-reconciling concatenation.
+* **Writing** (`XzWriteFormat`, added 2026-07-18): compresses one entry with the
+  existing `koni_codecs` `Lzma2Encoder` as a single LZMA2 block + CRC-64 check —
+  the inverse of the read framing. `.xz` is single-member, so the writer takes
+  one entry (a second `add*`, a directory/link, or a password is rejected; xz
+  has no encryption); empty input → a valid zero-block stream. Deliberately
+  narrow MVP: single block, CRC-64, no transform filters (matches default `xz`);
+  multi-block-for-memory is the future enhancement. `.xz` stores no filename, so
+  a round trip preserves content, not the name.
+* **Verified:** *read* against fixtures authored with `xz` 5.8.3 (committed,
+  provenance manifest) — byte-exact on VM + dart2js + dart2wasm (all four checks,
+  delta, x86 BCJ, a delta+x86 chain, multi-block, multi-block+BCJ, concatenated
+  streams, empty, `.tar.xz`), fuzz-hardened; two real dart2js traps caught by the
+  web gate (a 64-bit CRC and a `1 << 48` shift ≥ 32), both closed. *Write*: a
+  write→own-reader round trip is the cross-platform gate (VM/dart2js/dart2wasm),
+  with `xz -d` interop as a VM-only skip-guarded extra and the empty stream
+  asserted byte-identical to `xz`'s.
+* **Version:** the lockstep 0.10.0 cut carries both read and write (0.9.0 was
+  published without koni_xz).
+
+## BZip2 (new format, post-0.9.0)
+
+New `koni_bzip2` package plus a bzip2 **codec** in `koni_codecs`. The
+leverage play: one codec unlocks four surfaces — a bare `.bz2`, layered
+`.tar.bz2`, ZIP method 12, and 7z's BZip2 coder (the last two were typed errors).
+
+* **Codec** (`koni_codecs` `Bzip2Decoder`/`RawBzip2Decoder`): clean-room from the
+  bzip2 format — MSB-first bit reader, per-group canonical Huffman, MTF/RLE2
+  inverse, inverse BWT (a `Uint32List` T-vector with an origPtr bounds check),
+  RLE1 inverse, and the non-reflected **CRC-32/BZIP2** block/stream checks
+  (rotate-combined). Concatenated streams handled. `RawBzip2Decoder` is
+  **pull-based** (`addInput` → `close` → `nextBlock`) so a reader decodes one
+  ≤ 900 KiB block at a time and a size guard can abort between blocks — the same
+  bounded-output shape as the xz reader (a push/`onOutput` model would have
+  materialized the whole output before the first yield and defeated
+  `maxEntrySize`). Randomized blocks (a deprecated, unauthorable pre-0.9 feature)
+  are a typed error.
+* **`koni_bzip2`**: `Bzip2Format` (single-entry `.bz2` + layered `.tar.bz2`),
+  registered in the facade. bzip2 records no decompressed size, so the single
+  entry's `uncompressedSize` is `-1` (unknown; `0` collides with empty/dir) and
+  the layered source decodes the whole container at open to learn its length
+  (capped by `maxContainerDecodeSize` ?? `maxEntrySize`).
+* **ZIP method 12 / 7z BZip2 coder**: the same codec wired into `koni_zip` and
+  `koni_sevenz`, replacing their typed errors; verified against `7zz`-authored
+  fixtures (Info-ZIP `zip` here isn't built with bzip2).
+* **Verified:** codec byte-exact vs `bzip2` 1.0.8 (empty, tiny, multi-block,
+  incompressible, concatenated) on VM/dart2js/dart2wasm and fuzz-hardened (the
+  BWT/origPtr path); format + ZIP + 7z decode against committed fixtures. The
+  dart2js web gate covers the CRC-32/BZIP2 left-shift.
+* **Foundational-utility additions** (`koni_archive_core`, driven by the owner's
+  "expose utilities so downstream can hand-build test archives" directive):
+  `Crc32`/`Crc64` gained `bytes`/`computeBytes` (little-endian on-the-wire form)
+  and a new `ByteWriter` (the write mirror of `ByteReader`).
+* Writing bzip2 is out of scope.
+
+## Zstandard reading (new format, post-0.9.0)
+
+New `koni_zstd` package plus a Zstandard **codec** in `koni_codecs` — the
+session's largest single build, a from-scratch RFC 8878 decoder.
+
+* **Codec** (`koni_codecs` `ZstdDecoder`/`RawZstdDecoder`): clean-room from
+  RFC 8878 — frame/block framing, the **FSE (tANS)** entropy engine (table
+  construction from a normalized distribution + the reverse-bitstream state
+  machine), **Huffman** literals (FSE-compressed and direct weights, zstd's
+  rank-based decode-table fill, 1- and 4-stream), the **sequences** section
+  (predefined / RLE / FSE / repeat table modes, the interleaved backward
+  bitstream), sequence execution with the **3 repeat offsets** (incl. the
+  literals-length-0 remap) and **overlapping match copies**, concatenated and
+  skippable frames, and **XXH64** content-checksum verification (native-64-bit
+  platforms; skipped on the web). `RawZstdDecoder` is pull-based
+  (`addInput`→`close`→`nextBlock`); a **mandatory 128 MiB window cap** bounds
+  hostile headers, and a corrupt-stream `RangeError` is converted to a typed
+  `FormatException` (fuzz-clean).
+* **`koni_zstd`**: `ZstdFormat` (single-entry `.zst` + layered `.tar.zst`),
+  registered in the facade. zstd may omit the content size, so the entry's
+  `uncompressedSize` is `-1` (the bzip2 sentinel) and the layered source
+  decodes the container in full at open (capped).
+* **Verified:** codec byte-exact vs `zstd` 1.5.7 across raw/RLE/compressed
+  blocks, raw + Huffman literals, predefined + FSE-compressed sequence tables,
+  repeat offsets, overlapping matches, multi-block, multi-frame, and the
+  checksum — on VM/dart2js/dart2wasm, fuzz-hardened; 30-input random stress set
+  (levels 1–19) all byte-exact. The de-risk method: parser instrumentation +
+  first-divergence classification against the CLI oracle (which localized an
+  off-by-one in the ML default distribution and a reversed Huffman table fill).
+* **Deferred:** dictionaries and legacy v0.x frames (typed errors); ZIP method
+  93 (codec is ready, but no tool on hand authors a fixture); Zstandard
+  *writing* (out of scope). A true sliding window (vs. whole-frame retention) is
+  a possible memory optimization.
+
 ## Deferred backlog (typed errors today; candidates for post-Phase-1)
 
 Roughly in expected demand order:
@@ -341,7 +453,9 @@ Roughly in expected demand order:
 * 7z BCJ2, PPMd
 * GNU sparse tars
 * Multi-volume archives: **done for RAR** (R4 above, via `nextVolume`); 7z/ZIP spanning still deferred
-* New formats via the registry: XZ, BZip2/tar.bz2, CPIO, ISO, CAB, …
+* New formats via the registry: ~~XZ~~ (**done**), ~~BZip2/tar.bz2~~ (**done**),
+  ~~Zstandard/tar.zst~~ (**done**; see the Zstandard section below), CPIO, ISO,
+  CAB, …
 
 ## Options backlog (post-0.8.0)
 

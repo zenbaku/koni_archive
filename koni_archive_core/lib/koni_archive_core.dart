@@ -17,6 +17,7 @@ library;
 export 'src/byte_reader.dart';
 export 'src/byte_sink.dart';
 export 'src/byte_source.dart';
+export 'src/byte_writer.dart';
 export 'src/checksums.dart';
 export 'src/entry.dart';
 export 'src/exceptions.dart';

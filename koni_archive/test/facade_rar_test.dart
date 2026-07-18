@@ -26,12 +26,15 @@ void main() {
     }
   });
 
-  test('builtInFormats registers all six formats in detection order', () {
+  test('builtInFormats registers all nine formats in detection order', () {
     expect(builtInFormats.formats.map((f) => f.name).toList(), [
       'zip',
       '7z',
       'rar',
       'gzip',
+      'xz',
+      'bzip2',
+      'zstd',
       'tar',
     ]);
   });

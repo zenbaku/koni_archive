@@ -1,7 +1,7 @@
 name: koni_codecs
 description: >-
   Pure Dart compression codecs (deflate, LZMA/LZMA2 — decode and encode) and crypto primitives, usable standalone or inside the koni_archive ecosystem.
-version: 0.9.0
+version: 0.10.0
 repository: https://github.com/zenbaku/koni_archive
 topics:
   - compression

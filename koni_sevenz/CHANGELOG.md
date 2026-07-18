@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.10.0 (2026-07-18)
+
+- **BZip2-coder folders now decode** (via the new `koni_codecs` bzip2 decoder),
+  replacing the previous typed error. BCJ2 and PPMd folders remain typed errors.
+
 ## 0.9.0 (2026-07-17)
 
 - Honors the read-side size limits (`ArchiveReadOptions.maxEntrySize` /

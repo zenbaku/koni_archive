@@ -758,6 +758,25 @@ final class SevenZReader extends ArchiveReader {
         }
         return output;
 
+      case '040202': // BZip2
+        var bzPos = 0;
+        final bz = RawBzip2Decoder();
+        await _feed(source, offset, packSize, bz.addInput);
+        bz.close();
+        for (Uint8List? block; (block = bz.nextBlock()) != null;) {
+          if (bzPos + block!.length > output.length) {
+            throw const FormatException('bzip2 output exceeds the folder size');
+          }
+          output.setRange(bzPos, bzPos + block.length, block);
+          bzPos += block.length;
+        }
+        if (bzPos != output.length) {
+          throw const FormatException(
+            'bzip2 stream ended before the folder output was complete',
+          );
+        }
+        return output;
+
       default:
         throw _unsupportedCoder(coder);
     }
@@ -811,6 +830,7 @@ final class SevenZReader extends ArchiveReader {
         '030101' ||
         '21' ||
         '040108' ||
+        '040202' ||
         '03' ||
         '03030103' ||
         _aesCoderId => true,

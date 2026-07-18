@@ -4,11 +4,14 @@ import 'dart:typed_data';
 
 import 'package:glob/glob.dart';
 import 'package:koni_archive_core/koni_archive_core.dart';
+import 'package:koni_bzip2/koni_bzip2.dart';
 import 'package:koni_gzip/koni_gzip.dart';
 import 'package:koni_rar/koni_rar.dart';
 import 'package:koni_sevenz/koni_sevenz.dart';
 import 'package:koni_tar/koni_tar.dart';
+import 'package:koni_xz/koni_xz.dart';
 import 'package:koni_zip/koni_zip.dart';
+import 'package:koni_zstd/koni_zstd.dart';
 import 'package:path/path.dart' as p;
 
 /// Registry pre-populated with every built-in format, in detection order.
@@ -25,8 +28,11 @@ final ArchiveFormatRegistry builtInFormats = ArchiveFormatRegistry([
   const ZipFormat(),
   const SevenZFormat(),
   const RarFormat(),
-  // A .tar.gz sniffs as the inner TAR.
+  // A .tar.gz / .tar.xz / .tar.bz2 sniffs as the inner TAR.
   const GzipFormat(layeredFormats: [TarFormat()]),
+  const XzFormat(layeredFormats: [TarFormat()]),
+  const Bzip2Format(layeredFormats: [TarFormat()]),
+  const ZstdFormat(layeredFormats: [TarFormat()]),
   const TarFormat(),
 ]);
 

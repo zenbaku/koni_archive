@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "set": "bzip2",
+  "tools": {
+    "bzip2": "bzip2, a block-sorting file compressor.  Version 1.0.8, 13-Jul-2019.",
+    "tar": "bsdtar 3.5.3 - libarchive 3.7.4 zlib/1.2.12 liblzma/5.4.3 bz2lib/1.0.8"
+  },
+  "files": [
+    "hello.bz2",
+    "hello.txt",
+    "prose.bin",
+    "sample.tar.bz2"
+  ]
+}

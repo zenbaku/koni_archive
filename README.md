@@ -1,8 +1,8 @@
 # koni_archive
 
-Read and write archives in pure Dart (ZIP, TAR, gzip, 7z, and RAR) through
-one API, on every platform Dart targets. No native code, no FFI, no shelling
-out to `unzip` or `7z`.
+Read and write archives in pure Dart (ZIP, TAR, gzip, xz, bzip2, zstd, 7z, and
+RAR) through one API, on every platform Dart targets. No native code, no FFI, no
+shelling out to `unzip` or `7z`.
 
 It treats an archive as a random-access filesystem you stream out of: list the
 entries, then pull the ones you want without holding the whole archive (or
@@ -23,9 +23,9 @@ await archive.close();
 
 ## What it does
 
-- **Reads** ZIP, TAR, gzip (including `.tar.gz`), 7z, and RAR (CBZ, CBT, CB7,
-  and CBR comics included).
-- **Writes** ZIP, TAR, and 7z, the last with a pure-Dart LZMA/LZMA2 encoder.
+- **Reads** ZIP, TAR, gzip (`.tar.gz`), xz (`.tar.xz`), bzip2 (`.tar.bz2`), zstd
+  (`.tar.zst`), 7z, and RAR (CBZ, CBT, CB7, and CBR comics included).
+- **Writes** ZIP, TAR, 7z, and xz, the last two with a pure-Dart LZMA/LZMA2 encoder.
 - **Encrypts, both ways.** Decrypts ZIP (zipcrypto and WinZip AES), 7z
   (AES-256, encrypted headers included), and RAR5/RAR4; writes encrypted ZIP
   and 7z with AES-256.
@@ -55,6 +55,9 @@ Most applications depend only on `koni_archive`, the facade.
 | [`koni_tar`](koni_tar/) | TAR reader and writer (ustar, PAX, GNU) |
 | [`koni_zip`](koni_zip/) | ZIP reader and writer (ZIP64; zipcrypto and WinZip AES) |
 | [`koni_gzip`](koni_gzip/) | gzip: a bare `.gz`, and `.tar.gz` presented as its inner TAR |
+| [`koni_xz`](koni_xz/) | xz reader and writer: a bare `.xz` (write via LZMA2), and `.tar.xz` presented as its inner TAR |
+| [`koni_bzip2`](koni_bzip2/) | bzip2: a bare `.bz2`, and `.tar.bz2` presented as its inner TAR (codec also backs ZIP method 12 and 7z) |
+| [`koni_zstd`](koni_zstd/) | Zstandard: a bare `.zst`, and `.tar.zst` presented as its inner TAR |
 | [`koni_sevenz`](koni_sevenz/) | 7z reader and writer (LZMA2 by default; AES-256) |
 | [`koni_rar`](koni_rar/) | RAR4/RAR5 reader, clean-room |
 | [`koni_http_source`](koni_http_source/) | An `HttpRangeByteSource` for reading a remote archive without downloading it |

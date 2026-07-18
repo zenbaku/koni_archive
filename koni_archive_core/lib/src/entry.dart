@@ -121,7 +121,11 @@ final class ArchiveEntry {
   /// format does not record it (TAR).
   final int? compressedSize;
 
-  /// Size of the content after decompression, in bytes.
+  /// Size of the content after decompression, in bytes, or `-1` when the
+  /// format records no decompressed size and the reader does not eagerly
+  /// decompress to compute it (currently only a bare `.bz2`, which stores no
+  /// size — reading the entry still yields the full content). Every other
+  /// format reports a real, non-negative size.
   final int uncompressedSize;
 
   /// Last-modified timestamp in UTC, or null where the format does not

@@ -1,0 +1,21 @@
+name: koni_xz
+description: >-
+  XZ reader and writer for the koni_archive ecosystem — single-entry .xz archives, layered .tar.xz, LZMA2 write.
+version: 0.10.0
+repository: https://github.com/zenbaku/koni_archive
+topics:
+  - archive
+  - xz
+  - lzma
+environment:
+  sdk: ^3.7.0
+resolution: workspace
+
+dependencies:
+  koni_archive_core: ^0.10.0
+  koni_codecs: ^0.10.0
+
+dev_dependencies:
+  koni_tar: ^0.10.0
+  lints: ^6.0.0
+  test: ^1.26.0

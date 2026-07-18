@@ -5,7 +5,7 @@
 # http-source last:
 #
 #   koni_archive_core, koni_codecs   (no intra-repo deps)
-#     → koni_tar, koni_gzip, koni_zip, koni_sevenz, koni_rar
+#     → koni_tar, koni_gzip, koni_zip, koni_sevenz, koni_rar, koni_xz, koni_bzip2
 #       → koni_archive        (facade; depends on every format)
 #       → koni_http_source    (depends on core; dev-deps koni_zip)
 #
@@ -24,6 +24,9 @@ vars:
     - koni_zip
     - koni_sevenz
     - koni_rar
+    - koni_xz
+    - koni_bzip2
+    - koni_zstd
     - koni_archive
     - koni_http_source
 

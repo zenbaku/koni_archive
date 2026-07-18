@@ -6,6 +6,7 @@
     "7zz": "7-Zip (z) 26.02 (arm64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-06-25"
   },
   "files": [
+    "bzip2.zip",
     "comment.zip",
     "deflated.zip",
     "empty.zip",

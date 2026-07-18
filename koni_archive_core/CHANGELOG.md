@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.10.0 (2026-07-18)
+
+- Adds `Crc64` (the `CRC-64/XZ` parameters) next to `Crc32`: a 64-bit CRC held
+  in two 32-bit lanes and verified lane-wise, so it is exact under dart2js. It
+  is the default integrity check of the `.xz` container and is used by the new
+  `koni_xz` package.
+- The checksums are foundational utilities meant to be used directly (e.g. to
+  hand-build an archive — or a deliberately corrupt one — for tests). `Crc32`
+  and `Crc64` gain a `bytes` getter and a `computeBytes` one-shot that return
+  the checksum as its **little-endian on-the-wire bytes** (4 for CRC-32, 8 for
+  CRC-64 — the form ZIP/gzip/xz store), so a caller no longer has to reassemble
+  the lanes or hand-serialize the value.
+- Adds `ByteWriter`, the append-only write mirror of `ByteReader`, for
+  assembling archive headers (or deliberately malformed ones) by hand:
+  `writeUint8` / `writeUint16` / `writeUint32` / `writeUint64` in little- and
+  big-endian variants (64-bit split into two 32-bit writes, dart2js-safe and
+  capped at 2^53-1 like the reader), plus `writeBytes`, `writeZeros`, a
+  `length` cursor, and `takeBytes`.
+- `ArchiveEntry.uncompressedSize` may now be `-1` to mean "unknown" for a format
+  that records no decompressed size and whose reader does not eagerly
+  decompress — currently only a bare `.bz2` (see `koni_bzip2`). Every other
+  format still reports a real, non-negative size.
+
 ## 0.9.0 (2026-07-17)
 
 - Decompression-bomb guards on the read side. `ArchiveReadOptions` gains
