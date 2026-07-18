@@ -11,6 +11,15 @@
 | Streaming reads | one bzip2 block (≤ 900 KiB) in memory at a time |
 | `maxEntrySize` | aborts a decode that grows past the limit (between blocks) |
 
+## Supported (writing)
+
+| Feature | Notes |
+| --- | --- |
+| Single-stream `.bz2` output | `Bzip2WriteFormat` compresses one byte stream (single-member container) via `Bzip2Encoder` |
+| Block sizes `-1`..`-9` | `Bzip2WriteFormat(blockSize100k: 1..9)`; 9 is the default and best ratio |
+| Multi-block output | input larger than one block is split into independent blocks with a combined stream CRC |
+| `bzip2` / libbz2 interop | output decodes byte-for-byte under the `bzip2` CLI; byte-identical across VM, dart2js, dart2wasm |
+
 ## Supported (layering)
 
 | Feature | Notes |
@@ -35,7 +44,7 @@
 
 | Feature | Status |
 | --- | --- |
-| Writing `.bz2` | out of scope |
+| 2–6-table Huffman optimization on write | not yet — the encoder uses a single per-block Huffman table (still `bzip2 -d`-compatible), so ratio is a little below `bzip2`'s |
 | Random access below block granularity | inherent to the format |
 
 ## Spec references

@@ -400,7 +400,19 @@ leverage play: one codec unlocks four surfaces — a bare `.bz2`, layered
   "expose utilities so downstream can hand-build test archives" directive):
   `Crc32`/`Crc64` gained `bytes`/`computeBytes` (little-endian on-the-wire form)
   and a new `ByteWriter` (the write mirror of `ByteReader`).
-* Writing bzip2 is out of scope.
+* **Writing** (`Bzip2Encoder` in `koni_codecs`; `Bzip2WriteFormat` /
+  `Bzip2Writer` in `koni_bzip2`, added 2026-07-18): the inverse pipeline — RLE1
+  → forward BWT → MTF/RLE2 → length-limited Huffman → `BZh` framing.
+  Correctness-first: one Huffman table per block (still `bzip2 -d`-decodable, at
+  a small ratio cost vs `bzip2`'s 2–6-table search) and a prefix-doubling BWT
+  whose rotation sort breaks ties by index, making the transform bit-for-bit
+  **deterministic** across VM/dart2js/dart2wasm. `blockSize100k: 1..9` mirrors
+  `bzip2 -1`..`-9`. `.bz2` is single-member (one entry, no encryption).
+  *Two bugs found and fixed during the build:* an `RLE1` scratch-buffer aliasing
+  (copy-free `BytesBuilder` reused a buffer, corrupting flushes past ~256 bytes)
+  and the periodic-rotation tie order. **Verified:** write→own-reader round trip
+  plus `bzip2 -d` interop across empty/tiny/RLE/periodic/ramp/random/large-single
+  -block/multi-block, byte-identical on all three platforms, fuzz-hardened.
 
 ## Zstandard reading (new format, post-0.9.0)
 
@@ -431,10 +443,13 @@ session's largest single build, a from-scratch RFC 8878 decoder.
   (levels 1–19) all byte-exact. The de-risk method: parser instrumentation +
   first-divergence classification against the CLI oracle (which localized an
   off-by-one in the ML default distribution and a reversed Huffman table fill).
+* **Planned:** Zstandard *writing* — a from-scratch FSE/Huffman encoder,
+  sequence formation, and match finder, inverting the verified decode order
+  (backward bitstream, predefined-FSE first, then literal Huffman). Reading
+  landed first; write is the next new-format build after bzip2 write.
 * **Deferred:** dictionaries and legacy v0.x frames (typed errors); ZIP method
-  93 (codec is ready, but no tool on hand authors a fixture); Zstandard
-  *writing* (out of scope). A true sliding window (vs. whole-frame retention) is
-  a possible memory optimization.
+  93 (codec is ready, but no tool on hand authors a fixture). A true sliding
+  window (vs. whole-frame retention) is a possible memory optimization.
 
 ## Deferred backlog (typed errors today; candidates for post-Phase-1)
 

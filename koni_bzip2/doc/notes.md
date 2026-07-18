@@ -39,6 +39,33 @@ blocks — the same per-block-yield shape as the xz reader (and, unlike a
 push/`onOutput` model, one that never materializes the whole output before the
 first yield).
 
+## Writing: a correctness-first encoder
+
+The write side (`Bzip2WriteFormat` → `Bzip2Writer` → `Bzip2Encoder` in
+`koni_codecs`) inverts the read pipeline: RLE1 → forward Burrows–Wheeler
+transform → MTF/RLE2 → length-limited Huffman → MSB-first bitstream, in `BZh`
+framing.
+
+Two deliberate simplifications keep it correct and small at a small ratio cost
+(output is always `bzip2 -d`-decodable):
+
+- **One Huffman table per block**, pointed to by the two required groups, rather
+  than `bzip2`'s 2–6-table iterative optimization. The length-limited Huffman is
+  a direct port of `bzip2`'s `hbMakeCodeLengths` (20-bit cap, frequency scaling
+  on overflow).
+- **Prefix-doubling BWT.** The forward transform is a prefix-doubling suffix sort
+  over the block's cyclic rotations. Periodic input produces identical rotations
+  (equal rank forever); since Dart's `sort` is not stable, the rotation order is
+  finalized by a total-order re-sort breaking ties by start index — the transform
+  is then bit-for-bit deterministic across the VM, dart2js, and dart2wasm.
+  (Identical rotations are interchangeable, so any tie order inverts; this just
+  pins one for reproducibility.)
+
+Regression guarded in tests: an early `RLE1` used a reused scratch buffer with a
+copy-free `BytesBuilder`, so a flush past ~256 bytes aliased and corrupted
+already-emitted slices. The `_rle1` boundary is now covered for every input
+length across the flush point.
+
 ## Randomized blocks
 
 bzip2 ≤ 0.9.0 could set a "randomized" block flag; no encoder has emitted it in

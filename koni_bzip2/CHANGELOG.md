@@ -2,7 +2,14 @@
 
 ## 0.10.0 (2026-07-18)
 
-- Initial release: BZip2 reading for the koni_archive ecosystem.
+- Initial release: BZip2 **reading and writing** for the koni_archive ecosystem.
+  - Writing (`Bzip2WriteFormat`) compresses one byte stream — `.bz2` is a
+    single-member container — via the new `Bzip2Encoder` in `koni_codecs`
+    (RLE1 → Burrows–Wheeler transform → MTF/RLE2 → length-limited Huffman).
+    `blockSize100k: 1..9` selects the block size like `bzip2 -1`..`-9`
+    (default 9). No encryption; a password is rejected. The output is
+    byte-decodable by `bzip2` / libbz2, verified against the `bzip2` CLI and
+    byte-identical across the VM, dart2js, and dart2wasm.
   - A bare `.bz2` opens as a single-entry archive; `.tar.bz2` / `.tbz2` /
     `.tbz` presents as the inner TAR via layered detection, through the new
     `Bzip2DecompressedByteSource`.

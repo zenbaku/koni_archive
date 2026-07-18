@@ -48,6 +48,7 @@ export 'package:koni_archive_core/koni_archive_core.dart'
         normalizeEntryPath,
         validateWritePath;
 
+export 'package:koni_bzip2/koni_bzip2.dart' show Bzip2WriteFormat;
 export 'package:koni_sevenz/koni_sevenz.dart' show SevenZWriteFormat;
 export 'package:koni_tar/koni_tar.dart' show TarWriteFormat;
 export 'package:koni_xz/koni_xz.dart' show XzWriteFormat;

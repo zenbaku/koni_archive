@@ -26,7 +26,8 @@ handled, and the XXH64 content checksum is verified on platforms with native
 depend on it). `.zst` carries no filename and may omit the decompressed size,
 so the single entry is named from the container and its `uncompressedSize` is
 `-1` (unknown). Typed errors: dictionary-compressed frames and the legacy
-(v0.x) formats. Reading only — Zstandard *writing* is out of scope.
+(v0.x) formats. Zstandard *writing* is planned (a from-scratch FSE/Huffman
+encoder and match finder); reading landed first.
 
 See [doc/features.md](doc/features.md) for the matrix and
 [doc/notes.md](doc/notes.md) for design decisions.

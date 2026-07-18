@@ -31,9 +31,9 @@
 
 | Feature | Status |
 | --- | --- |
+| Writing `.zst` | planned — needs a from-scratch FSE/Huffman encoder and match finder; reading landed first |
 | Dictionary support | deferred (typed error) |
 | ZIP method 93 (zstd-in-ZIP) | deferred — no tool on hand authors it for a fixture |
-| Writing `.zst` | out of scope |
 
 ## Notes
 

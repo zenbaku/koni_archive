@@ -25,7 +25,8 @@ await archive.close();
 
 - **Reads** ZIP, TAR, gzip (`.tar.gz`), xz (`.tar.xz`), bzip2 (`.tar.bz2`), zstd
   (`.tar.zst`), 7z, and RAR (CBZ, CBT, CB7, and CBR comics included).
-- **Writes** ZIP, TAR, 7z, and xz, the last two with a pure-Dart LZMA/LZMA2 encoder.
+- **Writes** ZIP, TAR, 7z, xz, and bzip2 — 7z/xz with a pure-Dart LZMA/LZMA2
+  encoder, bzip2 with a from-scratch BWT/Huffman encoder (zstd writing is next).
 - **Encrypts, both ways.** Decrypts ZIP (zipcrypto and WinZip AES), 7z
   (AES-256, encrypted headers included), and RAR5/RAR4; writes encrypted ZIP
   and 7z with AES-256.
@@ -36,9 +37,9 @@ await archive.close();
   and dart2wasm.
 
 Every reader and writer is tested against the reference tools (`unzip`,
-`bsdtar`, `7zz`, `rar`, and liblzma for the LZMA codecs), fuzzed in CI, and
-checked byte-for-byte against a corpus of real comic archives. RAR is
-read-only; writing RAR is out of scope.
+`bsdtar`, `7zz`, `rar`, `bzip2`, and liblzma for the LZMA codecs), fuzzed in CI,
+and checked byte-for-byte against a corpus of real comic archives. RAR is the
+one read-only format — writing it is barred by licensing, not by scope.
 
 This is version **0.7.0** (0.6.0 was the first release on pub.dev). See
 [ROADMAP.md](ROADMAP.md) for what's done and what's deferred.

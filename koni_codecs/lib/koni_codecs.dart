@@ -16,6 +16,7 @@ library;
 
 export 'src/bit_reader.dart';
 export 'src/bzip2.dart';
+export 'src/bzip2_encoder.dart';
 export 'src/deflate.dart';
 export 'src/filters.dart';
 export 'src/gzip.dart';
