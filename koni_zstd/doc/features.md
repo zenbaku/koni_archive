@@ -13,6 +13,16 @@
 | Streaming reads | one block (≤ 128 KiB) at a time |
 | `maxEntrySize` | aborts a decode that grows past the limit |
 
+## Supported (writing)
+
+| Feature | Notes |
+| --- | --- |
+| Single-frame `.zst` output | `ZstdWriteFormat` compresses one byte stream (single-member container) via `ZstdEncoder` |
+| LZ sequences over predefined FSE tables | greedy hash-chain match finder; a from-scratch tANS encoder; new offsets only |
+| Raw literals | literals stored uncompressed (Huffman literals are a planned ratio improvement) |
+| Raw-block fallback | incompressible blocks are stored raw, so output never expands much |
+| `zstd` / libzstd interop | output decodes byte-for-byte under the `zstd` CLI; byte-identical across VM, dart2js, dart2wasm |
+
 ## Supported (layering)
 
 | Feature | Notes |
@@ -31,7 +41,8 @@
 
 | Feature | Status |
 | --- | --- |
-| Writing `.zst` | planned — needs a from-scratch FSE/Huffman encoder and match finder; reading landed first |
+| Huffman literals on write | planned — the writer stores literals raw, so the ratio is below `zstd`'s on literal-heavy data |
+| Custom FSE tables / repeat modes on write | not yet — the writer always uses the predefined tables |
 | Dictionary support | deferred (typed error) |
 | ZIP method 93 (zstd-in-ZIP) | deferred — no tool on hand authors it for a fixture |
 

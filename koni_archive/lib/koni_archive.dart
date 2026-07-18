@@ -53,5 +53,6 @@ export 'package:koni_sevenz/koni_sevenz.dart' show SevenZWriteFormat;
 export 'package:koni_tar/koni_tar.dart' show TarWriteFormat;
 export 'package:koni_xz/koni_xz.dart' show XzWriteFormat;
 export 'package:koni_zip/koni_zip.dart' show ZipWriteFormat;
+export 'package:koni_zstd/koni_zstd.dart' show ZstdWriteFormat;
 
 export 'src/archive.dart';

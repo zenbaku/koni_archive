@@ -10,6 +10,10 @@
 /// [FormatException]; the archive layer translates that into its typed
 /// exception hierarchy.
 ///
+/// Encoders: [DeflateEncoder], [LzmaEncoder]/[Lzma2Encoder], [Bzip2Encoder],
+/// and [ZstdEncoder] (LZ sequences over the predefined FSE tables with raw
+/// literals; output is decodable by `zstd`).
+///
 /// Cryptographic primitives (AES, SHA, HMAC, PBKDF2; Phase 3) live in the
 /// separate `package:koni_codecs/crypto.dart` entrypoint.
 library;
@@ -26,3 +30,4 @@ export 'src/lzma2.dart';
 export 'src/lzma2_encoder.dart';
 export 'src/lzma_encoder.dart';
 export 'src/zstd.dart';
+export 'src/zstd_encoder.dart';

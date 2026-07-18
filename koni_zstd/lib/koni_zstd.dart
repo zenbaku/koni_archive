@@ -1,20 +1,28 @@
-/// Zstandard reader for the koni_archive ecosystem: single-entry `.zst`
-/// archives and layered `.tar.zst`.
+/// Zstandard reader and writer for the koni_archive ecosystem: single-entry
+/// `.zst` archives and layered `.tar.zst`.
 ///
 /// Most applications use the `koni_archive` facade, which registers
-/// [ZstdFormat] automatically (with TAR layered, so `.tar.zst` opens as the
-/// inner TAR). Depend on this package directly only to build a custom format
-/// registry.
+/// [ZstdFormat] (read, auto-detected, with TAR layered so `.tar.zst` opens as
+/// the inner TAR) and exposes [ZstdWriteFormat] (write) automatically. Depend on
+/// this package directly only to build a custom format registry.
 ///
-/// Decodes the Zstandard format (RFC 8878) via `koni_codecs`, one block at a
-/// time so memory stays bounded; concatenated frames and skippable frames are
-/// handled, and the XXH64 content checksum is verified on platforms with native
-/// 64-bit integers (skipped under dart2js/dart2wasm). `.zst` carries no filename
-/// and may omit the decompressed size, so the single entry is named from the
-/// container and its `uncompressedSize` is `-1` (unknown). Typed errors:
-/// dictionary-compressed frames and the legacy (v0.x) formats. The same codec
-/// also decodes zstd inside ZIP (method 93), in `koni_zip`.
+/// **Reading** decodes the Zstandard format (RFC 8878) via `koni_codecs`, one
+/// block at a time so memory stays bounded; concatenated frames and skippable
+/// frames are handled, and the XXH64 content checksum is verified on platforms
+/// with native 64-bit integers (skipped under dart2js/dart2wasm). `.zst` carries
+/// no filename and may omit the decompressed size, so the single entry is named
+/// from the container and its `uncompressedSize` is `-1` (unknown). Typed
+/// errors: dictionary-compressed frames and the legacy (v0.x) formats. The same
+/// codec also decodes zstd inside ZIP (method 93), in `koni_zip`.
+///
+/// **Writing** ([ZstdWriteFormat]) compresses one byte stream into a single
+/// frame — LZ sequences over the predefined FSE tables with raw literals, so the
+/// ratio is below `zstd`'s on literal-heavy data (Huffman literals are a planned
+/// improvement). It has no encryption. The output is byte-decodable by `zstd` /
+/// libzstd.
 library;
 
 export 'src/zstd_format.dart';
 export 'src/zstd_reader.dart' show ZstdReader;
+export 'src/zstd_write_format.dart';
+export 'src/zstd_writer.dart' show ZstdWriter;

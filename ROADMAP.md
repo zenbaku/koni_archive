@@ -443,13 +443,24 @@ session's largest single build, a from-scratch RFC 8878 decoder.
   (levels 1–19) all byte-exact. The de-risk method: parser instrumentation +
   first-divergence classification against the CLI oracle (which localized an
   off-by-one in the ML default distribution and a reversed Huffman table fill).
-* **Planned:** Zstandard *writing* — a from-scratch FSE/Huffman encoder,
-  sequence formation, and match finder, inverting the verified decode order
-  (backward bitstream, predefined-FSE first, then literal Huffman). Reading
-  landed first; write is the next new-format build after bzip2 write.
-* **Deferred:** dictionaries and legacy v0.x frames (typed errors); ZIP method
-  93 (codec is ready, but no tool on hand authors a fixture). A true sliding
-  window (vs. whole-frame retention) is a possible memory optimization.
+* **Writing** (`ZstdEncoder` in `koni_codecs`; `ZstdWriteFormat` / `ZstdWriter`
+  in `koni_zstd`, added 2026-07-18): a single-frame `.zst` — single-segment
+  header with the content size, no checksum, ≤ 128 KiB blocks. A greedy
+  hash-chain match finder produces LZ sequences entropy-coded over the
+  **predefined** FSE tables (a from-scratch tANS encoder, whose append order was
+  verified to invert the reader's read order via an isolated FSE symbol-stream
+  round trip), with **raw** literals and new offsets only. Incompressible blocks
+  fall back to raw. Ratio is below `zstd`'s on literal-heavy data — **Huffman
+  literals are the planned next step.** *Bug found by an isolated table
+  cross-check:* the `ML_bits` table needs exactly 32 leading zeros; an off-by-one
+  over-reads the ML extra bits and over-produces the block. **Verified:**
+  write→own-reader round trip + `zstd -d` interop across empty/tiny/text/runs/
+  ramp/random/large/multi-block, byte-identical on VM/dart2js/dart2wasm,
+  fuzz-hardened.
+* **Deferred:** Huffman literals on write (ratio); dictionaries and legacy v0.x
+  frames (typed errors, read); ZIP method 93 (codec is ready, but no tool on
+  hand authors a fixture). A true sliding window (vs. whole-frame retention) is a
+  possible memory optimization.
 
 ## Deferred backlog (typed errors today; candidates for post-Phase-1)
 

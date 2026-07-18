@@ -25,8 +25,9 @@ await archive.close();
 
 - **Reads** ZIP, TAR, gzip (`.tar.gz`), xz (`.tar.xz`), bzip2 (`.tar.bz2`), zstd
   (`.tar.zst`), 7z, and RAR (CBZ, CBT, CB7, and CBR comics included).
-- **Writes** ZIP, TAR, 7z, xz, and bzip2 — 7z/xz with a pure-Dart LZMA/LZMA2
-  encoder, bzip2 with a from-scratch BWT/Huffman encoder (zstd writing is next).
+- **Writes** ZIP, TAR, 7z, xz, bzip2, and zstd — 7z/xz with a pure-Dart
+  LZMA/LZMA2 encoder, bzip2 with a from-scratch BWT/Huffman encoder, and zstd
+  with a from-scratch tANS sequence encoder (LZ matches, raw literals).
 - **Encrypts, both ways.** Decrypts ZIP (zipcrypto and WinZip AES), 7z
   (AES-256, encrypted headers included), and RAR5/RAR4; writes encrypted ZIP
   and 7z with AES-256.
