@@ -459,10 +459,14 @@ session's largest single build, a from-scratch RFC 8878 decoder.
   trip + `zstd -d` interop across empty/tiny/text/runs/ramp/random/skewed-ascii/
   high-byte/large/multi-block, byte-identical on VM/dart2js/dart2wasm (Huffman
   and sizeFormat-3 cases included), fuzz-hardened.
-* **Deferred (write):** FSE-compressed Huffman weights (to lift the ≤ 128 literal
-  alphabet cap on Huffman literals — the 2-state interleaved weight encode is the
-  format's riskiest bitstream); custom FSE sequence tables / repeat modes; a
-  stronger match finder.
+* **Deferred (write), in priority order:** (1) a **stronger match finder** — the
+  current greedy min-3 emits unprofitable coincidental short matches that
+  fragment literal runs (high-entropy input can compress *worse* as it grows);
+  lazy matching or a net-cost check before emitting a short match is the biggest
+  remaining ratio lever. (2) **FSE-compressed Huffman weights**, to lift the
+  ≤ 128 literal-alphabet cap on Huffman literals (the 2-state interleaved weight
+  encode is the format's riskiest bitstream). (3) custom FSE sequence tables /
+  repeat-offset modes.
 * **Deferred (read):** dictionaries and legacy v0.x frames (typed errors); ZIP
   method 93 (codec is ready, but no tool on hand authors a fixture). A true
   sliding window (vs. whole-frame retention) is a possible memory optimization.
