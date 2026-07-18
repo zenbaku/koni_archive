@@ -10,8 +10,16 @@
     are entropy-coded over the predefined FSE tables (a from-scratch tANS
     encoder), with raw literals. No encryption; a password is rejected. The
     output is byte-decodable by `zstd` / libzstd, verified against the `zstd`
-    CLI and byte-identical across the VM, dart2js, and dart2wasm. Huffman
-    literals (for a better ratio on literal-heavy data) are a planned follow-up.
+    CLI and byte-identical across the VM, dart2js, and dart2wasm.
+  - Literals are Huffman-coded (direct-weight table, 1- and 4-stream) when it
+    beats raw and the literal alphabet's highest byte value is ≤ 128; otherwise
+    they are stored raw. FSE-compressed Huffman weights (to lift the ≤ 128 cap)
+    are a planned follow-up.
+  - Reader fix: the compressed-literals sizeFormat-3 size field was assembled
+    with a `<< 28` shift that truncates to 32 bits on dart2js (losing the top of
+    `Compressed_Size`); large Huffman literal blocks tripped it. Now assembled
+    from `< 2^18` bit fields, so `.zst` files with large Huffman literal sections
+    decode correctly on the web.
   - A bare `.zst` opens as a single-entry archive; `.tar.zst` / `.tzst`
     presents as the inner TAR via layered detection, through the new
     `ZstdDecompressedByteSource`.

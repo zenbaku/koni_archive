@@ -449,18 +449,23 @@ session's largest single build, a from-scratch RFC 8878 decoder.
   hash-chain match finder produces LZ sequences entropy-coded over the
   **predefined** FSE tables (a from-scratch tANS encoder, whose append order was
   verified to invert the reader's read order via an isolated FSE symbol-stream
-  round trip), with **raw** literals and new offsets only. Incompressible blocks
-  fall back to raw. Ratio is below `zstd`'s on literal-heavy data — **Huffman
-  literals are the planned next step.** *Bug found by an isolated table
-  cross-check:* the `ML_bits` table needs exactly 32 leading zeros; an off-by-one
-  over-reads the ML extra bits and over-produces the block. **Verified:**
-  write→own-reader round trip + `zstd -d` interop across empty/tiny/text/runs/
-  ramp/random/large/multi-block, byte-identical on VM/dart2js/dart2wasm,
-  fuzz-hardened.
-* **Deferred:** Huffman literals on write (ratio); dictionaries and legacy v0.x
-  frames (typed errors, read); ZIP method 93 (codec is ready, but no tool on
-  hand authors a fixture). A true sliding window (vs. whole-frame retention) is a
-  possible memory optimization.
+  round trip), new offsets only, with **Huffman literals** (direct-weight table,
+  1- and 4-stream) when they beat raw. Incompressible blocks fall back to raw.
+  *Two bugs found by isolated cross-checks:* the `ML_bits` table needs exactly 32
+  leading zeros (an off-by-one over-reads the ML extra bits and over-produces the
+  block); and the reader's compressed-literals **sizeFormat-3** size parse used a
+  `<< 28` that truncates on dart2js — fixed to per-field assembly, so large
+  Huffman literal blocks decode on the web. **Verified:** write→own-reader round
+  trip + `zstd -d` interop across empty/tiny/text/runs/ramp/random/skewed-ascii/
+  high-byte/large/multi-block, byte-identical on VM/dart2js/dart2wasm (Huffman
+  and sizeFormat-3 cases included), fuzz-hardened.
+* **Deferred (write):** FSE-compressed Huffman weights (to lift the ≤ 128 literal
+  alphabet cap on Huffman literals — the 2-state interleaved weight encode is the
+  format's riskiest bitstream); custom FSE sequence tables / repeat modes; a
+  stronger match finder.
+* **Deferred (read):** dictionaries and legacy v0.x frames (typed errors); ZIP
+  method 93 (codec is ready, but no tool on hand authors a fixture). A true
+  sliding window (vs. whole-frame retention) is a possible memory optimization.
 
 ## Deferred backlog (typed errors today; candidates for post-Phase-1)
 

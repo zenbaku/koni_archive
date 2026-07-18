@@ -224,6 +224,15 @@ final class ZstdEncoder {
   }
 
   void _writeLiteralsSection(BytesBuilder out, Uint8List lits) {
+    final huff = _tryHuffmanLiterals(lits);
+    if (huff != null) {
+      out.add(huff);
+      return;
+    }
+    _writeRawLiteralsSection(out, lits);
+  }
+
+  void _writeRawLiteralsSection(BytesBuilder out, Uint8List lits) {
     final n = lits.length;
     // Raw literals (litType 0).
     if (n < 32) {
@@ -239,6 +248,149 @@ final class ZstdEncoder {
         ..addByte((n >> 12) & 0xFF);
     }
     out.add(lits);
+  }
+
+  /// Builds a Huffman-compressed literals section (litType 2) for [lits], or
+  /// null when Huffman does not apply or does not pay off (caller stores raw).
+  Uint8List? _tryHuffmanLiterals(Uint8List lits) {
+    final n = lits.length;
+    // Below this, the ~4-byte header + weight table rarely pays off, and the
+    // 4-stream path needs room to split.
+    if (n < 64) return null;
+
+    final freq = Uint32List(256);
+    var distinct = 0;
+    for (final b in lits) {
+      if (freq[b] == 0) distinct++;
+      freq[b]++;
+    }
+    // A single-symbol alphabet would make maxSym possibly 0 (header byte 127,
+    // the FSE-weights marker) and offers nothing to Huffman: store raw.
+    if (distinct < 2) return null;
+
+    final lengths = _zstdHuffLengths(freq, 256, 11);
+    final huff = _HuffEnc.build(lengths);
+    if (huff == null) return null; // highest symbol > 128: direct weights can't
+
+    final tableDesc = _huffTableDesc(huff);
+
+    // Streams: 1 stream for <= 1023 bytes, else 4 streams with a jump table.
+    final Uint8List payload;
+    final int streams;
+    if (n <= 1023) {
+      final s = _encodeHuffStream(huff, lits, 0, n);
+      final b =
+          BytesBuilder(copy: false)
+            ..add(tableDesc)
+            ..add(s);
+      payload = b.takeBytes();
+      streams = 1;
+    } else {
+      final segment = (n + 3) ~/ 4;
+      final s0 = _encodeHuffStream(huff, lits, 0, segment);
+      final s1 = _encodeHuffStream(huff, lits, segment, 2 * segment);
+      final s2 = _encodeHuffStream(huff, lits, 2 * segment, 3 * segment);
+      final s3 = _encodeHuffStream(huff, lits, 3 * segment, n);
+      // Jump table: byte sizes of the first three streams (2-byte LE each).
+      if (s0.length > 0xFFFF || s1.length > 0xFFFF || s2.length > 0xFFFF) {
+        return null; // a stream over 64 KiB can't be sized in the jump table
+      }
+      final b =
+          BytesBuilder(copy: false)
+            ..add(tableDesc)
+            ..addByte(s0.length & 0xFF)
+            ..addByte(s0.length >> 8)
+            ..addByte(s1.length & 0xFF)
+            ..addByte(s1.length >> 8)
+            ..addByte(s2.length & 0xFF)
+            ..addByte(s2.length >> 8)
+            ..add(s0)
+            ..add(s1)
+            ..add(s2)
+            ..add(s3);
+      payload = b.takeBytes();
+      streams = 4;
+    }
+
+    final section = BytesBuilder(copy: false);
+    _writeCompressedLiteralsHeader(section, n, payload.length, streams);
+    section.add(payload);
+    final result = section.takeBytes();
+
+    // Only use Huffman when it beats raw literals (header + n bytes).
+    final rawLen = n + (n < 32 ? 1 : (n < 4096 ? 2 : 3));
+    if (result.length >= rawLen) return null;
+    return result;
+  }
+
+  /// The direct-weights table description: header byte `127 + maxSym`, then the
+  /// weights of symbols `0..maxSym-1` packed two per byte (high nibble first);
+  /// symbol `maxSym`'s weight is implicit.
+  Uint8List _huffTableDesc(_HuffEnc huff) {
+    final maxSym = huff.maxSym;
+    final out = BytesBuilder(copy: false)..addByte(127 + maxSym);
+    for (var i = 0; i < maxSym; i += 2) {
+      final hi = huff.weights[i];
+      final lo = i + 1 < maxSym ? huff.weights[i + 1] : 0;
+      out.addByte((hi << 4) | lo);
+    }
+    return out.takeBytes();
+  }
+
+  /// Encodes literals `[start, end)` into one backward-readable Huffman stream:
+  /// codes appended in reverse output order, MSB-first, plus the end marker.
+  Uint8List _encodeHuffStream(
+    _HuffEnc huff,
+    Uint8List lits,
+    int start,
+    int end,
+  ) {
+    final w = _ZstdBitWriter();
+    for (var o = end - 1; o >= start; o--) {
+      final s = lits[o];
+      w.addBits(huff.code(s), huff.nbBits(s));
+    }
+    return w.finish();
+  }
+
+  void _writeCompressedLiteralsHeader(
+    BytesBuilder out,
+    int regenSize,
+    int compSize,
+    int streams,
+  ) {
+    const litType = 2; // Compressed
+    if (streams == 1) {
+      // sizeFormat 0: 1 stream, 10-bit sizes, 3-byte header.
+      final v = litType | (0 << 2) | (regenSize << 4) | (compSize << 14);
+      out
+        ..addByte(v & 0xFF)
+        ..addByte((v >> 8) & 0xFF)
+        ..addByte((v >> 16) & 0xFF);
+    } else if (regenSize < 1024 && compSize < 1024) {
+      // sizeFormat 1: 4 streams, 10-bit sizes, 3-byte header.
+      final v = litType | (1 << 2) | (regenSize << 4) | (compSize << 14);
+      out
+        ..addByte(v & 0xFF)
+        ..addByte((v >> 8) & 0xFF)
+        ..addByte((v >> 16) & 0xFF);
+    } else if (regenSize < 16384 && compSize < 16384) {
+      // sizeFormat 2: 4 streams, 14-bit sizes, 4-byte header.
+      final v = litType | (2 << 2) | (regenSize << 4) | (compSize << 18);
+      out
+        ..addByte(v & 0xFF)
+        ..addByte((v >> 8) & 0xFF)
+        ..addByte((v >> 16) & 0xFF)
+        ..addByte((v >> 24) & 0xFF);
+    } else {
+      // sizeFormat 3: 4 streams, 18-bit sizes, 5-byte header.
+      out
+        ..addByte((litType | (3 << 2) | ((regenSize & 0xF) << 4)) & 0xFF)
+        ..addByte((regenSize >> 4) & 0xFF)
+        ..addByte(((regenSize >> 12) | (compSize << 6)) & 0xFF)
+        ..addByte((compSize >> 2) & 0xFF)
+        ..addByte((compSize >> 10) & 0xFF);
+    }
   }
 
   void _writeSequencesSection(
@@ -287,8 +439,14 @@ final class ZstdEncoder {
     var llState = llCT.initState(llCode[nbSeq - 1]);
     var ofState = ofCT.initState(ofCode[nbSeq - 1]);
     var mlState = mlCT.initState(mlCode[nbSeq - 1]);
-    w.addBits(seqLL[nbSeq - 1] - _llBaseTab[llCode[nbSeq - 1]], _llBitsTab[llCode[nbSeq - 1]]);
-    w.addBits(seqML[nbSeq - 1] - _mlBaseTab[mlCode[nbSeq - 1]], _mlBitsTab[mlCode[nbSeq - 1]]);
+    w.addBits(
+      seqLL[nbSeq - 1] - _llBaseTab[llCode[nbSeq - 1]],
+      _llBitsTab[llCode[nbSeq - 1]],
+    );
+    w.addBits(
+      seqML[nbSeq - 1] - _mlBaseTab[mlCode[nbSeq - 1]],
+      _mlBitsTab[mlCode[nbSeq - 1]],
+    );
     w.addBits(seqOF[nbSeq - 1] - (1 << ofCode[nbSeq - 1]), ofCode[nbSeq - 1]);
 
     for (var i = nbSeq - 2; i >= 0; i--) {
@@ -334,12 +492,7 @@ final class ZstdEncoder {
       _writeRawBlock(out, data, start, end, isLast);
       return;
     }
-    _writeBlockHeader(
-      out,
-      lastBlock: isLast,
-      type: 2,
-      size: compressed.length,
-    );
+    _writeBlockHeader(out, lastBlock: isLast, type: 2, size: compressed.length);
     out.add(compressed);
   }
 }
@@ -488,6 +641,187 @@ int _zHighBit(int n) {
     b++;
   }
   return b;
+}
+
+/// Length-limited Huffman code lengths (a heap build with frequency scaling on
+/// overflow, as in bzip2's `hbMakeCodeLengths`), over the symbols with
+/// `freq > 0` only; absent symbols get length 0. Caller ensures ≥ 2 present
+/// symbols. Max code length is [maxLen] (zstd's Huffman cap is 11).
+List<int> _zstdHuffLengths(Uint32List freq, int alpha, int maxLen) {
+  final present = <int>[];
+  for (var s = 0; s < alpha; s++) {
+    if (freq[s] > 0) present.add(s);
+  }
+  final n = present.length;
+  final lengths = List<int>.filled(alpha, 0);
+  final scaled = Uint32List(n);
+  for (var i = 0; i < n; i++) {
+    scaled[i] = freq[present[i]];
+  }
+
+  // Node ids: 1..n are leaves (present[id-1]); n+1.. are internal nodes.
+  final weight = List<int>.filled(2 * n + 2, 0);
+  final parent = List<int>.filled(2 * n + 2, 0);
+  final heap = List<int>.filled(n + 2, 0);
+
+  while (true) {
+    for (var i = 0; i < n; i++) {
+      weight[i + 1] = scaled[i] << 8;
+    }
+    var nHeap = 0;
+    var nNodes = n;
+    heap[0] = 0;
+    weight[0] = 0;
+    parent[0] = -2;
+    for (var i = 1; i <= n; i++) {
+      parent[i] = -1;
+      nHeap++;
+      heap[nHeap] = i;
+      var zz = nHeap;
+      final tmp = heap[zz];
+      while (weight[tmp] < weight[heap[zz >> 1]]) {
+        heap[zz] = heap[zz >> 1];
+        zz >>= 1;
+      }
+      heap[zz] = tmp;
+    }
+
+    while (nHeap > 1) {
+      final n1 = heap[1];
+      heap[1] = heap[nHeap];
+      nHeap--;
+      var zz = 1;
+      var tmp = heap[zz];
+      while (true) {
+        var yy = zz << 1;
+        if (yy > nHeap) break;
+        if (yy < nHeap && weight[heap[yy + 1]] < weight[heap[yy]]) yy++;
+        if (weight[tmp] < weight[heap[yy]]) break;
+        heap[zz] = heap[yy];
+        zz = yy;
+      }
+      heap[zz] = tmp;
+
+      final n2 = heap[1];
+      heap[1] = heap[nHeap];
+      nHeap--;
+      zz = 1;
+      tmp = heap[zz];
+      while (true) {
+        var yy = zz << 1;
+        if (yy > nHeap) break;
+        if (yy < nHeap && weight[heap[yy + 1]] < weight[heap[yy]]) yy++;
+        if (weight[tmp] < weight[heap[yy]]) break;
+        heap[zz] = heap[yy];
+        zz = yy;
+      }
+      heap[zz] = tmp;
+
+      nNodes++;
+      parent[n1] = nNodes;
+      parent[n2] = nNodes;
+      // Add frequencies; depth is only used to bias the heap toward balance.
+      weight[nNodes] =
+          ((weight[n1] & 0xFFFFFF00) + (weight[n2] & 0xFFFFFF00)) |
+          (1 +
+              ((weight[n1] & 0xFF) > (weight[n2] & 0xFF)
+                  ? (weight[n1] & 0xFF)
+                  : (weight[n2] & 0xFF)));
+      parent[nNodes] = -1;
+      nHeap++;
+      heap[nHeap] = nNodes;
+      zz = nHeap;
+      tmp = heap[zz];
+      while (weight[tmp] < weight[heap[zz >> 1]]) {
+        heap[zz] = heap[zz >> 1];
+        zz >>= 1;
+      }
+      heap[zz] = tmp;
+    }
+
+    var tooLong = false;
+    for (var i = 1; i <= n; i++) {
+      var depth = 0;
+      var k = i;
+      while (parent[k] >= 0) {
+        k = parent[k];
+        depth++;
+      }
+      lengths[present[i - 1]] = depth;
+      if (depth > maxLen) tooLong = true;
+    }
+    if (!tooLong) return lengths;
+
+    for (var i = 0; i < n; i++) {
+      scaled[i] = 1 + (scaled[i] >> 1);
+    }
+  }
+}
+
+/// A zstd literals Huffman code built from [lengths] (0 = absent), matching the
+/// decoder's rank-based table so encode/decode agree on every symbol's code.
+final class _HuffEnc {
+  _HuffEnc._(
+    this.maxBits,
+    this.maxSym,
+    this._nbBits,
+    this._codes,
+    this.weights,
+  );
+
+  final int maxBits;
+  final int maxSym; // highest present symbol (the implicit-weight one)
+  final List<int> _nbBits; // per symbol
+  final List<int> _codes; // per symbol
+  final List<int> weights; // per symbol (0 = absent)
+
+  int nbBits(int s) => _nbBits[s];
+  int code(int s) => _codes[s];
+
+  /// Builds from code lengths. Returns null if the alphabet cannot use direct
+  /// weights (highest present symbol > 128, whose header byte would collide).
+  static _HuffEnc? build(List<int> lengths) {
+    var maxBits = 0;
+    var maxSym = -1;
+    for (var s = 0; s < lengths.length; s++) {
+      if (lengths[s] > 0) {
+        if (lengths[s] > maxBits) maxBits = lengths[s];
+        maxSym = s;
+      }
+    }
+    if (maxSym < 1 || maxSym > 128) return null;
+
+    // weight = maxBits + 1 - length; the decoder recovers maxSym's weight
+    // implicitly from the rest, so the two sides agree.
+    final weights = List<int>.filled(maxSym + 1, 0);
+    for (var s = 0; s <= maxSym; s++) {
+      if (lengths[s] > 0) weights[s] = maxBits + 1 - lengths[s];
+    }
+
+    // Mirror the decoder's rank fill (weight-1 symbols first) to assign codes.
+    final rankStart = List<int>.filled(maxBits + 2, 0);
+    var next = 0;
+    for (var w = 1; w <= maxBits; w++) {
+      rankStart[w] = next;
+      var count = 0;
+      for (var s = 0; s <= maxSym; s++) {
+        if (weights[s] == w) count++;
+      }
+      next += count << (w - 1);
+    }
+    final nbBits = List<int>.filled(maxSym + 1, 0);
+    final codes = List<int>.filled(maxSym + 1, 0);
+    for (var s = 0; s <= maxSym; s++) {
+      final w = weights[s];
+      if (w == 0) continue;
+      final len = 1 << (w - 1);
+      final u = rankStart[w];
+      nbBits[s] = maxBits + 1 - w;
+      codes[s] = u >> (w - 1);
+      rankStart[w] = u + len;
+    }
+    return _HuffEnc._(maxBits, maxSym, nbBits, codes, weights);
+  }
 }
 
 /// The low 32 bits of `a * b` (a, b < 2^32), via 16-bit halves so every

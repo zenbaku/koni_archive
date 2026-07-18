@@ -34,11 +34,11 @@ await sink.close();
 // sink.takeBytes() is a valid .zst, decodable by `zstd -d`.
 ```
 
-The writer is correctness-first: LZ sequences over the **predefined** FSE tables
-with **raw** literals, so its ratio is below `zstd`'s on literal-heavy data
-(Huffman literals are a planned improvement). `.zst` stores no filename, so a
-write-then-read round trip preserves the *content*, not the entry name. It has
-no encryption, so a password is rejected.
+The writer is correctness-first: LZ sequences over the **predefined** FSE tables,
+plus **Huffman** literal coding when it beats storing literals raw (the ratio is
+still below `zstd`'s, which also compresses the sequence tables and searches
+harder). `.zst` stores no filename, so a write-then-read round trip preserves the
+*content*, not the entry name. It has no encryption, so a password is rejected.
 
 Decodes the Zstandard format (RFC 8878) via `koni_codecs`: FSE + Huffman
 entropy coding, sequences with repeat offsets, back-reference matches, one

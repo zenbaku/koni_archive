@@ -443,14 +443,15 @@ final class RawZstdDecoder {
         compSize = (v >> 14) & 0x3FFF;
         streams = 4;
       default: // 3
-        final v =
-            header0 >> 4 |
-            (_readByte() << 4) |
-            (_readByte() << 12) |
-            (_readByte() << 20) |
-            (_readByte() << 28);
-        regenSize = v & 0x3FFFF;
-        compSize = (v >> 18) & 0x3FFFF;
+        // 18-bit sizes span 5 bytes; a single 36-bit `v` would need bit 35,
+        // and `(byte << 28) | …` truncates to 32 bits on dart2js (bits 32-35
+        // lost), so assemble each size from its own bit fields (all < 2^18).
+        final b1 = _readByte();
+        final b2 = _readByte();
+        final b3 = _readByte();
+        final b4 = _readByte();
+        regenSize = (header0 >> 4) | (b1 << 4) | ((b2 & 0x3F) << 12);
+        compSize = (b2 >> 6) | (b3 << 2) | (b4 << 10);
         streams = 4;
     }
 

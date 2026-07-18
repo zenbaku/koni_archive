@@ -51,10 +51,40 @@ Uint8List get _trueRandom {
   return Uint8List.fromList(List.generate(30000, (_) => r.nextInt(256)));
 }
 
+/// Skewed 7-bit ASCII with little repeat structure: literal-heavy, so Huffman
+/// literal coding (rather than matches) does the work.
+Uint8List _skewedAscii(int n) {
+  final r = Random(99);
+  return Uint8List.fromList(
+    List.generate(n, (_) {
+      final v = r.nextInt(100);
+      return v < 45
+          ? 97
+          : v < 70
+          ? 101
+          : v < 84
+          ? 116
+          : v < 92
+          ? 111
+          : 98 + (v % 24);
+    }),
+  );
+}
+
+/// High-byte alphabet (values > 128): direct-weight Huffman can't encode the
+/// table, so the encoder must fall back to raw literals without corrupting.
+Uint8List _highByte(int n) {
+  final r = Random(7);
+  return Uint8List.fromList(List.generate(n, (_) => 129 + r.nextInt(127)));
+}
+
 /// Larger than one 128 KiB block, to exercise the multi-block path with
 /// cross-block back-references.
 Uint8List get _multiBlock => Uint8List.fromList(
-  List.generate(400000, (i) => (i % 1000 < 620) ? 97 + (i % 7) : (i * 13) & 0xFF),
+  List.generate(
+    400000,
+    (i) => (i % 1000 < 620) ? 97 + (i % 7) : (i * 13) & 0xFF,
+  ),
 );
 
 void main() {
@@ -69,6 +99,10 @@ void main() {
     'mixed literals + matches': _mixed,
     'incompressible random': _trueRandom,
     'multi-block': _multiBlock,
+    'skewed ascii (huffman literals)': _skewedAscii(30000),
+    'skewed ascii, single stream': _skewedAscii(700),
+    'skewed ascii, sizeFormat-3 block': _skewedAscii(120000),
+    'high-byte literals (raw fallback)': _highByte(20000),
   };
 
   group('round trips through our own decoder', () {
@@ -78,8 +112,9 @@ void main() {
 
     test('inputs around the block boundary (131060..131080 bytes)', () {
       for (var n = 131060; n <= 131080; n++) {
-        final data =
-            Uint8List.fromList(List.generate(n, (i) => 'abcdefgh'.codeUnitAt(i % 8)));
+        final data = Uint8List.fromList(
+          List.generate(n, (i) => 'abcdefgh'.codeUnitAt(i % 8)),
+        );
         expect(_roundTrip(data), data, reason: 'n=$n');
       }
     });
@@ -101,6 +136,20 @@ void main() {
   test('compresses repetitive input well', () {
     final enc = _encode(_text);
     expect(enc.length, lessThan(_text.length ~/ 20));
+  });
+
+  test('Huffman literals compress skewed literal-heavy input', () {
+    // Raw literals would give ~1.0; entropy coding should beat 0.75 here.
+    final data = _skewedAscii(40000);
+    final enc = _encode(data);
+    expect(enc.length, lessThan((data.length * 3) ~/ 4));
+  });
+
+  test('high-byte alphabet falls back to raw without expanding much', () {
+    final data = _highByte(20000);
+    final enc = _encode(data);
+    expect(_roundTrip(data), data);
+    expect(enc.length, lessThan(data.length + 200));
   });
 
   test('incompressible input stays close to its size (raw fallback)', () {

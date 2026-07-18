@@ -2,6 +2,18 @@
 
 ## 0.10.0 (2026-07-18)
 
+- Adds a **bzip2 encoder** (`Bzip2Encoder`) and a **Zstandard encoder**
+  (`ZstdEncoder`), the encode directions of the new decoders. `Bzip2Encoder`
+  runs the full pipeline (RLE1 → BWT → MTF/RLE2 → length-limited Huffman → `BZh`
+  framing) with a deterministic rotation sort. `ZstdEncoder` writes a single
+  frame of LZ sequences over the predefined FSE tables (a from-scratch tANS
+  encoder) with Huffman literals (direct-weight table, falling back to raw for
+  byte alphabets over 128 or when it does not beat raw). Both are byte-decodable
+  by `bzip2` / `zstd` and byte-identical across the VM, dart2js, and dart2wasm.
+- Fixes the Zstandard decoder's compressed-literals **sizeFormat-3** size parse:
+  it built one 36-bit value with a `<< 28` shift that truncates to 32 bits on
+  dart2js, corrupting `Compressed_Size` for large Huffman literal blocks; each
+  size is now assembled from `< 2^18` bit fields.
 - Adds a **Zstandard decoder** (`ZstdDecoder`, a `dart:convert` `Converter`, and
   the resumable `RawZstdDecoder`): the full RFC 8878 format — frame/block
   framing, FSE (tANS) and Huffman entropy coding, sequences with the three

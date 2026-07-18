@@ -49,9 +49,25 @@ Deliberate simplifications keep it correct and small, at a ratio below `zstd`'s
   (a symbol-stream round trip) before wiring the block, because the read order
   (init LL/OF/ML → per-sequence OF/ML/LL extras → LL/ML/OF state updates) has to
   match the encoder's append order exactly.
-- **Raw literals.** Literals are stored uncompressed (literals type 0); Huffman
-  literal coding — `zstd`'s main win on literal-heavy data — is a planned
-  follow-up.
+- **Huffman literals (direct weights).** Literals are Huffman-coded (literals
+  type 2) when it beats storing them raw: a length-limited (≤ 11-bit) canonical
+  code, 1 stream for ≤ 1023 bytes else 4 streams with a jump table. The code
+  table is described with **direct weights**, which the header can only express
+  when the highest present byte value is ≤ 128 (`headerByte = 127 + maxSym`), so
+  a block whose literals contain a byte `> 128` falls back to raw for that block.
+  FSE-compressed weights (the 2-state interleaved encode — the format's riskiest
+  bitstream to get exact) would lift that limit and is the deferred follow-up.
+  The per-symbol codes are derived by replaying the reader's **rank-based** table
+  fill (`code = u >> (weight - 1)`), not a length-ascending canonical build, so
+  encode and decode agree. A single-symbol alphabet is routed to raw, never
+  Huffman — `maxSym = 0` would make `headerByte = 127`, which the reader treats
+  as the FSE-weights marker.
+- **A latent decoder fix fell out of this.** The compressed-literals size field
+  in sizeFormat 3 spans 5 bytes (two 18-bit sizes); the reader assembled them
+  into one 36-bit `v` with `byte4 << 28`, which truncates to 32 bits on dart2js
+  and lost the top of `Compressed_Size`. Large Huffman literal blocks (the ones
+  the writer now emits) tripped it; it is fixed to assemble each size from its
+  own `< 2^18` bit fields.
 - **New offsets only.** Every match emits `Offset_Value = offset + 3`, never the
   repeat-offset codes. Always valid, and it keeps the sequence encoder simple.
 - **Greedy match finder.** A hash-chain over the whole input (so a block's

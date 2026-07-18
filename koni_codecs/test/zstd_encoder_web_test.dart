@@ -25,6 +25,30 @@ Uint8List _encode(Uint8List data) => ZstdEncoder().encode(data);
 Uint8List _roundTrip(Uint8List data) =>
     const ZstdDecoder().convert(_encode(data));
 
+/// A skewed ASCII stream via xorshift32 (all 32-bit ops, so it is generated
+/// identically on every platform) — Huffman literals fire on it.
+Uint8List _skew(int n) {
+  var x = 2463534242;
+  final o = Uint8List(n);
+  for (var i = 0; i < n; i++) {
+    x ^= (x << 13) & 0xFFFFFFFF;
+    x ^= x >>> 17;
+    x ^= (x << 5) & 0xFFFFFFFF;
+    final v = x % 100;
+    o[i] =
+        v < 40
+            ? 97
+            : v < 65
+            ? 101
+            : v < 80
+            ? 116
+            : v < 90
+            ? 111
+            : 98 + (v % 20);
+  }
+  return o;
+}
+
 Uint8List get _tiny => Uint8List.fromList('hello zstd world\n'.codeUnits);
 Uint8List get _text => Uint8List.fromList(
   ('the quick brown fox jumps over the lazy dog. ' * 400).codeUnits,
@@ -34,42 +58,69 @@ void main() {
   test('output is byte-identical to the VM reference on this platform', () {
     // (length, fingerprint) computed on the VM; equal on dart2js/dart2wasm iff
     // the encoded bytes are identical.
-    final text =
-        _encode(Uint8List.fromList(('the quick brown fox. ' * 400).codeUnits));
+    final text = _encode(
+      Uint8List.fromList(('the quick brown fox. ' * 400).codeUnits),
+    );
     expect([text.length, _fp(text)], [39, 423566707]);
 
-    final ramp =
-        _encode(Uint8List.fromList(List.generate(9000, (i) => (i * 5) & 0xFF)));
+    final ramp = _encode(
+      Uint8List.fromList(List.generate(9000, (i) => (i * 5) & 0xFF)),
+    );
     expect([ramp.length, _fp(ramp)], [276, 468381680]);
 
-    final mixed = _encode(Uint8List.fromList([
-      ...('abcabc ' * 500).codeUnits,
-      ...List.filled(1500, 9),
-    ]));
+    final mixed = _encode(
+      Uint8List.fromList([
+        ...('abcabc ' * 500).codeUnits,
+        ...List.filled(1500, 9),
+      ]),
+    );
     expect([mixed.length, _fp(mixed)], [28, 780153945]);
 
     // A ~220 KB structured input: the hash multiply must stay dart2js-exact
     // (`_mul32Low`) or the match buckets — and the output — would diverge here.
-    final big = _encode(Uint8List.fromList(
-      List.generate(220000, (i) => (i % 700 < 440) ? 97 + ((i * 3) % 11) : (i * 29) & 0xFF),
-    ));
+    final big = _encode(
+      Uint8List.fromList(
+        List.generate(
+          220000,
+          (i) => (i % 700 < 440) ? 97 + ((i * 3) % 11) : (i * 29) & 0xFF,
+        ),
+      ),
+    );
     expect([big.length, _fp(big)], [4381, 627561532]);
+
+    // Huffman-literal cases (skewed ASCII): 4-stream (30 KB) and single-stream.
+    final huff = _encode(_skew(30000));
+    expect([huff.length, _fp(huff)], [16932, 458819303]);
+    final huffSmall = _encode(_skew(700));
+    expect([huffSmall.length, _fp(huffSmall)], [459, 937367489]);
   });
 
   test('encode + decode round-trips on this platform', () {
     expect(_roundTrip(Uint8List(0)), isEmpty);
     expect(_roundTrip(_tiny), _tiny);
     expect(_roundTrip(_text), _text);
-    expect(_roundTrip(Uint8List.fromList(List.filled(6000, 0x5A))),
-        Uint8List.fromList(List.filled(6000, 0x5A)));
+    expect(
+      _roundTrip(Uint8List.fromList(List.filled(6000, 0x5A))),
+      Uint8List.fromList(List.filled(6000, 0x5A)),
+    );
     final ramp = Uint8List.fromList(List.generate(9000, (i) => (i * 5) & 0xFF));
     expect(_roundTrip(ramp), ramp);
   });
 
   test('crosses the 128 KiB block boundary on this platform', () {
     final data = Uint8List.fromList(
-      List.generate(200000, (i) => (i % 500 < 300) ? 65 + (i % 9) : (i * 7) & 0xFF),
+      List.generate(
+        200000,
+        (i) => (i % 500 < 300) ? 65 + (i % 9) : (i * 7) & 0xFF,
+      ),
     );
+    expect(_roundTrip(data), data);
+  });
+
+  test('sizeFormat-3 Huffman literal blocks round-trip on this platform', () {
+    // 120 KB heavily-skewed ASCII: a block's compressed literals exceed 16 KiB,
+    // so the literals header uses sizeFormat 3 (the dart2js-fixed size parse).
+    final data = _skew(120000);
     expect(_roundTrip(data), data);
   });
 }
