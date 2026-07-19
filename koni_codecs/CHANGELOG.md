@@ -7,8 +7,12 @@
   runs the full pipeline (RLE1 → BWT → MTF/RLE2 → length-limited Huffman → `BZh`
   framing) with a deterministic rotation sort. `ZstdEncoder` writes a single
   frame of LZ sequences over the predefined FSE tables (a from-scratch tANS
-  encoder) with Huffman literals (direct-weight table, falling back to raw for
-  byte alphabets over 128 or when it does not beat raw). Its hash-chain match
+  encoder) with Huffman literals, whose weight table is written either directly
+  or **FSE-compressed** (a serialized `NCount` distribution plus a two-state
+  weight bitstream, inverting the decoder) — whichever is smaller, and the
+  FSE form additionally lifts Huffman to literal alphabets with byte values over
+  128 (which direct weights cannot describe and which previously forced raw). Its
+  hash-chain match
   finder selects candidates by an integer net-cost score rather than raw length
   — so coincidental short matches at far offsets, which fragment literal runs
   and hurt Huffman coding, are rejected — with a one-step lazy lookahead; the

@@ -480,12 +480,25 @@ session's largest single build, a from-scratch RFC 8878 decoder.
   (our direct-weight Huffman + predefined FSE vs zstd's optimized per-block
   tables), not a match-finding one — which is exactly why the next lever below is
   entropy tables, not the parse.
-* **Deferred (write), in priority order:** (1) **FSE-compressed Huffman
-  weights**, to lift the ≤ 128 literal-alphabet cap on Huffman literals (the
-  2-state interleaved weight encode is the format's riskiest bitstream).
-  (2) custom FSE sequence tables / repeat-offset modes. (3) a still-stronger
-  parse (optimal/price-based) if a caller needs closer-to-`zstd` ratios; the
-  net-cost greedy+lazy finder is the correctness-first stopping point.
+* **FSE-compressed Huffman weights (2026-07-19):** the Huffman weight table is
+  now written either directly or **FSE-compressed** (the smaller wins). A new
+  `NCount`-distribution writer and a two-state interleaved weight-stream encoder
+  invert the decoder's `_NCountReader` / `_readFseWeights` exactly — verified in
+  isolation against the real read paths (3000 random NCount + 3000 random weight
+  round-trips) before wiring, since the weight stream is overread-terminated (the
+  symbol count isn't stored) and had only ever been driven by `zstd`'s own bytes.
+  A deliberately simple normalization (every present weight ≥ 1, no `-1`
+  "less-than-one" code) keeps it correct with the `min(raw, direct, fse)`
+  selection absorbing any lost ratio; integer-only, so byte-identical on all
+  three platforms. **Primary win = coverage:** a literal alphabet with a byte
+  value > 128 (which direct weights can't describe) now Huffman-compresses
+  instead of forcing raw — a skewed > 128 block drops to ~0.54 (`zstd -d`
+  verified). Secondary: FSE weights also win on skewed ASCII (≤ 128), e.g.
+  −46/−48 B on the web-test blocks.
+* **Deferred (write), in priority order:** (1) custom FSE sequence tables /
+  repeat-offset modes. (2) a still-stronger parse (optimal/price-based) if a
+  caller needs closer-to-`zstd` ratios; the net-cost greedy+lazy finder is the
+  correctness-first stopping point.
 * **Deferred (read):** dictionaries and legacy v0.x frames (typed errors); ZIP
   method 93 (codec is ready, but no tool on hand authors a fixture). A true
   sliding window (vs. whole-frame retention) is a possible memory optimization.

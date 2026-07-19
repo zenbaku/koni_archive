@@ -330,9 +330,10 @@ final class ZstdEncoder {
 
     final lengths = _zstdHuffLengths(freq, 256, 11);
     final huff = _HuffEnc.build(lengths);
-    if (huff == null) return null; // highest symbol > 128: direct weights can't
+    if (huff == null) return null; // degenerate alphabet (< 2 present symbols)
 
-    final tableDesc = _huffTableDesc(huff);
+    final tableDesc = _bestHuffTableDesc(huff);
+    if (tableDesc == null) return null; // no usable weight-table description
 
     // Streams: 1 stream for <= 1023 bytes, else 4 streams with a jump table.
     final Uint8List payload;
@@ -383,11 +384,25 @@ final class ZstdEncoder {
     return result;
   }
 
+  /// The smaller of the two Huffman weight-table descriptions: direct weights
+  /// (available only when the highest symbol is <= 128) and FSE-compressed
+  /// weights (which additionally cover a > 128 alphabet). Returns null when
+  /// neither is usable (the caller stores the literals raw).
+  Uint8List? _bestHuffTableDesc(_HuffEnc huff) {
+    final direct = _huffTableDesc(huff);
+    final fse = _encodeFseWeightsDesc(huff.weights, huff.maxSym);
+    if (direct == null) return fse;
+    if (fse == null) return direct;
+    return fse.length < direct.length ? fse : direct;
+  }
+
   /// The direct-weights table description: header byte `127 + maxSym`, then the
   /// weights of symbols `0..maxSym-1` packed two per byte (high nibble first);
-  /// symbol `maxSym`'s weight is implicit.
-  Uint8List _huffTableDesc(_HuffEnc huff) {
+  /// symbol `maxSym`'s weight is implicit. Null when `maxSym > 128`, whose
+  /// header byte (`> 255`) can't be expressed (use FSE weights instead).
+  Uint8List? _huffTableDesc(_HuffEnc huff) {
     final maxSym = huff.maxSym;
+    if (maxSym > 128) return null;
     final out = BytesBuilder(copy: false)..addByte(127 + maxSym);
     for (var i = 0; i < maxSym; i += 2) {
       final hi = huff.weights[i];
@@ -395,6 +410,172 @@ final class ZstdEncoder {
       out.addByte((hi << 4) | lo);
     }
     return out.takeBytes();
+  }
+
+  /// Builds an FSE-compressed Huffman weight-table description: a header byte
+  /// holding the compressed byte length (< 128), then the serialized FSE
+  /// distribution (`NCount`) and the weight bitstream (two interleaved states).
+  /// This is the inverse of the decoder's `_readFseWeights`. Returns null when
+  /// FSE weights don't apply (fewer than two explicit weights or two distinct
+  /// weight values) or wouldn't fit the single-byte size header — the caller
+  /// then falls back to direct weights or raw literals. [weights] holds each
+  /// symbol's weight (index 0..); the explicit part is `weights[0..m-1]` (the
+  /// symbol at `m` has the implicit weight the decoder recomputes).
+  Uint8List? _encodeFseWeightsDesc(List<int> weights, int m) {
+    if (m < 2) return null; // the 2-state encode needs at least two weights
+
+    // Histogram of the explicit weight values (0 = an absent literal symbol).
+    var maxV = 0;
+    for (var i = 0; i < m; i++) {
+      if (weights[i] > maxV) maxV = weights[i];
+    }
+    final hist = List<int>.filled(maxV + 1, 0);
+    var distinctW = 0;
+    for (var i = 0; i < m; i++) {
+      final v = weights[i];
+      if (hist[v] == 0) distinctW++;
+      hist[v]++;
+    }
+    if (distinctW < 2) return null; // a single weight value = degenerate table
+
+    const tableLog = 6; // <= _maxLog for weights; 64 cells cover <= 12 values
+    final norm = _normalizeWeightHist(hist, m, tableLog);
+    if (norm == null) return null;
+
+    final ncount = _writeNCount(norm, tableLog);
+    final ct = _FseCTable.build(norm, tableLog);
+    final stream = _encodeFseWeightStream(ct, weights, m);
+
+    final body =
+        (BytesBuilder(copy: false)
+              ..add(ncount)
+              ..add(stream))
+            .takeBytes();
+    if (body.length >= 128) return null; // size header is a single byte < 128
+
+    return (BytesBuilder(copy: false)
+          ..addByte(body.length)
+          ..add(body))
+        .takeBytes();
+  }
+
+  /// Normalizes a weight-value [hist] (summing to [total]) to counts summing to
+  /// `1 << tableLog`, every present value getting at least one cell (so no
+  /// "less than one" `-1` code is ever emitted — the decoder reads whatever we
+  /// serialize, so a simple valid distribution is enough; `min(raw, direct,
+  /// fse)` selection absorbs any lost ratio). Returns null in the pathological
+  /// case where the rounding fix can't keep the busiest cell positive.
+  List<int>? _normalizeWeightHist(List<int> hist, int total, int tableLog) {
+    final target = 1 << tableLog;
+    final norm = List<int>.filled(hist.length, 0);
+    var assigned = 0;
+    var maxIdx = -1;
+    var maxHist = 0;
+    for (var v = 0; v < hist.length; v++) {
+      final h = hist[v];
+      if (h == 0) continue;
+      var n = (h * target) ~/ total;
+      if (n == 0) n = 1;
+      norm[v] = n;
+      assigned += n;
+      if (h > maxHist) {
+        maxHist = h;
+        maxIdx = v;
+      }
+    }
+    norm[maxIdx] += target - assigned; // make the counts sum to exactly target
+    if (norm[maxIdx] < 1) return null;
+    return norm;
+  }
+
+  /// Serializes a normalized FSE distribution ([norm], summing to
+  /// `1 << tableLog`) in the `FSE_readNCount` bit layout the decoder's
+  /// [_NCountReader] parses: 4-bit `tableLog - 5`, then per-symbol counts with
+  /// the shrinking bit width and the zero run-length coding. Forward,
+  /// LSB-first, byte-padded at the end (no reverse end marker).
+  Uint8List _writeNCount(List<int> norm, int tableLog) {
+    final out = BytesBuilder();
+    var acc = 0; // bit accumulator, LSB-first
+    var bits = 0;
+    void put(int value, int n) {
+      acc |= (value & ((1 << n) - 1)) << bits;
+      bits += n;
+      while (bits >= 8) {
+        out.addByte(acc & 0xFF);
+        acc >>= 8;
+        bits -= 8;
+      }
+    }
+
+    put(tableLog - 5, 4);
+
+    var remaining = (1 << tableLog) + 1;
+    var threshold = 1 << tableLog;
+    var nbBits = tableLog + 1;
+    final len = norm.length;
+    var s = 0;
+    var previous0 = false;
+
+    while (remaining > 1 && s < len) {
+      if (previous0) {
+        // Run-length code the additional consecutive zeros after the first
+        // (which was written as a normal count): groups of 2 bits, value 3 =
+        // "add 3 and continue", a value < 3 terminates.
+        final start = s;
+        while (s < len && norm[s] == 0) {
+          s++;
+        }
+        var run = s - start;
+        while (run >= 3) {
+          put(3, 2);
+          run -= 3;
+        }
+        put(run, 2);
+        previous0 = false;
+        continue;
+      }
+      final count = norm[s];
+      final max = (2 * threshold - 1) - remaining;
+      remaining -= count < 0 ? -count : count;
+      var value = count + 1; // +1 for the extra-accuracy slot; -1 -> 0
+      if (value >= threshold) value += max;
+      put(value, value < max ? nbBits - 1 : nbBits);
+      previous0 = count == 0;
+      s++;
+      while (remaining < threshold) {
+        nbBits--;
+        threshold >>= 1;
+      }
+    }
+    if (bits > 0) out.addByte(acc & 0xFF);
+    return out.takeBytes();
+  }
+
+  /// Encodes the explicit weights `weights[0..m-1]` with two interleaved FSE
+  /// states, inverting the decoder's `_readFseWeights` (state 1 emits the
+  /// even-indexed weights, state 2 the odd; flush CState2 then CState1 so the
+  /// decoder reads them back as its two initial states). Mirrors zstd's
+  /// `FSE_compress_usingCTable_generic`.
+  Uint8List _encodeFseWeightStream(_FseCTable ct, List<int> weights, int m) {
+    final w = _ZstdBitWriter();
+    var ip = m;
+    int c1;
+    int c2;
+    if ((m & 1) != 0) {
+      c1 = ct.initState(weights[--ip]);
+      c2 = ct.initState(weights[--ip]);
+      c1 = ct.encode(w, c1, weights[--ip]);
+    } else {
+      c2 = ct.initState(weights[--ip]);
+      c1 = ct.initState(weights[--ip]);
+    }
+    while (ip > 0) {
+      c2 = ct.encode(w, c2, weights[--ip]);
+      c1 = ct.encode(w, c1, weights[--ip]);
+    }
+    ct.flush(w, c2);
+    ct.flush(w, c1);
+    return w.finish();
   }
 
   /// Encodes literals `[start, end)` into one backward-readable Huffman stream:
@@ -838,8 +1019,10 @@ final class _HuffEnc {
   int nbBits(int s) => _nbBits[s];
   int code(int s) => _codes[s];
 
-  /// Builds from code lengths. Returns null if the alphabet cannot use direct
-  /// weights (highest present symbol > 128, whose header byte would collide).
+  /// Builds from code lengths. Returns null only for a degenerate alphabet
+  /// (fewer than two present symbols). The codes are valid for any highest
+  /// symbol up to 255; the direct-vs-FSE weight-table choice (direct is capped
+  /// at symbol 128) is made later by the table-description writers.
   static _HuffEnc? build(List<int> lengths) {
     var maxBits = 0;
     var maxSym = -1;
@@ -849,7 +1032,7 @@ final class _HuffEnc {
         maxSym = s;
       }
     }
-    if (maxSym < 1 || maxSym > 128) return null;
+    if (maxSym < 1) return null;
 
     // weight = maxBits + 1 - length; the decoder recovers maxSym's weight
     // implicitly from the rest, so the two sides agree.

@@ -49,14 +49,21 @@ Deliberate simplifications keep it correct and small, at a ratio below `zstd`'s
   (a symbol-stream round trip) before wiring the block, because the read order
   (init LL/OF/ML → per-sequence OF/ML/LL extras → LL/ML/OF state updates) has to
   match the encoder's append order exactly.
-- **Huffman literals (direct weights).** Literals are Huffman-coded (literals
-  type 2) when it beats storing them raw: a length-limited (≤ 11-bit) canonical
-  code, 1 stream for ≤ 1023 bytes else 4 streams with a jump table. The code
-  table is described with **direct weights**, which the header can only express
-  when the highest present byte value is ≤ 128 (`headerByte = 127 + maxSym`), so
-  a block whose literals contain a byte `> 128` falls back to raw for that block.
-  FSE-compressed weights (the 2-state interleaved encode — the format's riskiest
-  bitstream to get exact) would lift that limit and is the deferred follow-up.
+- **Huffman literals (direct or FSE-compressed weights).** Literals are
+  Huffman-coded (literals type 2) when it beats storing them raw: a length-limited
+  (≤ 11-bit) canonical code, 1 stream for ≤ 1023 bytes else 4 streams with a jump
+  table. The code table is described with either **direct weights** (`headerByte
+  = 127 + maxSym`, expressible only for a highest byte value ≤ 128) or
+  **FSE-compressed weights** (`headerByte` < 128 = the compressed byte length,
+  then a serialized `NCount` distribution and a two-state interleaved weight
+  bitstream — the format's riskiest bitstream); the encoder writes whichever is
+  smaller. The FSE form additionally lifts Huffman to a literal alphabet with a
+  byte value `> 128`, which direct weights can't describe and which otherwise
+  falls back to raw. The FSE-weight writers invert the reader's `_readFseWeights`
+  and `_NCountReader` exactly (verified in isolation against them before wiring),
+  use a simple all-≥ 1 normalization (no `-1` "less than one" code — the decoder
+  reads whatever is serialized, and `min(raw, direct, fse)` absorbs any lost
+  ratio), and stay integer-only so the parse is bit-identical on every platform.
   The per-symbol codes are derived by replaying the reader's **rank-based** table
   fill (`code = u >> (weight - 1)`), not a length-ascending canonical build, so
   encode and decode agree. A single-symbol alphabet is routed to raw, never

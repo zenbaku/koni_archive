@@ -19,7 +19,7 @@
 | --- | --- |
 | Single-frame `.zst` output | `ZstdWriteFormat` compresses one byte stream (single-member container) via `ZstdEncoder` |
 | LZ sequences over predefined FSE tables | hash-chain match finder (net-cost-scored candidates + one-step lazy lookahead); a from-scratch tANS encoder; new offsets only |
-| Huffman literals | direct-weight table, 1- and 4-stream; used when the literal alphabet is `≤ 128` and it beats raw, else raw/RLE fallback |
+| Huffman literals | direct or FSE-compressed weight table (whichever is smaller), 1- and 4-stream; used when it beats raw. FSE weights also cover a literal alphabet with a byte value `> 128` (direct weights cannot), else raw fallback |
 | Raw-block fallback | incompressible blocks are stored raw, so output never expands much |
 | `zstd` / libzstd interop | output decodes byte-for-byte under the `zstd` CLI; byte-identical across VM, dart2js, dart2wasm |
 
@@ -41,8 +41,7 @@
 
 | Feature | Status |
 | --- | --- |
-| FSE-compressed Huffman weights on write | not yet — direct weights only, so a literal alphabet with a byte value `> 128` falls back to raw for that block |
-| Custom FSE tables / repeat modes on write | not yet — the writer always uses the predefined sequence tables |
+| Custom FSE sequence tables / repeat modes on write | not yet — the writer always uses the predefined sequence tables |
 | Dictionary support | deferred (typed error) |
 | ZIP method 93 (zstd-in-ZIP) | deferred — no tool on hand authors it for a fixture |
 

@@ -72,10 +72,28 @@ Uint8List _skewedAscii(int n) {
 }
 
 /// High-byte alphabet (values > 128): direct-weight Huffman can't encode the
-/// table, so the encoder must fall back to raw literals without corrupting.
+/// table. The encoder must stay correct — either FSE-compressed Huffman weights
+/// (now reachable for a > 128 alphabet) or a raw-literal fallback.
 Uint8List _highByte(int n) {
   final r = Random(7);
   return Uint8List.fromList(List.generate(n, (_) => 129 + r.nextInt(127)));
+}
+
+/// Skewed alphabet whose highest present byte value exceeds 128, so only
+/// FSE-compressed Huffman weights (not direct weights) can describe the table.
+/// Literal-heavy and skewed, so Huffman literals — previously unreachable for a
+/// > 128 alphabet, which forced raw — now compress it well below its raw size.
+Uint8List _skewedHigh(int n) {
+  final r = Random(31);
+  return Uint8List.fromList(
+    List.generate(n, (_) {
+      final v = r.nextInt(100);
+      if (v < 60) return 200; // dominant symbol
+      if (v < 80) return 210 + r.nextInt(6);
+      if (v < 95) return 150 + r.nextInt(20);
+      return 129 + r.nextInt(127); // tail; pushes the highest symbol toward 255
+    }),
+  );
 }
 
 /// Larger than one 128 KiB block, to exercise the multi-block path with
@@ -102,7 +120,8 @@ void main() {
     'skewed ascii (huffman literals)': _skewedAscii(30000),
     'skewed ascii, single stream': _skewedAscii(700),
     'skewed ascii, sizeFormat-3 block': _skewedAscii(120000),
-    'high-byte literals (raw fallback)': _highByte(20000),
+    'uniform high-byte literals': _highByte(20000),
+    'skewed high-byte (fse huffman weights)': _skewedHigh(30000),
   };
 
   group('round trips through our own decoder', () {
@@ -166,7 +185,24 @@ void main() {
     expect(r200k, lessThan(0.72), reason: 'ratio at 200k = $r200k');
   });
 
-  test('high-byte alphabet falls back to raw without expanding much', () {
+  test('FSE-weight Huffman compresses a skewed > 128 alphabet', () {
+    // A > 128 literal alphabet can't use direct weights, so before FSE weights
+    // this went raw (ratio ~1.0). FSE-compressed weights make Huffman reachable;
+    // on a skewed distribution it must now beat raw substantially.
+    final data = _skewedHigh(30000);
+    final enc = _encode(data);
+    expect(_roundTrip(data), data);
+    expect(
+      enc.length,
+      lessThan((data.length * 3) ~/ 4),
+      reason: 'len=${enc.length}',
+    );
+  });
+
+  test('uniform > 128 alphabet stays correct and does not expand', () {
+    // A near-uniform > 128 alphabet: with FSE-compressed weights it may Huffman-
+    // code (~0.9) or, failing the guards, store raw — either way it round-trips
+    // and never expands past framing overhead.
     final data = _highByte(20000);
     final enc = _encode(data);
     expect(_roundTrip(data), data);

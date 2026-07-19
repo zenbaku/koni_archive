@@ -49,6 +49,27 @@ Uint8List _skew(int n) {
   return o;
 }
 
+/// A skewed alphabet whose highest byte value exceeds 128 (xorshift32, so it is
+/// platform-identical) — only FSE-compressed Huffman weights can describe its
+/// table, exercising the > 128 encode path on the web.
+Uint8List _skewHigh(int n) {
+  var x = 88172645;
+  final o = Uint8List(n);
+  for (var i = 0; i < n; i++) {
+    x ^= (x << 13) & 0xFFFFFFFF;
+    x ^= x >>> 17;
+    x ^= (x << 5) & 0xFFFFFFFF;
+    final v = x % 100;
+    o[i] =
+        v < 60
+            ? 200
+            : v < 85
+            ? 210 + (x % 6)
+            : 129 + (x % 127);
+  }
+  return o;
+}
+
 Uint8List get _tiny => Uint8List.fromList('hello zstd world\n'.codeUnits);
 Uint8List get _text => Uint8List.fromList(
   ('the quick brown fox jumps over the lazy dog. ' * 400).codeUnits,
@@ -89,10 +110,17 @@ void main() {
     expect([big.length, _fp(big)], [4378, 43415572]);
 
     // Huffman-literal cases (skewed ASCII): 4-stream (30 KB) and single-stream.
+    // Both select FSE-compressed Huffman weights over direct here (smaller).
     final huff = _encode(_skew(30000));
-    expect([huff.length, _fp(huff)], [14428, 418946904]);
+    expect([huff.length, _fp(huff)], [14380, 597695472]);
     final huffSmall = _encode(_skew(700));
-    expect([huffSmall.length, _fp(huffSmall)], [415, 213635800]);
+    expect([huffSmall.length, _fp(huffSmall)], [369, 870691339]);
+
+    // A > 128 alphabet: direct weights can't describe it, so this drives the
+    // FSE-compressed-weights path — the same integer arithmetic on every
+    // platform, so the compressed bytes must match the VM exactly.
+    final skewHigh = _encode(_skewHigh(30000));
+    expect([skewHigh.length, _fp(skewHigh)], [16116, 538066891]);
   });
 
   test('encode + decode round-trips on this platform', () {
@@ -105,6 +133,8 @@ void main() {
     );
     final ramp = Uint8List.fromList(List.generate(9000, (i) => (i * 5) & 0xFF));
     expect(_roundTrip(ramp), ramp);
+    final skewHigh = _skewHigh(30000); // FSE Huffman weights (> 128 alphabet)
+    expect(_roundTrip(skewHigh), skewHigh);
   });
 
   test('crosses the 128 KiB block boundary on this platform', () {

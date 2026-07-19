@@ -13,10 +13,10 @@
     password is rejected. The
     output is byte-decodable by `zstd` / libzstd, verified against the `zstd`
     CLI and byte-identical across the VM, dart2js, and dart2wasm.
-  - Literals are Huffman-coded (direct-weight table, 1- and 4-stream) when it
-    beats raw and the literal alphabet's highest byte value is ≤ 128; otherwise
-    they are stored raw. FSE-compressed Huffman weights (to lift the ≤ 128 cap)
-    are a planned follow-up.
+  - Literals are Huffman-coded (1- and 4-stream) when it beats raw. The weight
+    table is written directly or **FSE-compressed** (whichever is smaller); the
+    FSE form also lifts Huffman to literal alphabets whose highest byte value is
+    > 128, which direct weights cannot describe and which previously forced raw.
   - Reader fix: the compressed-literals sizeFormat-3 size field was assembled
     with a `<< 28` shift that truncates to 32 bits on dart2js (losing the top of
     `Compressed_Size`); large Huffman literal blocks tripped it. Now assembled
