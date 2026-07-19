@@ -2,8 +2,10 @@
 
 Format-agnostic archive reading and writing for pure Dart: one
 streaming-first API that reads ZIP/CBZ, TAR/CBT, GZIP (incl. `.tar.gz`),
-7z/CB7, and RAR/CBR, and writes ZIP, TAR, and 7z (7z with a pure-Dart
-LZMA/LZMA2 encoder). No native code, no FFI, no external executables. Runs
+7z/CB7, RAR/CBR, XZ (incl. `.tar.xz`), bzip2 (incl. `.tar.bz2`), and
+Zstandard (incl. `.tar.zst`), and writes ZIP, TAR, 7z, XZ, bzip2, and
+Zstandard (7z with a pure-Dart LZMA/LZMA2 encoder). No native code, no FFI,
+no external executables. Runs
 everywhere Dart runs: the VM, Flutter (all platforms), and the web via
 **both dart2js and dart2wasm**.
 
@@ -52,7 +54,7 @@ Writing mirrors reading. Pick a format, add entries, close:
 ```dart
 final writer = await createArchiveFile(
   'volume01.cb7',
-  format: const SevenZWriteFormat(), // or ZipWriteFormat, TarWriteFormat
+  format: const SevenZWriteFormat(), // or Zip/Tar/Xz/Bzip2/ZstdWriteFormat
 );
 await writer.addBytes(ArchiveEntrySpec(path: 'page001.png'), pngBytes);
 await writer.close();
@@ -152,17 +154,20 @@ entry*: one exotic entry never bricks the archive.
 
 ## Status
 
-`0.5.0` (git-only, lockstep releases): reading, writing, and read-side
-decryption are complete. ZIP/CBZ (stored + deflate, ZIP64), TAR/CBT
-(ustar/PAX/GNU), GZIP (multi-member, layered `.tar.gz`), 7z/CB7
-(LZMA/LZMA2/BCJ/delta, solid-block cache), and RAR/CBR (clean-room RAR5 +
-RAR4) read; TAR, ZIP, and 7z write; password-protected ZIP, 7z, and RAR
-archives decrypt via `ArchiveReadOptions.password`, and ZIP (WinZip AES-256)
-and 7z (AES-256) can be *written* encrypted via `ArchiveWriteOptions.password`.
-All of it is tested against reference tools, differential-tested against
-package:archive, fuzzed in CI, and verified on the VM, dart2js, and
-dart2wasm. What remains (RAR `-hp` headers, multi-volume, ZIP strong
-encryption, …) is tracked in `ROADMAP.md` at the repository root.
+`0.10.0` (lockstep releases): reading, writing, and read-side decryption are
+mature. ZIP/CBZ (stored + deflate, ZIP64), TAR/CBT (ustar/PAX/GNU), GZIP
+(multi-member, layered `.tar.gz`), 7z/CB7 (LZMA/LZMA2/BCJ/delta, solid-block
+cache), RAR/CBR (clean-room RAR5 + RAR4, incl. PPMd, `-hp` headers,
+multi-volume, and legacy v20), XZ (LZMA2 + delta/x86-BCJ, layered `.tar.xz`),
+bzip2 (layered `.tar.bz2`, plus ZIP method 12 and the 7z BZip2 coder), and
+Zstandard (RFC 8878, layered `.tar.zst`) read; TAR, ZIP, 7z, XZ, bzip2, and
+Zstandard write; password-protected ZIP, 7z, and RAR archives decrypt via
+`ArchiveReadOptions.password`, and ZIP (WinZip AES-256) and 7z (AES-256) can be
+*written* encrypted via `ArchiveWriteOptions.password`. All of it is tested
+against reference tools, differential-tested against package:archive, fuzzed in
+CI, and verified on the VM, dart2js, and dart2wasm. Remaining gaps and the
+new-format backlog (CPIO, ISO, CAB, …) are tracked in `ROADMAP.md` at the
+repository root.
 
 See `example/` for a CBZ page extractor demonstrating streaming +
 preloading.
