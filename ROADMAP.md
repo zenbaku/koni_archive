@@ -445,12 +445,12 @@ session's largest single build, a from-scratch RFC 8878 decoder.
   off-by-one in the ML default distribution and a reversed Huffman table fill).
 * **Writing** (`ZstdEncoder` in `koni_codecs`; `ZstdWriteFormat` / `ZstdWriter`
   in `koni_zstd`, added 2026-07-18): a single-frame `.zst` — single-segment
-  header with the content size, no checksum, ≤ 128 KiB blocks. A greedy
-  hash-chain match finder produces LZ sequences entropy-coded over the
-  **predefined** FSE tables (a from-scratch tANS encoder, whose append order was
-  verified to invert the reader's read order via an isolated FSE symbol-stream
-  round trip), new offsets only, with **Huffman literals** (direct-weight table,
-  1- and 4-stream) when they beat raw. Incompressible blocks fall back to raw.
+  header with the content size, no checksum, ≤ 128 KiB blocks. A hash-chain
+  match finder produces LZ sequences entropy-coded over the **predefined** FSE
+  tables (a from-scratch tANS encoder, whose append order was verified to invert
+  the reader's read order via an isolated FSE symbol-stream round trip), new
+  offsets only, with **Huffman literals** (direct-weight table, 1- and 4-stream)
+  when they beat raw. Incompressible blocks fall back to raw.
   *Two bugs found by isolated cross-checks:* the `ML_bits` table needs exactly 32
   leading zeros (an off-by-one over-reads the ML extra bits and over-produces the
   block); and the reader's compressed-literals **sizeFormat-3** size parse used a
@@ -459,14 +459,33 @@ session's largest single build, a from-scratch RFC 8878 decoder.
   trip + `zstd -d` interop across empty/tiny/text/runs/ramp/random/skewed-ascii/
   high-byte/large/multi-block, byte-identical on VM/dart2js/dart2wasm (Huffman
   and sizeFormat-3 cases included), fuzz-hardened.
-* **Deferred (write), in priority order:** (1) a **stronger match finder** — the
-  current greedy min-3 emits unprofitable coincidental short matches that
-  fragment literal runs (high-entropy input can compress *worse* as it grows);
-  lazy matching or a net-cost check before emitting a short match is the biggest
-  remaining ratio lever. (2) **FSE-compressed Huffman weights**, to lift the
-  ≤ 128 literal-alphabet cap on Huffman literals (the 2-state interleaved weight
-  encode is the format's riskiest bitstream). (3) custom FSE sequence tables /
-  repeat-offset modes.
+* **Match finder, stronger (2026-07-19):** the original greedy min-3 parse
+  emitted unprofitable coincidental short matches that fragmented literal runs,
+  so literal-heavy/high-entropy input compressed *worse* as it grew (skewed
+  ASCII: ratio rose 0.79 → 0.83 → 0.85 at 10k/50k/200k). Fixed by scoring
+  candidates *inside* the chain walk with an integer net-cost model — bits saved
+  by not coding the literals minus bits to code the new-offset sequence
+  (`len·8 − (2·highBit(offset+3) + 12)`) — and emitting only positively-scoring
+  matches, plus a one-step lazy lookahead. The score subsumes the old
+  nearest-offset tie-break, and the model is integer-only so the parse stays
+  bit-identical across VM/dart2js/dart2wasm (a float `log`/`pow` could diverge
+  across their backends). Result: skewed ASCII now ~0.65 and *flat* with size; no
+  regression on already-compressible inputs; all round-trip / `zstd -d` interop /
+  fuzz / 3-platform byte-identical gates green, plus a new durable
+  "ratio-does-not-degrade-with-size" regression test. **Ratio cross-check vs the
+  `zstd` CLI** (same bytes): we *beat* `zstd -19` on highly-repetitive text
+  (65 vs 68 B) and *tie* on incompressible input (both store raw); on
+  literal-heavy skewed ASCII we sit at ~1.20× `zstd -19`'s size, **flat** across
+  10k/50k/200k (was diverging). That residual gap is an *entropy-coding* gap
+  (our direct-weight Huffman + predefined FSE vs zstd's optimized per-block
+  tables), not a match-finding one — which is exactly why the next lever below is
+  entropy tables, not the parse.
+* **Deferred (write), in priority order:** (1) **FSE-compressed Huffman
+  weights**, to lift the ≤ 128 literal-alphabet cap on Huffman literals (the
+  2-state interleaved weight encode is the format's riskiest bitstream).
+  (2) custom FSE sequence tables / repeat-offset modes. (3) a still-stronger
+  parse (optimal/price-based) if a caller needs closer-to-`zstd` ratios; the
+  net-cost greedy+lazy finder is the correctness-first stopping point.
 * **Deferred (read):** dictionaries and legacy v0.x frames (typed errors); ZIP
   method 93 (codec is ready, but no tool on hand authors a fixture). A true
   sliding window (vs. whole-frame retention) is a possible memory optimization.

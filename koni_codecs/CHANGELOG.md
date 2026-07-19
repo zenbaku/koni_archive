@@ -8,8 +8,13 @@
   framing) with a deterministic rotation sort. `ZstdEncoder` writes a single
   frame of LZ sequences over the predefined FSE tables (a from-scratch tANS
   encoder) with Huffman literals (direct-weight table, falling back to raw for
-  byte alphabets over 128 or when it does not beat raw). Both are byte-decodable
-  by `bzip2` / `zstd` and byte-identical across the VM, dart2js, and dart2wasm.
+  byte alphabets over 128 or when it does not beat raw). Its hash-chain match
+  finder selects candidates by an integer net-cost score rather than raw length
+  — so coincidental short matches at far offsets, which fragment literal runs
+  and hurt Huffman coding, are rejected — with a one-step lazy lookahead; the
+  scoring stays integer-only to keep the parse bit-identical across platforms.
+  Both are byte-decodable by `bzip2` / `zstd` and byte-identical across the VM,
+  dart2js, and dart2wasm.
 - Fixes the Zstandard decoder's compressed-literals **sizeFormat-3** size parse:
   it built one 36-bit value with a `<< 28` shift that truncates to 32 bits on
   dart2js, corrupting `Compressed_Size` for large Huffman literal blocks; each

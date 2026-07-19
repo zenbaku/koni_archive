@@ -18,7 +18,7 @@
 | Feature | Notes |
 | --- | --- |
 | Single-frame `.zst` output | `ZstdWriteFormat` compresses one byte stream (single-member container) via `ZstdEncoder` |
-| LZ sequences over predefined FSE tables | greedy hash-chain match finder; a from-scratch tANS encoder; new offsets only |
+| LZ sequences over predefined FSE tables | hash-chain match finder (net-cost-scored candidates + one-step lazy lookahead); a from-scratch tANS encoder; new offsets only |
 | Huffman literals | direct-weight table, 1- and 4-stream; used when the literal alphabet is `≤ 128` and it beats raw, else raw/RLE fallback |
 | Raw-block fallback | incompressible blocks are stored raw, so output never expands much |
 | `zstd` / libzstd interop | output decodes byte-for-byte under the `zstd` CLI; byte-identical across VM, dart2js, dart2wasm |

@@ -70,9 +70,18 @@ Deliberate simplifications keep it correct and small, at a ratio below `zstd`'s
   own `< 2^18` bit fields.
 - **New offsets only.** Every match emits `Offset_Value = offset + 3`, never the
   repeat-offset codes. Always valid, and it keeps the sequence encoder simple.
-- **Greedy match finder.** A hash-chain over the whole input (so a block's
-  matches can reference earlier blocks within the single-segment window), bounded
-  search depth, minimum match length 3.
+- **Net-cost-scored match finder.** A hash-chain over the whole input (so a
+  block's matches can reference earlier blocks within the single-segment window),
+  bounded search depth, minimum match length 3. Candidates are chosen by an
+  integer net-cost score — `len·8 − (2·highBit(offset+3) + 12)`, approximating
+  the literal bits saved minus the new-offset sequence's bits — not by raw
+  length, so a coincidental short match at a far offset (whose sequence costs
+  more than the literals it replaces) is rejected; only positively-scoring
+  matches are emitted, with a one-step lazy lookahead that prefers a
+  better-scoring match one byte later. The score is integer-only so the parse is
+  bit-identical across the VM, dart2js, and dart2wasm. This replaced an earlier
+  plain-greedy parse under which literal-heavy input compressed *worse* as it
+  grew (coincidental matches fragmented the Huffman literal runs).
 - **Raw-block fallback.** A block whose compressed body is not smaller than its
   raw bytes is stored raw, so output never expands beyond framing overhead.
 

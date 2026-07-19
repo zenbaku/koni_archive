@@ -3,13 +3,19 @@
 /// A correctness-first encoder: one frame, single-segment header with the
 /// content size, no content checksum, no dictionary. Data is split into blocks
 /// of at most 128 KiB. Each block is either stored raw or compressed with LZ
-/// sequences over the **predefined** FSE tables (no custom entropy tables) with
-/// raw (uncompressed) literals — so the ratio is below `zstd`'s, while the
-/// output stays byte-decodable by `zstd` / libzstd and by [ZstdDecoder].
+/// sequences over the **predefined** FSE tables (no custom entropy tables), with
+/// Huffman-coded literals when they beat raw — so the ratio is below `zstd`'s,
+/// while the output stays byte-decodable by `zstd` / libzstd and by
+/// [ZstdDecoder].
 ///
-/// Match finding is a greedy hash-chain search; offsets are always emitted as
-/// new offsets (the repeat-offset codes are never used), which is always valid
-/// and keeps the sequence encoder simple.
+/// Match finding is a hash-chain search whose candidate selection maximizes an
+/// integer net-cost score (bits saved by not coding the literals, minus the
+/// bits to code the new-offset sequence) rather than raw length, so coincidental
+/// short matches at far offsets — which otherwise fragment literal runs and hurt
+/// Huffman coding — are rejected; a one-step lazy lookahead prefers a
+/// better-scoring match one byte later. Offsets are always emitted as new
+/// offsets (the repeat-offset codes are never used), which is always valid and
+/// keeps the sequence encoder simple.
 library;
 
 import 'dart:typed_data';
@@ -132,6 +138,59 @@ final class ZstdEncoder {
   static const int _minMatch = 3;
   static const int _maxChain = 64; // search depth cap
 
+  // Integer net-cost model for match acceptance (kept integer-only so the parse
+  // is bit-identical on the VM, dart2js, and dart2wasm — a float `log`/`pow`
+  // could diverge across their libm/JS-Math backends and change the output).
+  // A candidate's score approximates (bits saved by not coding `len` literals)
+  // minus (bits to code the new-offset sequence): the offset field costs about
+  // `2 * highBit(offset + 3)` (its FSE code plus that many extra bits) and the
+  // literal/match-length codes a small fixed overhead. A match is emitted only
+  // when its score is positive, which drops the coincidental short matches at
+  // far offsets that used to fragment literal runs and hurt Huffman coding.
+  static const int _litBits = 8; // ~cost of one raw/random literal byte
+  static const int _seqOverhead = 12; // ~LL+ML code + extra bits per sequence
+
+  // Source position and score of the match chosen by the most recent
+  // [_findMatch] (used by the one-step lazy lookahead to compare pos vs pos+1).
+  int _matchSrc = -1;
+  int _matchScore = 0;
+
+  /// Finds the best-scoring match for `data[pos..end)` via the hash chain and
+  /// records its source position in [_matchSrc]. Returns the match length
+  /// (`>= _minMatch`) when some candidate scores positively, else 0 (the caller
+  /// emits a literal). Scoring, not longest-length, drives the choice so that a
+  /// nearer/shorter profitable match is not discarded for a farther/longer
+  /// unprofitable one.
+  int _findMatch(Uint8List data, int pos, int end) {
+    final h = _hash(data, pos);
+    var cand = _hashHead![h] - 1;
+    var depth = 0;
+    var bestLen = 0;
+    var bestSrc = -1;
+    var bestScore = 0; // strictly-positive score required to emit a match
+    while (cand >= 0 && depth < _maxChain) {
+      var len = 0;
+      while (pos + len < end && data[pos + len] == data[cand + len]) {
+        len++;
+      }
+      if (len >= _minMatch) {
+        final offset = pos - cand;
+        final score =
+            len * _litBits - (2 * _zHighBit(offset + 3) + _seqOverhead);
+        if (score > bestScore) {
+          bestScore = score;
+          bestLen = len;
+          bestSrc = cand;
+        }
+      }
+      cand = _chain![cand] - 1;
+      depth++;
+    }
+    _matchSrc = bestSrc;
+    _matchScore = bestScore;
+    return bestLen;
+  }
+
   int _hash(Uint8List d, int i) {
     // 3-byte Fibonacci hash. The multiply uses low-32-bit split arithmetic:
     // `v * 0x9E3779B1` (v up to 2^24) overflows 2^53 and would lose its low
@@ -169,39 +228,40 @@ final class ZstdEncoder {
         pos++;
         continue;
       }
-      // Find the best match for data[pos..].
-      var bestLen = 0;
-      var bestPos = -1;
-      final h = _hash(data, pos);
-      var cand = _hashHead![h] - 1;
-      var depth = 0;
-      while (cand >= 0 && depth < _maxChain) {
-        // Extend the match.
-        var len = 0;
-        while (pos + len < end && data[pos + len] == data[cand + len]) {
-          len++;
-        }
-        if (len > bestLen) {
-          bestLen = len;
-          bestPos = cand;
-        }
-        cand = _chain![cand] - 1;
-        depth++;
-      }
+      // Find the best-scoring match for data[pos..] (0 when none is worth it).
+      final bestLen = _findMatch(data, pos, end);
 
       if (bestLen >= _minMatch) {
-        final litLen = pos - litStart;
-        literals.add(Uint8List.sublistView(data, litStart, pos));
-        final offset = pos - bestPos;
-        seqLL.add(litLen);
-        seqML.add(bestLen);
-        seqOF.add(offset + 3); // always a new offset (offsetValue = offset + 3)
-        // Insert positions covered by the match so later matches can find them.
-        final matchEnd = pos + bestLen;
-        while (pos < matchEnd) {
-          _insert(data, pos);
-          pos++;
+        var mLen = bestLen;
+        var mSrc = _matchSrc;
+        var mScore = _matchScore;
+        var mPos = pos;
+        // Insert pos exactly once, then a one-step lazy lookahead: if a match at
+        // pos+1 scores strictly higher, defer — emit data[pos] as a literal and
+        // take the later, better match instead.
+        _insert(data, pos);
+        if (pos + 1 <= limit) {
+          final nextLen = _findMatch(data, pos + 1, end);
+          if (nextLen >= _minMatch && _matchScore > mScore) {
+            mLen = nextLen;
+            mSrc = _matchSrc;
+            mScore = _matchScore;
+            mPos = pos + 1;
+          }
         }
+        // Emit the literals preceding the chosen match, then the sequence.
+        literals.add(Uint8List.sublistView(data, litStart, mPos));
+        final offset = mPos - mSrc;
+        seqLL.add(mPos - litStart);
+        seqML.add(mLen);
+        seqOF.add(offset + 3); // always a new offset (offsetValue = offset + 3)
+        // Insert every position the match covers, except pos (already inserted),
+        // so each input position is inserted exactly once.
+        final matchEnd = mPos + mLen;
+        for (var q = pos + 1; q < matchEnd; q++) {
+          _insert(data, q);
+        }
+        pos = matchEnd;
         litStart = pos;
       } else {
         _insert(data, pos);

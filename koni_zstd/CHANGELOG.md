@@ -6,9 +6,11 @@
   ecosystem.
   - Writing (`ZstdWriteFormat`) compresses one byte stream — `.zst` is a
     single-member container — into a single frame via the new `ZstdEncoder` in
-    `koni_codecs`: a greedy hash-chain match finder produces LZ sequences that
-    are entropy-coded over the predefined FSE tables (a from-scratch tANS
-    encoder), with raw literals. No encryption; a password is rejected. The
+    `koni_codecs`: a hash-chain match finder (candidates scored by an integer
+    net-cost model so unprofitable short matches are dropped, plus a one-step
+    lazy lookahead) produces LZ sequences that are entropy-coded over the
+    predefined FSE tables (a from-scratch tANS encoder). No encryption; a
+    password is rejected. The
     output is byte-decodable by `zstd` / libzstd, verified against the `zstd`
     CLI and byte-identical across the VM, dart2js, and dart2wasm.
   - Literals are Huffman-coded (direct-weight table, 1- and 4-stream) when it

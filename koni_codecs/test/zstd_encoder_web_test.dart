@@ -86,13 +86,13 @@ void main() {
         ),
       ),
     );
-    expect([big.length, _fp(big)], [4381, 627561532]);
+    expect([big.length, _fp(big)], [4378, 43415572]);
 
     // Huffman-literal cases (skewed ASCII): 4-stream (30 KB) and single-stream.
     final huff = _encode(_skew(30000));
-    expect([huff.length, _fp(huff)], [16932, 458819303]);
+    expect([huff.length, _fp(huff)], [14428, 418946904]);
     final huffSmall = _encode(_skew(700));
-    expect([huffSmall.length, _fp(huffSmall)], [459, 937367489]);
+    expect([huffSmall.length, _fp(huffSmall)], [415, 213635800]);
   });
 
   test('encode + decode round-trips on this platform', () {

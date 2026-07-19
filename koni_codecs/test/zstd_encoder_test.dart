@@ -145,6 +145,27 @@ void main() {
     expect(enc.length, lessThan((data.length * 3) ~/ 4));
   });
 
+  test('literal-heavy ratio does not degrade as input grows (regression)', () {
+    // The greedy min-3 match finder emitted coincidental short matches at far
+    // offsets that fragmented the literal runs and hurt Huffman coding, so the
+    // ratio *rose* with size (~0.79 -> 0.83 -> 0.85 at 10k/50k/200k). The
+    // net-cost match gate rejects those, so the ratio must now stay flat or
+    // improve as the same distribution grows. Guards the exact bug the gate
+    // fixes; the same input distribution keeps this comparison meaningful.
+    double ratio(int n) {
+      final data = _skewedAscii(n);
+      return _encode(data).length / data.length;
+    }
+
+    final r10k = ratio(10000);
+    final r50k = ratio(50000);
+    final r200k = ratio(200000);
+    expect(r50k, lessThanOrEqualTo(r10k), reason: '50k=$r50k > 10k=$r10k');
+    expect(r200k, lessThanOrEqualTo(r10k), reason: '200k=$r200k > 10k=$r10k');
+    // The pre-fix encoder produced ~0.85 at 200k; a comfortable ceiling here.
+    expect(r200k, lessThan(0.72), reason: 'ratio at 200k = $r200k');
+  });
+
   test('high-byte alphabet falls back to raw without expanding much', () {
     final data = _highByte(20000);
     final enc = _encode(data);
