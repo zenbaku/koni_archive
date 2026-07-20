@@ -54,8 +54,7 @@ Future<Uint8List?> zstdDecode(Uint8List zst) async {
 }
 
 void main() {
-  final sample =
-      Uint8List.fromList(('the quick brown fox. ' * 800).codeUnits);
+  final sample = Uint8List.fromList(('the quick brown fox. ' * 800).codeUnits);
 
   group('round trip through our own reader', () {
     test('preserves content', () async {
@@ -109,7 +108,10 @@ void main() {
 
     test('multi-block content', () async {
       final data = Uint8List.fromList(
-        List.generate(400000, (i) => (i % 900 < 560) ? 97 + (i % 6) : (i * 11) & 0xFF),
+        List.generate(
+          400000,
+          (i) => (i % 900 < 560) ? 97 + (i % 6) : (i * 11) & 0xFF,
+        ),
       );
       final decoded = await zstdDecode(await writeZst(data));
       if (decoded == null) {
@@ -166,10 +168,7 @@ void main() {
       );
       await expectLater(
         writer.addBytes(
-          ArchiveEntrySpec(
-            path: 'a',
-            compression: ArchiveCompression.bzip2,
-          ),
+          ArchiveEntrySpec(path: 'a', compression: ArchiveCompression.bzip2),
           sample,
         ),
         throwsA(isA<UnsupportedCompressionException>()),

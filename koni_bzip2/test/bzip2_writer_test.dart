@@ -15,8 +15,9 @@ Future<Uint8List> writeBz2(
   int blockSize100k = 9,
 }) async {
   final sink = BytesBuilderSink();
-  final writer =
-      Bzip2WriteFormat(blockSize100k: blockSize100k).openWriter(sink, options);
+  final writer = Bzip2WriteFormat(
+    blockSize100k: blockSize100k,
+  ).openWriter(sink, options);
   await writer.addBytes(spec ?? ArchiveEntrySpec(path: 'data'), data);
   await writer.close();
   await sink.close();
@@ -56,8 +57,7 @@ Future<Uint8List?> bzip2Decode(Uint8List bz2) async {
 }
 
 void main() {
-  final sample =
-      Uint8List.fromList(('the quick brown fox. ' * 800).codeUnits);
+  final sample = Uint8List.fromList(('the quick brown fox. ' * 800).codeUnits);
 
   group('round trip through our own reader', () {
     test('preserves content', () async {
@@ -123,8 +123,7 @@ void main() {
       final data = Uint8List.fromList(
         List.generate(260000, (i) => (i * 7 + (i >> 3)) & 0xFF),
       );
-      final decoded =
-          await bzip2Decode(await writeBz2(data, blockSize100k: 1));
+      final decoded = await bzip2Decode(await writeBz2(data, blockSize100k: 1));
       if (decoded == null) {
         markTestSkipped('bzip2 binary not available');
         return;
@@ -179,10 +178,7 @@ void main() {
       );
       await expectLater(
         writer.addBytes(
-          ArchiveEntrySpec(
-            path: 'a',
-            compression: ArchiveCompression.zstd,
-          ),
+          ArchiveEntrySpec(path: 'a', compression: ArchiveCompression.zstd),
           sample,
         ),
         throwsA(isA<UnsupportedCompressionException>()),

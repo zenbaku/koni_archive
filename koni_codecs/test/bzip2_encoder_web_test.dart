@@ -45,12 +45,15 @@ void main() {
     final tiny = _encode(_tiny);
     expect([tiny.length, _fp(tiny)], [60, 1064147010]);
 
-    final ramp =
-        _encode(Uint8List.fromList(List.generate(600, (i) => (i * 5) & 0xFF)));
+    final ramp = _encode(
+      Uint8List.fromList(List.generate(600, (i) => (i * 5) & 0xFF)),
+    );
     expect([ramp.length, _fp(ramp)], [489, 216144596]);
 
     final big = _encode(
-      Uint8List.fromList(List.generate(260000, (i) => (i * 7 + (i >> 3)) & 0xFF)),
+      Uint8List.fromList(
+        List.generate(260000, (i) => (i * 7 + (i >> 3)) & 0xFF),
+      ),
       blockSize100k: 1,
     );
     expect([big.length, _fp(big)], [3425, 496672874]);
@@ -61,8 +64,10 @@ void main() {
     expect(_roundTrip(_tiny), _tiny);
     expect(_roundTrip(_text), _text);
     expect(_roundTrip(_ramp), _ramp);
-    expect(_roundTrip(Uint8List.fromList(List.filled(4000, 0x5A))),
-        Uint8List.fromList(List.filled(4000, 0x5A)));
+    expect(
+      _roundTrip(Uint8List.fromList(List.filled(4000, 0x5A))),
+      Uint8List.fromList(List.filled(4000, 0x5A)),
+    );
   });
 
   test('crosses the RLE1 buffer boundary on this platform', () {
@@ -75,8 +80,9 @@ void main() {
   });
 
   test('block CRC / combined CRC match across multiple blocks', () {
-    final data =
-        Uint8List.fromList(List.generate(260000, (i) => (i * 7 + (i >> 3)) & 0xFF));
+    final data = Uint8List.fromList(
+      List.generate(260000, (i) => (i * 7 + (i >> 3)) & 0xFF),
+    );
     expect(_roundTrip(data, blockSize100k: 1), data);
   });
 }

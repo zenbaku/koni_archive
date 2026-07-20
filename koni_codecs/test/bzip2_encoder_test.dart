@@ -60,9 +60,8 @@ Uint8List get _random {
 
 /// Two full blocks + a tail, to exercise the multi-block path and the
 /// combined-CRC rotate. `blockSize100k: 1` caps a block at 100 000 bytes.
-Uint8List get _multiBlock => Uint8List.fromList(
-  List.generate(260000, (i) => (i * 7 + (i >> 3)) & 0xFF),
-);
+Uint8List get _multiBlock =>
+    Uint8List.fromList(List.generate(260000, (i) => (i * 7 + (i >> 3)) & 0xFF));
 
 /// ~700 KB: at the default level 9 this is a single ~720 KB BWT block with a
 /// high selector count, and it compresses well (long runs + structure).
@@ -127,8 +126,9 @@ void main() {
     });
 
     test('multi-block at blockSize100k: 1', () async {
-      final decoded =
-          await _bzip2Decode(_encode(_multiBlock, blockSize100k: 1));
+      final decoded = await _bzip2Decode(
+        _encode(_multiBlock, blockSize100k: 1),
+      );
       if (decoded == null) {
         markTestSkipped('bzip2 binary not available');
         return;

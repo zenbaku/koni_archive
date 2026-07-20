@@ -50,8 +50,8 @@ final class Bzip2Encoder {
       final end = pos + origChunk < data.length ? pos + origChunk : data.length;
       final block = Uint8List.sublistView(data, pos, end);
       final crc = _bzCrc(block);
-      combinedCrc = (((combinedCrc << 1) | (combinedCrc >>> 31)) ^ crc) &
-          0xFFFFFFFF;
+      combinedCrc =
+          (((combinedCrc << 1) | (combinedCrc >>> 31)) ^ crc) & 0xFFFFFFFF;
       _writeBlock(w, block, crc);
       pos = end;
     }
@@ -424,9 +424,10 @@ final class Bzip2Encoder {
     for (var i = 0; i < 256; i++) {
       var c = i << 24;
       for (var k = 0; k < 8; k++) {
-        c = (c & 0x80000000) != 0
-            ? ((c << 1) ^ 0x04C11DB7) & 0xFFFFFFFF
-            : (c << 1) & 0xFFFFFFFF;
+        c =
+            (c & 0x80000000) != 0
+                ? ((c << 1) ^ 0x04C11DB7) & 0xFFFFFFFF
+                : (c << 1) & 0xFFFFFFFF;
       }
       t[i] = c;
     }
@@ -436,7 +437,8 @@ final class Bzip2Encoder {
   static int _bzCrc(Uint8List data) {
     var crc = 0xFFFFFFFF;
     for (var i = 0; i < data.length; i++) {
-      crc = ((crc << 8) ^ _crcTable[((crc >>> 24) ^ data[i]) & 0xFF]) &
+      crc =
+          ((crc << 8) ^ _crcTable[((crc >>> 24) ^ data[i]) & 0xFF]) &
           0xFFFFFFFF;
     }
     return (crc ^ 0xFFFFFFFF) & 0xFFFFFFFF;

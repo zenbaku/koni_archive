@@ -26,12 +26,7 @@ import 'package:koni_codecs/koni_codecs.dart';
 /// write-then-read round trip therefore preserves the *content*, not the name.
 final class Bzip2Writer extends ArchiveWriter {
   /// Creates a writer appending to [_sink] under [_options].
-  Bzip2Writer(
-    this.format,
-    this._sink,
-    this._options, {
-    this.blockSize100k = 9,
-  });
+  Bzip2Writer(this.format, this._sink, this._options, {this.blockSize100k = 9});
 
   @override
   final ArchiveWriteFormat format;
@@ -119,7 +114,8 @@ final class Bzip2Writer extends ArchiveWriter {
     _closed = true;
     // No entry: emit a valid empty stream (matches `bzip2 < /dev/null`).
     await _sink.add(
-      _container ?? Bzip2Encoder(blockSize100k: blockSize100k).encode(Uint8List(0)),
+      _container ??
+          Bzip2Encoder(blockSize100k: blockSize100k).encode(Uint8List(0)),
     );
   }
 
