@@ -197,12 +197,16 @@ final class Rar5Decoder {
 
   /// Decodes all compressed [blocks] of one file up to [unpackedSize]
   /// bytes, appending to [output] from the current [writePtr]. [blocks] is
-  /// the file's concatenated data (block headers included).
+  /// the file's concatenated data (block headers included). Collect the
+  /// result with [takeOutput].
   void decompressFile(Uint8List blocks, int unpackedSize) {
-    final target = writePtr + unpackedSize;
-    if (target > output.length) {
-      throw const FormatException('RAR5 file exceeds declared output size');
+    // [writePtr] is absolute across a solid run while [output] is a ring
+    // indexed through `& mask`, so only the file itself must fit: a larger
+    // file would overwrite its own start before [takeOutput] reads it.
+    if (unpackedSize > output.length) {
+      throw const FormatException('RAR5 file is larger than its window');
     }
+    final target = writePtr + unpackedSize;
     final bits = _RarBits(blocks);
     var blockStart = writePtr;
 
@@ -266,8 +270,37 @@ final class Rar5Decoder {
       }
       blockStart = writePtr;
     }
+  }
 
-    _applyFilters();
+  /// Returns the [length] decoded bytes at absolute position [start] (the
+  /// file [decompressFile] just produced) with the file's filters applied.
+  ///
+  /// With [reuseWindow] (a solid run) the bytes are copied out and filtered
+  /// in the copy: later members back-reference the window, which must keep
+  /// the unfiltered bytes. Otherwise the result is filtered in place and may
+  /// alias [output].
+  Uint8List takeOutput(int start, int length, {required bool reuseWindow}) {
+    final mask = output.length - 1;
+    final Uint8List out;
+    if (!reuseWindow && (start & mask) + length <= output.length) {
+      out = Uint8List.sublistView(
+        output,
+        start & mask,
+        (start & mask) + length,
+      );
+    } else {
+      out = Uint8List(length);
+      final from = start & mask;
+      final first =
+          length < output.length - from ? length : output.length - from;
+      out.setRange(0, first, output, from);
+      if (first < length) out.setRange(first, length, output);
+    }
+    for (final filter in _filters) {
+      _runFilter(filter, out, start);
+    }
+    _filters.clear();
+    return out;
   }
 
   void _decodeBlock(_RarBits bits, int endBits, int target, int blockStart) {
@@ -455,35 +488,32 @@ final class Rar5Decoder {
     _rd.build(Uint8List.sublistView(table, idx, idx + _huffRC), _huffRC);
   }
 
-  /// Applies pending filters in order, in place over [output]. Filters
-  /// operate within a single file's output; solid runs reset via
-  /// [beginFileFilters].
-  void _applyFilters() {
-    for (final filter in _filters) {
-      _runFilter(filter);
-    }
-    _filters.clear();
-  }
-
   /// Marks a fresh filter scope for the next file in a solid run.
   void beginFileFilters() => _filters.clear();
 
-  void _runFilter(_Rar5Filter filter) {
-    final start = filter.blockStart;
+  /// Runs [filter] over its region of [file], whose first byte sits at
+  /// absolute output position [fileStart]. Filters operate within a single
+  /// file's output.
+  void _runFilter(_Rar5Filter filter, Uint8List file, int fileStart) {
+    final start = filter.blockStart - fileStart;
     final length = filter.blockLength;
-    if (start < 0 || start + length > output.length) {
+    if (start < 0 || start + length > file.length) {
       throw const FormatException('RAR5 filter region out of range');
     }
-    final region = Uint8List.sublistView(output, start, start + length);
+    final region = Uint8List.sublistView(file, start, start + length);
+    // x86/ARM address translation uses the position within this member, not
+    // within the solid run (verified against `rar`-made solid archives whose
+    // later members are x86 executables).
+    final offset = start;
     switch (filter.type) {
       case 0:
         _delta(region, filter.channels);
       case 1:
-        _e8e9(region, start, false);
+        _e8e9(region, offset, false);
       case 2:
-        _e8e9(region, start, true);
+        _e8e9(region, offset, true);
       case 3:
-        _arm(region, start);
+        _arm(region, offset);
       default:
         throw FormatException('unsupported RAR5 filter type ${filter.type}');
     }

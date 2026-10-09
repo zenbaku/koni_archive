@@ -33,6 +33,52 @@ Future<String> collectString(ArchiveReader reader, ArchiveEntry entry) async =>
 List<int> dataBinPattern() =>
     List.generate(100000, (i) => ((i * 7) ^ (i >> 3)) & 0xFF);
 
+/// Members of solid_wrap.rar and solid_x86.rar, generated with the same
+/// seeded sequence (and in the same order) as tool/generate_fixtures.dart.
+Map<String, List<int>> solidRunContents() {
+  var seed = 0x5EED;
+  int next() => seed = (seed * 1103515245 + 12345) & 0x7FFFFFFF;
+  final noise = List.generate(48000, (_) => next() >> 16 & 0xFF);
+  final exe = <int>[];
+  while (exe.length < 64000) {
+    exe
+      ..addAll([0x55, 0x8B, 0xEC, 0x83, 0xEC, 0x10, 0xE8])
+      ..addAll([next() & 0xFF, next() & 0xFF, 0x00, 0x00])
+      ..addAll([0x89, 0x45, 0xFC, 0xC9, 0xC3]);
+  }
+  List<int> x86(int n) {
+    final out = <int>[];
+    while (out.length < n) {
+      for (var k = 2 + next() % 7; k > 0; k--) {
+        out.add(next() >> 16 & 0xFF);
+      }
+      final rel = (next() % 80000 - 40000) & 0xFFFFFFFF;
+      out.addAll([
+        0xE8,
+        rel & 0xFF,
+        rel >> 8 & 0xFF,
+        rel >> 16 & 0xFF,
+        rel >> 24,
+      ]);
+    }
+    return out.sublist(0, n);
+  }
+
+  final contents = <String, List<int>>{
+    'solid_wrap/app.exe': exe,
+    for (var i = 0; i < 4; i++)
+      'solid_wrap/part$i.bin': [...noise, i, ...noise.reversed],
+    'solid_wrap/copy.bin': exe,
+  };
+  contents['solid_x86/a.bin'] = List.generate(
+    150000,
+    (_) => next() >> 16 & 0xFF,
+  );
+  contents['solid_x86/b.exe'] = x86(80000);
+  contents['solid_x86/c.exe'] = x86(80000);
+  return contents;
+}
+
 void main() {
   // Store (method 0), Normal (method 3), Best+solid (method 5): the same
   // content tree, decoded via each path with CRC verification on.
@@ -89,6 +135,42 @@ void main() {
       await reader.close();
     });
   });
+
+  // Solid runs larger than their 128 KiB dictionary, so the shared window
+  // wraps across members. solid_wrap.rar adds a delta-filtered member that a
+  // later member back-references; solid_x86.rar forces E8 filters on members
+  // after the first.
+  final contents = solidRunContents();
+  for (final fixture in ['solid_wrap.rar', 'solid_x86.rar']) {
+    final dir = fixture.replaceAll('.rar', '/');
+    final expected = {
+      for (final e in contents.entries)
+        if (e.key.startsWith(dir)) e.key: e.value,
+    };
+
+    group('$fixture (solid run larger than its dictionary)', () {
+      test('every member decodes in archive order', () async {
+        final reader = await openFixture(fixture);
+        final files = reader.entries.where((e) => !e.isDirectory).toList();
+        expect(files.map((e) => e.path), unorderedEquals(expected.keys));
+        for (final entry in files) {
+          expect(
+            await collect(reader, entry),
+            expected[entry.path],
+            reason: entry.path,
+          );
+        }
+        await reader.close();
+      });
+
+      test('the last member decodes first (run rebuilt from start)', () async {
+        final reader = await openFixture(fixture);
+        final last = reader.entries.lastWhere((e) => !e.isDirectory);
+        expect(await collect(reader, last), expected[last.path]);
+        await reader.close();
+      });
+    });
+  }
 
   group('CBR (flagship use case)', () {
     test('a compressed CBR lists and streams its pages', () async {
