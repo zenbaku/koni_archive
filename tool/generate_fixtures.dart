@@ -74,6 +74,52 @@ final class RarFixtureSet implements FixtureSet {
       }
 
       file('hello.txt', 'hello, rar!\n'.codeUnits);
+      // Solid run several times larger than its 128 KiB dictionary, so the
+      // shared LZ window wraps across members. app.exe is x86-like (E8 call
+      // opcodes) to draw an E8 filter; copy.bin repeats it so a later member
+      // back-references the filtered member's window bytes.
+      var seed = 0x5EED;
+      int next() => seed = (seed * 1103515245 + 12345) & 0x7FFFFFFF;
+      final noise = List.generate(48000, (_) => next() >> 16 & 0xFF);
+      final exe = <int>[];
+      while (exe.length < 64000) {
+        exe
+          ..addAll([0x55, 0x8B, 0xEC, 0x83, 0xEC, 0x10, 0xE8])
+          ..addAll([next() & 0xFF, next() & 0xFF, 0x00, 0x00])
+          ..addAll([0x89, 0x45, 0xFC, 0xC9, 0xC3]);
+      }
+      file('solid_wrap/app.exe', exe);
+      for (var i = 0; i < 4; i++) {
+        file('solid_wrap/part$i.bin', [...noise, i, ...noise.reversed]);
+      }
+      file('solid_wrap/copy.bin', exe);
+      // x86-like members (E8 + rel32 calls) behind a noise member in one
+      // solid run; -mcE+ forces the E8 filter so later members exercise its
+      // per-member address offset.
+      List<int> x86(int n) {
+        final out = <int>[];
+        while (out.length < n) {
+          for (var k = 2 + next() % 7; k > 0; k--) {
+            out.add(next() >> 16 & 0xFF);
+          }
+          final rel = (next() % 80000 - 40000) & 0xFFFFFFFF;
+          out.addAll([
+            0xE8,
+            rel & 0xFF,
+            rel >> 8 & 0xFF,
+            rel >> 16 & 0xFF,
+            rel >> 24,
+          ]);
+        }
+        return out.sublist(0, n);
+      }
+
+      file(
+        'solid_x86/a.bin',
+        List.generate(150000, (_) => next() >> 16 & 0xFF),
+      );
+      file('solid_x86/b.exe', x86(80000));
+      file('solid_x86/c.exe', x86(80000));
       file('empty.txt', const []);
       file(
         'nested/deep/data.bin',
@@ -110,6 +156,12 @@ final class RarFixtureSet implements FixtureSet {
       await rarUp('store.rar', ['-m0'], basicMembers);
       await rarUp('normal.rar', ['-m3'], basicMembers);
       await rarUp('best_solid.rar', ['-m5', '-s'], basicMembers);
+      await rarUp('solid_wrap.rar', ['-m5', '-s', '-md128k'], ['solid_wrap']);
+      await rarUp(
+        'solid_x86.rar',
+        ['-m5', '-s', '-md128k', '-mcE+'],
+        ['solid_x86'],
+      );
       // RAR5 file decryption (P3-4): store, compressed, and solid variants.
       await rarUp('encrypted.rar', ['-m0', '-psecret'], ['hello.txt']);
       await rarUp('encrypted_compressed.rar', [

@@ -362,7 +362,10 @@ final class RarReader extends ArchiveReader {
       );
       final output = Uint8List(windowLen);
       if (header.version != 29) {
-        Rar5Decoder(output).decompressFile(data, header.unpackedSize);
+        return (Rar5Decoder(output)..decompressFile(
+          data,
+          header.unpackedSize,
+        )).takeOutput(0, header.unpackedSize, reuseWindow: false);
       } else if (header.unpackVersion == 20 || header.unpackVersion == 26) {
         Rar20Decoder(output).decompressFile(data, header.unpackedSize);
       } else {
@@ -436,29 +439,24 @@ final class RarReader extends ArchiveReader {
           decoder.output[(start + j) & mask] = raw[j];
         }
         decoder.writePtr += raw.length;
-        _solidOutputs[i] = _extractWindow(decoder, start, raw.length, mask);
+        _solidOutputs[i] = decoder.takeOutput(
+          start,
+          raw.length,
+          reuseWindow: true,
+        );
       } else {
         final start = decoder.writePtr;
         decoder.beginFileFilters();
         decoder.decompressFile(await _readData(i, h), h.unpackedSize);
-        _solidOutputs[i] = _extractWindow(decoder, start, h.unpackedSize, mask);
+        _solidOutputs[i] = decoder.takeOutput(
+          start,
+          h.unpackedSize,
+          reuseWindow: true,
+        );
       }
     }
     _solidNextIndex = index + 1;
     return _solidOutputs[index]!;
-  }
-
-  Uint8List _extractWindow(
-    Rar5Decoder decoder,
-    int start,
-    int length,
-    int mask,
-  ) {
-    final out = Uint8List(length);
-    for (var i = 0; i < length; i++) {
-      out[i] = decoder.output[(start + i) & mask];
-    }
-    return out;
   }
 
   /// Decodes a solid RAR4 run. One [Rar4Decoder] carries the tables,
@@ -605,10 +603,17 @@ final class RarReader extends ArchiveReader {
     return _pow2Ceil(total < 0x20000 ? 0x20000 : total);
   }
 
+  /// The shared window for a solid run: the largest dictionary in the run,
+  /// grown to fit its largest member. Each member is read out of the ring
+  /// after it is decoded, so it must not overwrite its own start; a larger
+  /// window never breaks back-references.
   int _runWindowSize(int runStart) {
-    var size = _headers[runStart].windowSize;
-    for (var i = runStart + 1; i < _headers.length && _headers[i].solid; i++) {
-      if (_headers[i].windowSize > size) size = _headers[i].windowSize;
+    var size = 0;
+    for (var i = runStart; i < _headers.length; i++) {
+      final h = _headers[i];
+      if (i > runStart && !h.solid) break;
+      if (h.windowSize > size) size = h.windowSize;
+      if (h.unpackedSize > size) size = h.unpackedSize;
     }
     return _pow2Ceil(size < 0x20000 ? 0x20000 : size);
   }
