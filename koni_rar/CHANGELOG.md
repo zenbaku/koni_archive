@@ -13,6 +13,8 @@
   translation uses the offset within the member, not within the run.
 - The solid window grows to fit the run's largest member, so a member larger
   than the dictionary no longer overwrites its own start before read-out.
+- Faster RAR5 decoding: a 3-byte fast path for bit peeks (last page of a
+  123 MB solid CBR, AOT x64: 2.33 s → 1.40 s).
 
 ## 0.10.0 (2026-07-18)
 
