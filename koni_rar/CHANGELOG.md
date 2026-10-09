@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+- Fixes RAR5 solid runs larger than their dictionary: the shared window is
+  a ring, but the per-file size check and filter range check treated it as
+  linear, so any solid archive whose run outgrew its dictionary failed with
+  "RAR5 file exceeds declared output size" (e.g. CBRs of 3–4 MB pages with a
+  32 MB dictionary, from the tenth page on).
+- Fixes RAR5 filters corrupting later solid members: filters now run on the
+  extracted copy, leaving the window's unfiltered bytes for back-references.
+- Fixes x86/ARM filters on solid members after the first: address
+  translation uses the offset within the member, not within the run.
+- The solid window grows to fit the run's largest member, so a member larger
+  than the dictionary no longer overwrites its own start before read-out.
+
 ## 0.10.0 (2026-07-18)
 
 - Lockstep release; no changes to this package since 0.9.0.
