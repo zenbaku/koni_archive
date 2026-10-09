@@ -123,6 +123,16 @@ final class _RarBits {
   int peek(int n) {
     final byteIndex = position >> 3;
     final bitOffset = position & 7;
+    // Hot path (every Huffman decode peeks 16 bits): when the bits fit in 3
+    // bytes the accumulator stays below 2^24, so shifts and masks are exact
+    // on dart2js too, and skip the division-based general path below.
+    if (bitOffset + n <= 24 && byteIndex + 2 < _end) {
+      final acc =
+          _data[byteIndex] << 16 |
+          _data[byteIndex + 1] << 8 |
+          _data[byteIndex + 2];
+      return acc >> (24 - bitOffset - n) & ((1 << n) - 1);
+    }
     // 4 bytes cover bitOffset (≤7) + n (≤24) = ≤31 bits. Multiplication
     // keeps the accumulator exact and non-negative on dart2js.
     var acc = _byteAt(byteIndex);
